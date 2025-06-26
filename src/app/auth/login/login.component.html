@@ -8,7 +8,7 @@
       class="space-y-4"
     >
       @if(userEmail.touched && (userEmail.pristine || !validateForm("email"))){
-      <p class="italic px-3">Email must be valid</p>
+      <p class="italic px-3 text-red-400">Email must be valid</p>
       }
       <input
         type="email"
@@ -17,16 +17,16 @@
         placeholder="Email"
         #userEmail="ngModel"
         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
-          userEmail.touched && !validateForm('email')
-            ? 'focus:ring-red-400'
-            : 'focus:ring-blue-400'
+          !validateForm('email') ? 'focus:ring-red-400' : 'focus:ring-blue-400'
         }}"
         required
       />
 
       @if(userPassword.touched && (userPassword.pristine ||
       !validateForm("password"))){
-      <p class="italic px-3">Password must be at least 6 characters</p>
+      <p class="italic px-3 text-red-400">
+        Password must be at least 6 characters
+      </p>
       }
       <input
         type="password"
@@ -35,7 +35,7 @@
         placeholder="Password"
         #userPassword="ngModel"
         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
-          userPassword.touched && !validateForm('password')
+          !validateForm('password')
             ? 'focus:ring-red-400'
             : 'focus:ring-blue-400'
         }}"

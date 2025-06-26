@@ -62,13 +62,14 @@ export class LoginComponent {
 
     this.isFormValid = emailValid && passwordValid;
 
-    if (typeToValidate === 'email') {
-      return emailValid;
+    switch (typeToValidate) {
+      case 'email':
+        return emailValid;
+      case 'password':
+        return passwordValid;
+      default:
+        return true;
     }
-    if (typeToValidate === 'password') {
-      return passwordValid;
-    }
-    return true;
   }
 
   setPrevElAsTouched(currentEl: string) {

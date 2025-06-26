@@ -6,12 +6,11 @@
       (ngSubmit)="onSubmit(registerForm)"
       class="space-y-4"
     >
-      <!-- not sure about diff text for empty and valide -->
-      @if(userName.touched ) { @if(userName.pristine){
-      <p class="italic px-3">Name cannot be empty</p>
-      } @else if (!validateForm("name")) {
-      <p class="italic px-3">Name must only contain letters and spaces!</p>
-      } }
+      @if(userName.touched && (userName.pristine || !validateForm("name"))) {
+      <p class="italic px-3 text-red-400">
+        Name must only contain letters and spaces!
+      </p>
+      }
       <input
         type="text"
         [(ngModel)]="name"
@@ -19,15 +18,13 @@
         #userName="ngModel"
         placeholder="Full Name"
         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
-          userName.touched && !validateForm('name')
-            ? 'focus:ring-red-400'
-            : 'focus:ring-blue-400'
+          !validateForm('name') ? 'focus:ring-red-400' : 'focus:ring-blue-400'
         }}"
         required
       />
 
       @if(userEmail.touched && (userEmail.pristine || !validateForm("email"))){
-      <p class="italic px-3">Email must be valid</p>
+      <p class="italic px-3 text-red-400">Email must be valid</p>
       }
       <input
         type="email"
@@ -36,25 +33,21 @@
         placeholder="Email"
         #userEmail="ngModel"
         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
-          userEmail.touched && !validateForm('email')
-            ? 'focus:ring-red-400'
-            : 'focus:ring-blue-400'
+          !validateForm('email') ? 'focus:ring-red-400' : 'focus:ring-blue-400'
         }}"
         (click)="setPrevElAsTouched('email')"
         required
       />
 
       @if(userRole.touched && !validateForm('role')){
-      <p class="italic px-3">Please select a role!</p>
+      <p class="italic px-3 text-red-400">Please select a role!</p>
       }
       <select
         name="userRole"
         [(ngModel)]="role"
         #userRole="ngModel"
         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
-          userRole.touched && !validateForm('role')
-            ? 'focus:ring-red-400'
-            : 'focus:ring-blue-400'
+          !validateForm('role') ? 'focus:ring-red-400' : 'focus:ring-blue-400'
         }}"
         (click)="setPrevElAsTouched('role')"
         required
@@ -66,7 +59,9 @@
 
       @if(userPassword.touched && (userPassword.pristine ||
       !validateForm("password"))){
-      <p class="italic px-3">Password must be at least 6 characters</p>
+      <p class="italic px-3 text-red-400">
+        Password must be at least 6 characters
+      </p>
       }
       <input
         type="password"
@@ -75,7 +70,7 @@
         #userPassword="ngModel"
         placeholder="Password"
         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
-          userPassword.touched && !validateForm('password')
+          !validateForm('password')
             ? 'focus:ring-red-400'
             : 'focus:ring-blue-400'
         }}"
@@ -85,7 +80,7 @@
 
       @if(userConfirmPassword.touched && (userConfirmPassword.pristine
       ||!validateForm("confirmPassword"))){
-      <p class="italic px-3">Passwords must match!</p>
+      <p class="italic px-3 text-red-400">Passwords must match!</p>
       }
       <input
         type="password"
@@ -94,7 +89,7 @@
         #userConfirmPassword="ngModel"
         placeholder="Confirm Password"
         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
-          userConfirmPassword.touched && !validateForm('confirmPassword')
+          !validateForm('confirmPassword')
             ? 'focus:ring-red-400'
             : 'focus:ring-blue-400'
         }}"

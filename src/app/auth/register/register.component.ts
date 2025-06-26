@@ -79,7 +79,6 @@ export class RegisterComponent {
   }
 
   validateForm(typeToValidate: string): boolean {
-    console.log('hallo');
     const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email);
     const passwordValid = this.password.length >= 6;
     const nameValid = /^[A-Za-z\s]+$/.test(this.name);
@@ -89,51 +88,50 @@ export class RegisterComponent {
     this.isFormValid =
       emailValid && passwordValid && nameValid && roleValid && confirmMatch;
 
-    if (typeToValidate === 'name') {
-      return nameValid;
+    switch (typeToValidate) {
+      case 'name':
+        return nameValid;
+      case 'email':
+        return emailValid;
+      case 'role':
+        return roleValid;
+      case 'password':
+        return passwordValid;
+      case 'confirmPassword': {
+        if (this.password === '') return false;
+        return confirmMatch;
+      }
+      default:
+        return true;
     }
-
-    if (typeToValidate === 'email') {
-      return emailValid;
-    }
-    if (typeToValidate === 'role') {
-      return roleValid;
-    }
-
-    if (typeToValidate === 'password') {
-      return passwordValid;
-    }
-
-    if (typeToValidate === 'confirmPassword') {
-      if (this.password === '') return false;
-      return confirmMatch;
-    }
-
-    return true;
   }
 
   setPrevElAsTouched(currentEl: string) {
-    if (currentEl === 'email') {
-      this.refName()?.control.markAsTouched();
-      return;
-    }
-    if (currentEl === 'role') {
-      this.refName()?.control.markAsTouched();
-      this.refEmail()?.control.markAsTouched();
-      return;
-    }
-    if (currentEl === 'password') {
-      this.refName()?.control.markAsTouched();
-      this.refEmail()?.control.markAsTouched();
-      this.refRole()?.control.markAsTouched();
-      return;
-    }
-    if (currentEl === 'confirmPassword') {
-      this.refName()?.control.markAsTouched();
-      this.refEmail()?.control.markAsTouched();
-      this.refRole()?.control.markAsTouched();
-      this.refPassword()?.control.markAsTouched();
-      return;
+    switch (currentEl) {
+      case 'email': {
+        this.refName()?.control.markAsTouched();
+        break;
+      }
+      case 'role': {
+        this.refName()?.control.markAsTouched();
+        this.refEmail()?.control.markAsTouched();
+        break;
+      }
+      case 'password': {
+        this.refName()?.control.markAsTouched();
+        this.refEmail()?.control.markAsTouched();
+        this.refRole()?.control.markAsTouched();
+        break;
+      }
+      case 'confirmPassword': {
+        this.refName()?.control.markAsTouched();
+        this.refEmail()?.control.markAsTouched();
+        this.refRole()?.control.markAsTouched();
+        this.refPassword()?.control.markAsTouched();
+        break;
+      }
+      default:
+        break;
     }
   }
 
