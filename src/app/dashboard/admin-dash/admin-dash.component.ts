@@ -12,6 +12,7 @@ import { ConfirmationDialogComponent } from '../../core/confirmation-dialog/conf
 import { selectAllUsers } from '../../state/users/user.selector';
 import { v4 as uuidv4 } from 'uuid';
 import { StudentDataComponent } from './student-data/student-data.component';
+import { SessionDataComponent } from './session-data/session-data.component';
 
 @Component({
   selector: 'app-admin-dash',
@@ -22,6 +23,7 @@ import { StudentDataComponent } from './student-data/student-data.component';
     SpinnerComponent,
     ConfirmationDialogComponent,
     StudentDataComponent,
+    SessionDataComponent,
   ],
   templateUrl: './admin-dash.component.html',
 })
@@ -49,6 +51,7 @@ export class AdminDashComponent {
   editingCourseId: string | null = null;
   selectedCourseId: string | undefined = '';
   showStudentData = false;
+  showSessionData = false;
 
   activeTab: 'grades' | 'attendance' = 'grades';
 
@@ -147,7 +150,7 @@ export class AdminDashComponent {
     }
   }
 
-  //-------------------------- VIEW/CLOSE STUDENT DATA----------------
+  //-------------------------- VIEW/CLOSE STUDENT & SESSION  DATA----------------
   viewStudentData(course: Course): void {
     this.selectedCourseId = course.id || undefined;
     this.showStudentData = true;
@@ -156,6 +159,16 @@ export class AdminDashComponent {
   closeStudentData(): void {
     this.selectedCourseId = undefined;
     this.showStudentData = false;
+  }
+
+  viewSessionData(course: Course): void {
+    this.selectedCourseId = course.id || undefined;
+    this.showSessionData = true;
+  }
+
+  closeSessionData(): void {
+    this.selectedCourseId = undefined;
+    this.showSessionData = false;
   }
 
   //-------------------------- USER RELATED METHODS/FUNCTIONS----------------
