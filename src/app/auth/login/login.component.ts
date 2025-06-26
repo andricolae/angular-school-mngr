@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { Component, viewChild } from '@angular/core';
+import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationComponent } from '../../core/notification/notification.component';
@@ -13,6 +13,8 @@ import { SpinnerService } from '../../core/services/spinner.service';
   styleUrl: './login.component.css',
 })
 export class LoginComponent {
+  refEmail = viewChild<NgModel>('userEmail');
+
   email = '';
   password = '';
   isAuthenticated = false;
@@ -67,6 +69,14 @@ export class LoginComponent {
       return passwordValid;
     }
     return true;
+  }
+
+  setPrevElAsTouched(currentEl: string) {
+    if (currentEl === 'password') {
+      this.refEmail()?.control.markAsTouched();
+      return;
+    }
+    return;
   }
 
   navigateTo(route: string) {

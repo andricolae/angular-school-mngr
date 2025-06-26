@@ -6,9 +6,12 @@
       (ngSubmit)="onSubmit(registerForm)"
       class="space-y-4"
     >
-      @if(userName.touched &&!validateForm("name")){
-      <p class="italic">Name must only contain letters and spaces!</p>
-      }
+      <!-- not sure about diff text for empty and valide -->
+      @if(userName.touched ) { @if(userName.pristine){
+      <p class="italic px-3">Name cannot be empty</p>
+      } @else if (!validateForm("name")) {
+      <p class="italic px-3">Name must only contain letters and spaces!</p>
+      } }
       <input
         type="text"
         [(ngModel)]="name"
@@ -16,13 +19,15 @@
         #userName="ngModel"
         placeholder="Full Name"
         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
-          !validateForm('name') ? 'focus:ring-red-400' : 'focus:ring-blue-400'
+          userName.touched && !validateForm('name')
+            ? 'focus:ring-red-400'
+            : 'focus:ring-blue-400'
         }}"
         required
       />
 
-      @if(userEmail.touched && !validateForm("email")){
-      <p class="italic">Email must be valid</p>
+      @if(userEmail.touched && (userEmail.pristine || !validateForm("email"))){
+      <p class="italic px-3">Email must be valid</p>
       }
       <input
         type="email"
@@ -31,21 +36,27 @@
         placeholder="Email"
         #userEmail="ngModel"
         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
-          !validateForm('email') ? 'focus:ring-red-400' : 'focus:ring-blue-400'
+          userEmail.touched && !validateForm('email')
+            ? 'focus:ring-red-400'
+            : 'focus:ring-blue-400'
         }}"
+        (click)="setPrevElAsTouched('email')"
         required
       />
 
       @if(userRole.touched && !validateForm('role')){
-      <p class="italic">Please select a role!</p>
+      <p class="italic px-3">Please select a role!</p>
       }
       <select
         name="userRole"
         [(ngModel)]="role"
         #userRole="ngModel"
         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
-          !validateForm('role') ? 'focus:ring-red-400' : 'focus:ring-blue-400'
+          userRole.touched && !validateForm('role')
+            ? 'focus:ring-red-400'
+            : 'focus:ring-blue-400'
         }}"
+        (click)="setPrevElAsTouched('role')"
         required
       >
         <option value="" disabled selected>Select Role</option>
@@ -53,8 +64,9 @@
         <option value="Student">Student</option>
       </select>
 
-      @if(userPassword.touched && !validateForm("password")){
-      <p class="italic">Password must be at least 6 characters</p>
+      @if(userPassword.touched && (userPassword.pristine ||
+      !validateForm("password"))){
+      <p class="italic px-3">Password must be at least 6 characters</p>
       }
       <input
         type="password"
@@ -63,15 +75,17 @@
         #userPassword="ngModel"
         placeholder="Password"
         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
-          !validateForm('password')
+          userPassword.touched && !validateForm('password')
             ? 'focus:ring-red-400'
             : 'focus:ring-blue-400'
         }}"
+        (click)="setPrevElAsTouched('password')"
         required
       />
 
-      @if(userConfirmPassword.touched && !validateForm("confirmPassword")){
-      <p class="italic">Passwords must match!</p>
+      @if(userConfirmPassword.touched && (userConfirmPassword.pristine
+      ||!validateForm("confirmPassword"))){
+      <p class="italic px-3">Passwords must match!</p>
       }
       <input
         type="password"
@@ -80,10 +94,11 @@
         #userConfirmPassword="ngModel"
         placeholder="Confirm Password"
         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
-          !validateForm('confirmPassword')
+          userConfirmPassword.touched && !validateForm('confirmPassword')
             ? 'focus:ring-red-400'
             : 'focus:ring-blue-400'
         }}"
+        (click)="setPrevElAsTouched('confirmPassword')"
         required
       />
       <button

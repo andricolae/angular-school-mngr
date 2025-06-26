@@ -12,7 +12,11 @@ import { SpinnerService } from '../../core/services/spinner.service';
   styleUrl: './register.component.css',
 })
 export class RegisterComponent {
-  enteredName = viewChild<NgModel>('userName');
+  refName = viewChild<NgModel>('userName');
+  refEmail = viewChild<NgModel>('userEmail');
+  refRole = viewChild<NgModel>('userRole');
+  refPassword = viewChild<NgModel>('userPassword');
+
   email = '';
   password = '';
   confirmPassword = '';
@@ -75,6 +79,7 @@ export class RegisterComponent {
   }
 
   validateForm(typeToValidate: string): boolean {
+    console.log('hallo');
     const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email);
     const passwordValid = this.password.length >= 6;
     const nameValid = /^[A-Za-z\s]+$/.test(this.name);
@@ -105,6 +110,31 @@ export class RegisterComponent {
     }
 
     return true;
+  }
+
+  setPrevElAsTouched(currentEl: string) {
+    if (currentEl === 'email') {
+      this.refName()?.control.markAsTouched();
+      return;
+    }
+    if (currentEl === 'role') {
+      this.refName()?.control.markAsTouched();
+      this.refEmail()?.control.markAsTouched();
+      return;
+    }
+    if (currentEl === 'password') {
+      this.refName()?.control.markAsTouched();
+      this.refEmail()?.control.markAsTouched();
+      this.refRole()?.control.markAsTouched();
+      return;
+    }
+    if (currentEl === 'confirmPassword') {
+      this.refName()?.control.markAsTouched();
+      this.refEmail()?.control.markAsTouched();
+      this.refRole()?.control.markAsTouched();
+      this.refPassword()?.control.markAsTouched();
+      return;
+    }
   }
 
   navigateTo(route: string) {
