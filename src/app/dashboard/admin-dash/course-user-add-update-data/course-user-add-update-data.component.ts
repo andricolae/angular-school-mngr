@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input, output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
@@ -24,6 +24,12 @@ export class CourseUserAddUpdateDataComponent {
   @Input() editingUserId?: string | null;
   @Input() teachers?: UserModel[];
   @Input() newUser?: UserModel = { fullName: '', role: '', email: '' };
+
+  cancelingClickFunction = output<void>();
+
+  async onCancelClick(category: 'user' | 'course'): Promise<void> {
+    this.cancelingClickFunction.emit();
+  }
 
   // newUser: UserModel = { fullName: '', role: '', email: '' };
   newCourse: Course = {

@@ -39,18 +39,11 @@
     [title]="`${showUpdateAddCourseData.action.charAt(0).toUpperCase()}${showUpdateAddCourseData.action.slice(1)} ${showUpdateAddCourseData.category.charAt(0).toUpperCase()}${showUpdateAddCourseData.category.slice(1)}`"
     (closingClickFunction)="closeCourseAddUpdateDialog()"
   >
-    <!-- @if((showUpdateAddCourseData.category | async) === 'course'){ -->
     <app-course-user-add-update-data
       [category]="showUpdateAddCourseData.category"
       [action]="showUpdateAddCourseData.action"
       [teachers]="teachers"
     />
-    <!-- } @else{
-    <app-course-user-add-update-data
-      [category]="showUpdateAddCourseData.category"
-      [action]="showUpdateAddCourseData.action"
-    />
-    } -->
   </app-admin-dialog>
   } @else if(showUpdateAddCourseData.show && (showUpdateAddCourseData.category
   === 'user')){
@@ -63,6 +56,7 @@
       [action]="showUpdateAddCourseData.action"
       [newUser]="newUser"
       [editingUserId]="editingUserId"
+      (cancelingClickFunction)="onCancelUpdatingClick('user')"
     />
   </app-admin-dialog>
   }
