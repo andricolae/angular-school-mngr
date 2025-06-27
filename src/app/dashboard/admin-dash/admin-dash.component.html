@@ -82,6 +82,20 @@
   </div>
   }
 
+  <!-- --------------------------CRAZY-------------------------------------- -->
+
+  @if (showUpdateAddCourseData && selectedCourseId) {
+
+  <app-admin-dialog
+    title="Update Course"
+    category="course"
+    action="update"
+    (closingClickFunction)="closeCourseAddUpdateDialog()"
+  >
+    <!-- <app-session-data [courseId]="selectedCourseId"></app-session-data> -->
+  </app-admin-dialog>
+  }
+
   <!-- ---------------------------------------------------------------- -->
 
   <div class="bg-blue-400 text-white p-4 text-lg font-semibold text-center">
@@ -350,7 +364,7 @@
               </button>
 
               <button
-                (click)="editCourse(course)"
+                (click)="viewCourseAddUpdateDialog(course)"
                 class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
                 title="Update course"
               >

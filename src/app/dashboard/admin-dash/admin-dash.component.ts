@@ -13,6 +13,7 @@ import { selectAllUsers } from '../../state/users/user.selector';
 import { v4 as uuidv4 } from 'uuid';
 import { StudentDataComponent } from './student-data/student-data.component';
 import { SessionDataComponent } from './session-data/session-data.component';
+import { AdminDialogComponent } from './admin-dialog/admin-dialog.component';
 
 @Component({
   selector: 'app-admin-dash',
@@ -24,6 +25,7 @@ import { SessionDataComponent } from './session-data/session-data.component';
     ConfirmationDialogComponent,
     StudentDataComponent,
     SessionDataComponent,
+    AdminDialogComponent,
   ],
   templateUrl: './admin-dash.component.html',
 })
@@ -50,6 +52,7 @@ export class AdminDashComponent {
   courses$ = this.store.select(selectAllCourses);
   editingCourseId: string | null = null;
   selectedCourseId: string | undefined = '';
+  showUpdateAddCourseData = false;
   showStudentData = false;
   showSessionData = false;
 
@@ -151,6 +154,8 @@ export class AdminDashComponent {
   }
 
   //-------------------------- VIEW/CLOSE STUDENT & SESSION  DATA----------------
+
+  // make a reusible one at some point
   viewStudentData(course: Course): void {
     this.selectedCourseId = course.id || undefined;
     this.showStudentData = true;
@@ -169,6 +174,18 @@ export class AdminDashComponent {
   closeSessionData(): void {
     this.selectedCourseId = undefined;
     this.showSessionData = false;
+  }
+
+  // showUpdateAddCourseData
+
+  viewCourseAddUpdateDialog(course: Course): void {
+    this.selectedCourseId = course.id || undefined;
+    this.showUpdateAddCourseData = true;
+  }
+
+  closeCourseAddUpdateDialog(): void {
+    this.selectedCourseId = undefined;
+    this.showUpdateAddCourseData = false;
   }
 
   //-------------------------- USER RELATED METHODS/FUNCTIONS----------------
