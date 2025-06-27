@@ -162,14 +162,14 @@
           <div class="flex gap-2 items-center">
             <button
               (click)="editUser(user)"
-              class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 text-center"
+              class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 me-2 mb-2 text-center"
               title="Update course"
             >
               Edit
             </button>
             <button
               (click)="deleteUser(user.id!)"
-              class="text-white bg-red-600 hover:bg-red-700 focus:outline-none font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2"
+              class="text-white bg-red-600 hover:bg-red-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-2 mb-2"
               title="Delete user"
             >
               Delete
@@ -316,12 +316,13 @@
               </span>
             </div>
             <div class="flex gap-2 items-center ml-auto">
-              @if (isCourseSchedulePending(course)) {
+              <!-- DON'T DELETE, FOR LATER USE -->
+              <!-- @if (isCourseSchedulePending(course)) {
               <span
                 class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full"
                 >Pending Schedule</span
               >
-              }
+              } -->
               <!-- -------------------BUTTONS----------------------- -->
               <button
                 (click)="viewStudentData(course)"
@@ -330,13 +331,15 @@
               >
                 Student Data
               </button>
-              <button
+
+              <!-- DON'T DELETE, FOR LATER USE -->
+              <!-- <button
                 (click)="scheduleCourse(course.id!)"
                 class="text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
                 title="Schedule course sessions"
               >
                 Schedule Course Session
-              </button>
+              </button> -->
               <button
                 (click)="viewSessionData(course)"
                 class="text-white bg-gray-600 hover:bg-gray-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
@@ -345,38 +348,16 @@
                 View Sessions
               </button>
 
-              <!-- -------------------OLD VIEW SESSION----------------------- -->
-              <!-- @if (course.sessions && course.sessions.length > 0) {
-              <details class="relative">
-                <summary
-                  class="text-white bg-gray-600 hover:bg-gray-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
-                  title="View Sessions"
-                >
-                  View Sessions
-                </summary>
-                <div
-                  class="absolute bg-white shadow-md rounded-lg p-2 mt-1 w-48 border border-gray-200 text-sm right-0"
-                >
-                  @for (session of course.sessions; track session.id) {
-                  <div class="text-gray-600 flex justify-between">
-                    <span>{{ formatDate(session.date) }}</span>
-                    <span>{{ session.startTime }}-{{ session.endTime }}</span>
-                  </div>
-                  }
-                </div>
-              </details>
-              } -->
-
               <button
                 (click)="editCourse(course)"
-                class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-full text-xs px-5 py-2.5 text-center me-1 mb-2"
+                class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
                 title="Update course"
               >
                 Edit
               </button>
               <button
                 (click)="deleteCourse(course.id!)"
-                class="text-white bg-red-600 hover:bg-red-700 focus:outline-none font-medium rounded-full text-xs px-4 py-2.5 text-center me-1 mb-2"
+                class="text-white bg-red-600 hover:bg-red-700 focus:outline-none font-medium rounded-lg text-xs px-4 py-2.5 text-center me-1 mb-2"
                 title="Delete course"
               >
                 Delete
