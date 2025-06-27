@@ -8,15 +8,23 @@ import { selectAllCourses } from '../../state/courses/course.selector';
 import { AsyncPipe } from '@angular/common';
 import { SpinnerComponent } from '../../core/spinner/spinner.component';
 import { SpinnerService } from '../../core/services/spinner.service';
-import { ConfirmationDialogComponent } from "../../core/confirmation-dialog/confirmation-dialog.component";
+import { ConfirmationDialogComponent } from '../../core/confirmation-dialog/confirmation-dialog.component';
 import { selectAllUsers } from '../../state/users/user.selector';
 import { v4 as uuidv4 } from 'uuid';
 import { StudentDataComponent } from './student-data/student-data.component';
+import { SessionDataComponent } from './session-data/session-data.component';
 
 @Component({
   selector: 'app-admin-dash',
   standalone: true,
-  imports: [FormsModule, AsyncPipe, SpinnerComponent, ConfirmationDialogComponent, StudentDataComponent],
+  imports: [
+    FormsModule,
+    AsyncPipe,
+    SpinnerComponent,
+    ConfirmationDialogComponent,
+    StudentDataComponent,
+    SessionDataComponent,
+  ],
   templateUrl: './admin-dash.component.html',
 })
 export class AdminDashComponent {
@@ -32,11 +40,18 @@ export class AdminDashComponent {
 
   teachers: UserModel[] = [];
 
-  newCourse: Course = {name: '', teacher: '', schedule: '', sessions: [], enrolledStudents: []};
+  newCourse: Course = {
+    name: '',
+    teacher: '',
+    schedule: '',
+    sessions: [],
+    enrolledStudents: [],
+  };
   courses$ = this.store.select(selectAllCourses);
   editingCourseId: string | null = null;
   selectedCourseId: string | undefined = '';
   showStudentData = false;
+  showSessionData = false;
 
   activeTab: 'grades' | 'attendance' = 'grades';
 
@@ -49,41 +64,50 @@ export class AdminDashComponent {
   };
   editingSessionIndex: number = -1;
 
-
   constructor(private store: Store, private spinner: SpinnerService) {}
 
   ngOnInit(): void {
     this.spinner.show();
     this.store.dispatch(CourseActions.loadCourses());
     this.store.dispatch(UserActions.loadUsers());
-    this.courses$.subscribe(courses => {
+    this.courses$.subscribe((courses) => {
       this.courseCount = courses.length;
     });
-    this.users$.subscribe(users => {
-      this.teachers = users.filter(user => user.role === 'Teacher');
+    this.users$.subscribe((users) => {
+      this.teachers = users.filter((user) => user.role === 'Teacher');
       this.teacherCount = this.teachers.length;
-      this.studentCount = users.filter(user => user.role === 'Student').length;
+      this.studentCount = users.filter(
+        (user) => user.role === 'Student'
+      ).length;
     });
     setTimeout(() => {
       this.spinner.hide();
     }, 300);
   }
 
+  //-------------------------- SESSION RELATED METHODS/FUNCTIONS  ----------------
+
   addCourse() {
     if (this.editingCourseId) {
       if (this.newCourse.teacherId) {
-        const selectedTeacher = this.teachers.find(t => t.id === this.newCourse.teacherId);
+        const selectedTeacher = this.teachers.find(
+          (t) => t.id === this.newCourse.teacherId
+        );
         if (selectedTeacher) {
           this.newCourse.teacher = selectedTeacher.fullName;
         }
       }
 
-      this.store.dispatch(CourseActions.updateCourse({
-        course: { ...this.newCourse, id: this.editingCourseId }
-      }));
+      this.store.dispatch(
+        CourseActions.updateCourse({
+          course: { ...this.newCourse, id: this.editingCourseId },
+        })
+      );
     } else {
       if (this.newCourse.teacherId) {
-        const selectedTeacher = this.teachers.find(t => t.id === this.newCourse.teacherId);
+        const selectedTeacher = this.teachers.find(
+          (t) => t.id === this.newCourse.teacherId
+        );
         if (selectedTeacher) {
           this.newCourse.teacher = selectedTeacher.fullName;
         }
@@ -92,11 +116,13 @@ export class AdminDashComponent {
       const courseToAdd: Course = {
         ...this.newCourse,
         sessions: this.newCourse.sessions || [],
-        enrolledStudents: []
+        enrolledStudents: [],
       };
-      this.store.dispatch(CourseActions.addCourse({
-        course: courseToAdd
-      }));
+      this.store.dispatch(
+        CourseActions.addCourse({
+          course: courseToAdd,
+        })
+      );
     }
     this.resetCourseForm();
   }
@@ -106,7 +132,9 @@ export class AdminDashComponent {
     this.editingCourseId = course.id!;
 
     if (!this.newCourse.teacherId && this.newCourse.teacher) {
-      const foundTeacher = this.teachers.find(t => t.fullName === this.newCourse.teacher);
+      const foundTeacher = this.teachers.find(
+        (t) => t.fullName === this.newCourse.teacher
+      );
       if (foundTeacher) {
         this.newCourse.teacherId = foundTeacher.id;
       }
@@ -114,12 +142,15 @@ export class AdminDashComponent {
   }
 
   async deleteCourse(courseId: string): Promise<void> {
-    const confirmed = await this.dialog.open('Do you really want to delete this course?');
+    const confirmed = await this.dialog.open(
+      'Do you really want to delete this course?'
+    );
     if (confirmed) {
-      this.store.dispatch(CourseActions.deleteCourse({ courseId }))
+      this.store.dispatch(CourseActions.deleteCourse({ courseId }));
     }
   }
 
+  //-------------------------- VIEW/CLOSE STUDENT & SESSION  DATA----------------
   viewStudentData(course: Course): void {
     this.selectedCourseId = course.id || undefined;
     this.showStudentData = true;
@@ -130,15 +161,28 @@ export class AdminDashComponent {
     this.showStudentData = false;
   }
 
+  viewSessionData(course: Course): void {
+    this.selectedCourseId = course.id || undefined;
+    this.showSessionData = true;
+  }
+
+  closeSessionData(): void {
+    this.selectedCourseId = undefined;
+    this.showSessionData = false;
+  }
+
+  //-------------------------- USER RELATED METHODS/FUNCTIONS----------------
   async deleteUser(userId: string): Promise<void> {
-    const confirmed = await this.dialog.open('Do you really want to delete this user?');
+    const confirmed = await this.dialog.open(
+      'Do you really want to delete this user?'
+    );
     if (confirmed) {
-      this.store.dispatch(UserActions.deleteUser({ userId }))
+      this.store.dispatch(UserActions.deleteUser({ userId }));
     }
   }
 
   editUser(user: UserModel) {
-    if(user.role === "Admin") {
+    if (user.role === 'Admin') {
       return;
     }
     this.newUser = {
@@ -150,18 +194,21 @@ export class AdminDashComponent {
   }
 
   updateUser() {
-    this.store.dispatch(UserActions.updateUser({
-      user: { ...this.newUser, id: this.editingUserId! }
-    }));
+    this.store.dispatch(
+      UserActions.updateUser({
+        user: { ...this.newUser, id: this.editingUserId! },
+      })
+    );
     this.resetUserForm();
   }
 
+  //-------------------------- SESSION RELATED METHODS/FUNCTIONS + OPEN/CLOSE MODAL----------------
   openAddSessionModal(course: Course): void {
     this.editingSession = {
       id: uuidv4(),
       date: new Date(),
       startTime: '10:00',
-      endTime: '12:00'
+      endTime: '12:00',
     };
     this.editingSessionIndex = -1;
     this.showSessionModal = true;
@@ -179,7 +226,10 @@ export class AdminDashComponent {
     const updatedCourse = { ...this.newCourse };
 
     if (this.editingSessionIndex === -1) {
-      updatedCourse.sessions = [...updatedCourse.sessions!, this.editingSession];
+      updatedCourse.sessions = [
+        ...updatedCourse.sessions!,
+        this.editingSession,
+      ];
     } else {
       updatedCourse.sessions = updatedCourse.sessions!.map((session, index) =>
         index === this.editingSessionIndex ? this.editingSession : session
@@ -191,10 +241,14 @@ export class AdminDashComponent {
   }
 
   async deleteSession(sessionIndex: number): Promise<void> {
-    const confirmed = await this.dialog.open('Do you really want to delete this session?');
-    if(confirmed) {
+    const confirmed = await this.dialog.open(
+      'Do you really want to delete this session?'
+    );
+    if (confirmed) {
       const updatedCourse = { ...this.newCourse };
-      updatedCourse.sessions = updatedCourse.sessions!.filter((_, index) => index !== sessionIndex);
+      updatedCourse.sessions = updatedCourse.sessions!.filter(
+        (_, index) => index !== sessionIndex
+      );
       this.newCourse = updatedCourse;
     }
   }
@@ -203,6 +257,7 @@ export class AdminDashComponent {
     this.showSessionModal = false;
   }
 
+  //-------------------------- RESET FORM + CANCEL FORM UPDATE + FORM DATE, TIME----------------
   resetCourseForm(): void {
     this.newCourse = {
       name: '',
@@ -210,7 +265,7 @@ export class AdminDashComponent {
       schedule: '',
       teacherId: '',
       sessions: [],
-      enrolledStudents: []
+      enrolledStudents: [],
     };
     this.editingCourseId = null;
   }
@@ -220,11 +275,24 @@ export class AdminDashComponent {
     this.editingUserId = null;
   }
 
+  onCancelUpdatingClick(formName: 'course' | 'user') {
+    switch (formName) {
+      case 'course': {
+        this.resetCourseForm();
+        break;
+      }
+      case 'user': {
+        this.resetUserForm();
+        break;
+      }
+    }
+  }
+
   formatDate(date: Date): string {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
@@ -232,8 +300,11 @@ export class AdminDashComponent {
     return time;
   }
 
+  //-------------------------- COURSE SCHEDULE----------------
   async scheduleCourse(courseId: string): Promise<void> {
-    const confirmed = await this.dialog.open('Do you want to send this course for scheduling?');
+    const confirmed = await this.dialog.open(
+      'Do you want to send this course for scheduling?'
+    );
     if (confirmed) {
       this.spinner.show();
       this.store.dispatch(CourseActions.markCourseForScheduling({ courseId }));
