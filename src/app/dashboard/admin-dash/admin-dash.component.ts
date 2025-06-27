@@ -275,14 +275,24 @@ export class AdminDashComponent {
     this.editingUserId = null;
   }
 
-  onCancelUpdatingClick(formName: 'course' | 'user') {
+  async onCancelUpdatingClick(formName: 'course' | 'user'): Promise<void> {
     switch (formName) {
       case 'course': {
-        this.resetCourseForm();
+        const confirmed = await this.dialog.open(
+          'Do you really want to cancel updating this course?'
+        );
+        if (confirmed) {
+          this.resetCourseForm();
+        }
         break;
       }
       case 'user': {
-        this.resetUserForm();
+        const confirmed = await this.dialog.open(
+          'Do you really want to cancel updating this user?'
+        );
+        if (confirmed) {
+          this.resetUserForm();
+        }
         break;
       }
     }
