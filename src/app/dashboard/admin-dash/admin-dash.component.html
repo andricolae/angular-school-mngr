@@ -7,92 +7,63 @@
   <!-- --------------------STUDENT DIALOG------------------------------ -->
 
   @if (showStudentData && selectedCourseId) {
-  <div
-    class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+  <app-admin-dialog
+    title="Student Data"
+    (closingClickFunction)="closeStudentData()"
   >
-    <div
-      class="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto mx-4"
-    >
-      <div class="p-4 flex justify-between items-center border-b">
-        <h3 class="text-lg font-semibold">Student Data</h3>
-        <button
-          (click)="closeStudentData()"
-          class="text-gray-500 hover:text-gray-700"
-          aria-label="Close"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-      </div>
-      <div class="p-4">
-        <app-student-data [courseId]="selectedCourseId"></app-student-data>
-      </div>
-    </div>
-  </div>
+    <app-student-data [courseId]="selectedCourseId"></app-student-data>
+  </app-admin-dialog>
+
   }
 
   <!-- --------------------SESSION DIALOG------------------------------ -->
 
   @if (showSessionData && selectedCourseId) {
-  <div
-    class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+
+  <app-admin-dialog
+    title="Student Data"
+    (closingClickFunction)="closeSessionData()"
   >
-    <div
-      class="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto mx-4"
-    >
-      <div class="p-4 flex justify-between items-center border-b">
-        <h3 class="text-lg font-semibold">Session Data</h3>
-        <button
-          (click)="closeSessionData()"
-          class="text-gray-500 hover:text-gray-700"
-          aria-label="Close"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-      </div>
-      <div class="p-4">
-        <app-session-data [courseId]="selectedCourseId"></app-session-data>
-      </div>
-    </div>
-  </div>
+    <app-session-data [courseId]="selectedCourseId"></app-session-data>
+  </app-admin-dialog>
+
   }
 
   <!-- --------------------------CRAZY-------------------------------------- -->
 
-  @if (showUpdateAddCourseData && selectedCourseId) {
+  <!-- && (showUpdateAddCourseData.category === 'course') -->
+  @if (showUpdateAddCourseData.show && (showUpdateAddCourseData.category ===
+  'course')) {
 
   <app-admin-dialog
-    title="Update Course"
-    category="course"
-    action="update"
+    [title]="`${showUpdateAddCourseData.action.charAt(0).toUpperCase()}${showUpdateAddCourseData.action.slice(1)} ${showUpdateAddCourseData.category.charAt(0).toUpperCase()}${showUpdateAddCourseData.category.slice(1)}`"
     (closingClickFunction)="closeCourseAddUpdateDialog()"
   >
-    <!-- <app-session-data [courseId]="selectedCourseId"></app-session-data> -->
+    <!-- @if((showUpdateAddCourseData.category | async) === 'course'){ -->
+    <app-course-user-add-update-data
+      [category]="showUpdateAddCourseData.category"
+      [action]="showUpdateAddCourseData.action"
+      [teachers]="teachers"
+    />
+    <!-- } @else{
+    <app-course-user-add-update-data
+      [category]="showUpdateAddCourseData.category"
+      [action]="showUpdateAddCourseData.action"
+    />
+    } -->
+  </app-admin-dialog>
+  } @else if(showUpdateAddCourseData.show && (showUpdateAddCourseData.category
+  === 'user')){
+  <app-admin-dialog
+    [title]="`${showUpdateAddCourseData.action.charAt(0).toUpperCase()}${showUpdateAddCourseData.action.slice(1)} ${showUpdateAddCourseData.category.charAt(0).toUpperCase()}${showUpdateAddCourseData.category.slice(1)}`"
+    (closingClickFunction)="closeCourseAddUpdateDialog()"
+  >
+    <app-course-user-add-update-data
+      [category]="showUpdateAddCourseData.category"
+      [action]="showUpdateAddCourseData.action"
+      [newUser]="newUser"
+      [editingUserId]="editingUserId"
+    />
   </app-admin-dialog>
   }
 
@@ -124,7 +95,7 @@
       <h2 class="text-xl font-semibold mb-4 text-blue-600">User Management</h2>
 
       <!-- --------------------EDIT USER FORM------------------------------ -->
-      @if (editingUserId !== null) {
+      <!-- @if (editingUserId !== null) {
       <form (ngSubmit)="updateUser()" class="grid gap-4 sm:grid-cols-4 mb-4">
         <input
           [(ngModel)]="newUser.fullName"
@@ -148,10 +119,10 @@
           class="sm:col-span-3 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition"
         >
           Update User
-        </button>
+        </button>-->
 
-        <!-- the Cancel Updating Course button -->
-
+      <!-- the Cancel Updating Course button -->
+      <!-- 
         <button
           type="button"
           class="sm:col-span-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition"
@@ -160,7 +131,7 @@
           Cancel Updating User
         </button>
       </form>
-      }
+      }  -->
 
       <!-- --------------------USER LIST + BUTTONS------------------------------ -->
 
@@ -175,7 +146,7 @@
           </span>
           <div class="flex gap-2 items-center">
             <button
-              (click)="editUser(user)"
+              (click)="viewCourseAddUpdateDialog('user', 'update', user)"
               class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 me-2 mb-2 text-center"
               title="Update course"
             >
@@ -202,116 +173,13 @@
       </h2>
 
       <!-- ------------------COURSE MANAGEMET FORM-------------------------- -->
-      <form (ngSubmit)="addCourse()" class="grid gap-4 sm:grid-cols-3 mb-4">
-        <!-- ------------------FORM ELEMENTS --------------------------  -->
-        <input
-          [(ngModel)]="newCourse.name"
-          name="courseName"
-          placeholder="Course Name"
-          class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-          required
-        />
-        <select
-          [(ngModel)]="newCourse.teacherId"
-          name="courseTeacherId"
-          class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-          required
-        >
-          <option value="" disabled selected>Select Teacher</option>
-          @for (teacher of teachers; track teacher.id) {
-          <option [value]="teacher.id">{{ teacher.fullName }}</option>
-          }
-        </select>
-        <input
-          [(ngModel)]="newCourse.schedule"
-          name="courseSchedule"
-          placeholder="Day & Time (e.g. Mon & Wed 10:00)"
-          class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-          required
-        />
-
-        @if (editingCourseId) {
-        <div class="sm:col-span-3 border rounded-lg p-3">
-          <div class="flex justify-between items-center mb-2">
-            <h3 class="font-semibold">Course Sessions</h3>
-            <button
-              type="button"
-              (click)="openAddSessionModal(newCourse)"
-              class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm transition"
-            >
-              Add Session
-            </button>
-          </div>
-
-          <!-- ------------------SESSIONS TABLE + BUTTONS(EDIT/DELETE)--------------------------  -->
-          @if (newCourse.sessions && newCourse.sessions.length > 0) {
-          <div class="max-h-48 overflow-y-auto">
-            <table class="min-w-full">
-              <thead>
-                <tr class="bg-gray-50">
-                  <th class="py-2 px-3 text-left">Date</th>
-                  <th class="py-2 px-3 text-left">Time</th>
-                  <th class="py-2 px-3 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (session of newCourse.sessions; track session.id; let i =
-                $index) {
-                <tr class="border-b">
-                  <td class="py-2 px-3">{{ formatDate(session.date) }}</td>
-                  <td class="py-2 px-3">
-                    {{ session.startTime }}-{{ session.endTime }}
-                  </td>
-                  <td class="py-2 px-3 flex justify-center gap-2">
-                    <button
-                      type="button"
-                      (click)="editSession(newCourse, i)"
-                      class="text-blue-600 hover:text-blue-800"
-                      title="Edit session"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      type="button"
-                      (click)="deleteSession(i)"
-                      class="text-red-500 hover:text-red-700"
-                      title="Delete session"
-                    >
-                      ✖
-                    </button>
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          } @else {
-          <p class="text-gray-500 text-sm italic">No sessions added yet.</p>
-          }
-        </div>
-        }
-
-        <!-- ------------------ADD/UPDATE & CANCEL FORM BUTTONS--------------------------  -->
-        <button
-          type="submit"
-          class=" bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition {{
-            editingCourseId ? 'sm:col-span-2' : 'sm:col-span-3'
-          }}"
-        >
-          {{ editingCourseId ? "Update Course" : "Add Course" }}
-        </button>
-
-        <!-- the Cancel Updating Course button -->
-        @if(editingCourseId){
-        <button
-          type="button"
-          class="sm:col-span-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition"
-          (click)="onCancelUpdatingClick('course')"
-        >
-          Cancel Updating Course
-        </button>
-        }
-      </form>
+      <button
+        (click)="viewCourseAddUpdateDialog('course', 'add')"
+        class="text-white bg-green-600 hover:bg-green-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
+        title="View Sessions"
+      >
+        Add Course
+      </button>
 
       <!-- ------------------COURSES LIST + BUTTONS--------------------------  -->
       <ul class="space-y-2">
@@ -364,7 +232,7 @@
               </button>
 
               <button
-                (click)="viewCourseAddUpdateDialog(course)"
+                (click)="viewCourseAddUpdateDialog('course', 'update')"
                 class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
                 title="Update course"
               >

@@ -1,1 +1,152 @@
-<p>course-user-add-update-data works!</p>
+<div class="bg-white rounded-xl shadow-md p-6 max-w-3xl mx-auto">
+  <app-spinner />
+  @if(category === 'course' ){
+  <form (ngSubmit)="addCourse()" class="grid gap-4 sm:grid-cols-3 mb-4">
+    <!-- ------------------FORM ELEMENTS --------------------------  -->
+    <input
+      [(ngModel)]="newCourse.name"
+      name="courseName"
+      placeholder="Course Name"
+      class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+      required
+    />
+    <select
+      [(ngModel)]="newCourse.teacherId"
+      name="courseTeacherId"
+      class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+      required
+    >
+      <option value="" disabled selected>Select Teacher</option>
+      @for (teacher of teachers; track teacher.id) {
+      <option [value]="teacher.id">{{ teacher.fullName }}</option>
+      }
+    </select>
+    <input
+      [(ngModel)]="newCourse.schedule"
+      name="courseSchedule"
+      placeholder="Day & Time (e.g. Mon & Wed 10:00)"
+      class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+      required
+    />
+
+    <!-- EDITING COURSE -->
+    <!-- @if (editingCourseId) { -->
+    <!-- <div class="sm:col-span-3 border rounded-lg p-3">
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="font-semibold">Course Sessions</h3>
+      <button
+        type="button"
+        (click)="openAddSessionModal(newCourse)"
+        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm transition"
+      >
+        Add Session
+      </button>
+    </div> -->
+
+    <!-- ------------------SESSIONS TABLE + BUTTONS(EDIT/DELETE)--------------------------  -->
+    <!-- @if (newCourse.sessions && newCourse.sessions.length > 0) { -->
+    <!-- <div class="max-h-48 overflow-y-auto">
+      <table class="min-w-full">
+        <thead>
+          <tr class="bg-gray-50">
+            <th class="py-2 px-3 text-left">Date</th>
+            <th class="py-2 px-3 text-left">Time</th>
+            <th class="py-2 px-3 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (session of newCourse.sessions; track session.id; let i = $index)
+          {
+          <tr class="border-b">
+            <td class="py-2 px-3">{{ formatDate(session.date) }}</td>
+            <td class="py-2 px-3">
+              {{ session.startTime }}-{{ session.endTime }}
+            </td>
+            <td class="py-2 px-3 flex justify-center gap-2">
+              <button
+                type="button"
+                (click)="editSession(newCourse, i)"
+                class="text-blue-600 hover:text-blue-800"
+                title="Edit session"
+              >
+                ✏️
+              </button>
+              <button
+                type="button"
+                (click)="deleteSession(i)"
+                class="text-red-500 hover:text-red-700"
+                title="Delete session"
+              >
+                ✖
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div> -->
+    <!-- } @else {
+    <p class="text-gray-500 text-sm italic">No sessions added yet.</p>
+    } -->
+    <!-- </div>
+  } -->
+
+    <!-- ------------------ADD/UPDATE & CANCEL FORM BUTTONS--------------------------  -->
+    <button
+      type="submit"
+      class=" bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition {{
+        editingCourseId ? 'sm:col-span-2' : 'sm:col-span-3'
+      }}"
+    >
+      {{ editingCourseId ? "Update Course" : "Add Course" }}
+    </button>
+
+    <!-- the Cancel Updating Course button -->
+    @if(editingCourseId){
+    <button
+      type="button"
+      class="sm:col-span-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition"
+      (click)="onCancelUpdatingClick('course')"
+    >
+      Cancel Updating Course
+    </button>
+    }
+  </form>
+  } @else if ( category === 'user') {
+  <form (ngSubmit)="updateUser()" class="grid gap-4 sm:grid-cols-4 mb-4">
+    <input
+      [(ngModel)]="newUser!.fullName"
+      name="userName"
+      placeholder="Full Name"
+      class="p-3 sm:col-span-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+      required
+    />
+    <select
+      [(ngModel)]="newUser!.role"
+      name="userRole"
+      class="p-3 sm:col-span-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+      required
+    >
+      <option value="" disabled selected>Select Role</option>
+      <option value="Teacher">Teacher</option>
+      <option value="Student">Student</option>
+    </select>
+    <button
+      type="submit"
+      class="sm:col-span-3 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition"
+    >
+      Update User
+    </button>
+
+    <!-- the Cancel Updating Course button -->
+
+    <button
+      type="button"
+      class="sm:col-span-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition"
+      (click)="onCancelUpdatingClick('user')"
+    >
+      Cancel Updating User
+    </button>
+  </form>
+  }
+</div>

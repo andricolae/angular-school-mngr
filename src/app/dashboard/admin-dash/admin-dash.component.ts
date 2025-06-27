@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { StudentDataComponent } from './student-data/student-data.component';
 import { SessionDataComponent } from './session-data/session-data.component';
 import { AdminDialogComponent } from './admin-dialog/admin-dialog.component';
+import { CourseUserAddUpdateDataComponent } from './course-user-add-update-data/course-user-add-update-data.component';
 
 @Component({
   selector: 'app-admin-dash',
@@ -26,6 +27,7 @@ import { AdminDialogComponent } from './admin-dialog/admin-dialog.component';
     StudentDataComponent,
     SessionDataComponent,
     AdminDialogComponent,
+    CourseUserAddUpdateDataComponent,
   ],
   templateUrl: './admin-dash.component.html',
 })
@@ -42,6 +44,8 @@ export class AdminDashComponent {
 
   teachers: UserModel[] = [];
 
+  // delete later
+
   newCourse: Course = {
     name: '',
     teacher: '',
@@ -52,7 +56,17 @@ export class AdminDashComponent {
   courses$ = this.store.select(selectAllCourses);
   editingCourseId: string | null = null;
   selectedCourseId: string | undefined = '';
-  showUpdateAddCourseData = false;
+  showUpdateAddCourseData: {
+    show: boolean;
+    id: string;
+    category: 'course' | 'user' | '';
+    action: 'add' | 'update' | '';
+  } = {
+    show: false,
+    id: '',
+    category: '',
+    action: '',
+  };
   showStudentData = false;
   showSessionData = false;
 
@@ -144,6 +158,7 @@ export class AdminDashComponent {
     }
   }
 
+  // THIS STAYS HERE
   async deleteCourse(courseId: string): Promise<void> {
     const confirmed = await this.dialog.open(
       'Do you really want to delete this course?'
@@ -178,17 +193,28 @@ export class AdminDashComponent {
 
   // showUpdateAddCourseData
 
-  viewCourseAddUpdateDialog(course: Course): void {
-    this.selectedCourseId = course.id || undefined;
-    this.showUpdateAddCourseData = true;
+  viewCourseAddUpdateDialog(
+    category: 'course' | 'user',
+    action: 'add' | 'update',
+    userDetails?: UserModel
+  ): void {
+    if (userDetails) {
+      this.editUser(userDetails);
+    }
+    this.showUpdateAddCourseData.show = true;
+    this.showUpdateAddCourseData.category = category;
+    this.showUpdateAddCourseData.action = action;
   }
 
   closeCourseAddUpdateDialog(): void {
     this.selectedCourseId = undefined;
-    this.showUpdateAddCourseData = false;
+    this.showUpdateAddCourseData.show = false;
+    this.showUpdateAddCourseData.category = '';
+    this.showUpdateAddCourseData.action = '';
   }
 
   //-------------------------- USER RELATED METHODS/FUNCTIONS----------------
+  // DELETE STAYS HERE
   async deleteUser(userId: string): Promise<void> {
     const confirmed = await this.dialog.open(
       'Do you really want to delete this user?'
