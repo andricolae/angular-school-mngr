@@ -30,8 +30,8 @@
     />
 
     <!-- EDITING COURSE  -->
-    <!-- @if (editingCourseId) { 
-     <div class="sm:col-span-3 border rounded-lg p-3">
+    @if (editingCourseId) {
+    <!-- <div class="sm:col-span-3 border rounded-lg p-3">
     <div class="flex justify-between items-center mb-2">
       <h3 class="font-semibold">Course Sessions</h3>
       <button
@@ -44,15 +44,13 @@
     </div> -->
 
     <!-- ------------------SESSIONS TABLE + BUTTONS(EDIT/DELETE)--------------------------  -->
-    @if(action==='update'){ @if (newCourse.sessions && newCourse.sessions.length
-    > 0) {
-    <app-session-actions
-      [editingCourseId]="editingCourseId"
-      [newCourse]="newCourse"
-    />
-    } }
-    <!-- </div>
-  } -->
+    <div class="sm:col-span-3 border rounded-lg p-3">
+      <app-session-actions
+        [editingCourseId]="editingCourseId"
+        [newCourse]="newCourse"
+      />
+    </div>
+    }
 
     <!-- ------------------ADD/UPDATE & CANCEL FORM BUTTONS--------------------------  -->
     <button
@@ -75,6 +73,7 @@
     </button>
     }
   </form>
+  <!-- ------------------------USER FORM------------------------------- -->
   } @else if ( category === 'user') {
   <form (ngSubmit)="updateUser()" class="grid gap-4 sm:grid-cols-4 mb-4">
     <input

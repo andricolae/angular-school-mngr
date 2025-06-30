@@ -1,5 +1,17 @@
 <!-- ------------------SESSIONS TABLE + BUTTONS(EDIT/DELETE)--------------------------  -->
 
+<div class="flex justify-between items-center mb-2">
+  <h3 class="font-semibold">Course Sessions</h3>
+  <button
+    type="button"
+    (click)="openAddSessionModal(newCourse)"
+    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm transition"
+  >
+    Add Session
+  </button>
+</div>
+@if (newCourse.sessions && newCourse.sessions.length > 0) {
+
 <div class="max-h-48 overflow-y-auto">
   <table class="min-w-full">
     <thead>
@@ -37,3 +49,4 @@
     </tbody>
   </table>
 </div>
+}
