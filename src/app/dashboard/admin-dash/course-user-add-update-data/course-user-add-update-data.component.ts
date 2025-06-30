@@ -8,10 +8,11 @@ import * as UserActions from '../../../state/users/user.actions';
 
 import { ConfirmationDialogComponent } from '../../../core/confirmation-dialog/confirmation-dialog.component';
 import { SpinnerComponent } from '../../../core/spinner/spinner.component';
+import { SessionActionsComponent } from '../session-actions/session-actions.component';
 
 @Component({
   selector: 'app-course-user-add-update-data',
-  imports: [FormsModule, SpinnerComponent],
+  imports: [FormsModule, SpinnerComponent, SessionActionsComponent],
   templateUrl: './course-user-add-update-data.component.html',
   styleUrl: './course-user-add-update-data.component.css',
 })
@@ -23,7 +24,14 @@ export class CourseUserAddUpdateDataComponent {
   @Input() editingCourseId?: string | null;
   @Input() editingUserId?: string | null;
   @Input() teachers?: UserModel[];
-  @Input() newUser?: UserModel = { fullName: '', role: '', email: '' };
+  @Input() newUser?: UserModel;
+  @Input() newCourse: Course = {
+    name: '',
+    teacher: '',
+    schedule: '',
+    sessions: [],
+    enrolledStudents: [],
+  };
 
   cancelingClickFunction = output<void>();
 
@@ -32,13 +40,6 @@ export class CourseUserAddUpdateDataComponent {
   }
 
   // newUser: UserModel = { fullName: '', role: '', email: '' };
-  newCourse: Course = {
-    name: '',
-    teacher: '',
-    schedule: '',
-    sessions: [],
-    enrolledStudents: [],
-  };
 
   constructor(private store: Store) {}
 

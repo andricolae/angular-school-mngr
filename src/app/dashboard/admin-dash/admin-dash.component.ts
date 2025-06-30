@@ -196,18 +196,42 @@ export class AdminDashComponent {
   viewCourseAddUpdateDialog(
     category: 'course' | 'user',
     action: 'add' | 'update',
-    userDetails?: UserModel
+    courseDetails?: Course
   ): void {
-    if (userDetails) {
-      this.editUser(userDetails);
+    if (courseDetails) {
+      this.editCourse(courseDetails);
     }
+
     this.showUpdateAddCourseData.show = true;
     this.showUpdateAddCourseData.category = category;
     this.showUpdateAddCourseData.action = action;
   }
 
   closeCourseAddUpdateDialog(): void {
+    this.resetCourseForm();
     this.selectedCourseId = undefined;
+    this.showUpdateAddCourseData.show = false;
+    this.showUpdateAddCourseData.category = '';
+    this.showUpdateAddCourseData.action = '';
+  }
+
+  viewUserAddUpdateDialog(
+    category: 'course' | 'user',
+    action: 'add' | 'update',
+    userDetails?: UserModel
+  ): void {
+    if (userDetails) {
+      this.editUser(userDetails);
+    }
+
+    this.showUpdateAddCourseData.show = true;
+    this.showUpdateAddCourseData.category = category;
+    this.showUpdateAddCourseData.action = action;
+  }
+
+  closeUserAddUpdateDialog(): void {
+    this.resetUserForm();
+    this.editingUserId = null;
     this.showUpdateAddCourseData.show = false;
     this.showUpdateAddCourseData.category = '';
     this.showUpdateAddCourseData.action = '';

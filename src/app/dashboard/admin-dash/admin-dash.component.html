@@ -43,6 +43,8 @@
       [category]="showUpdateAddCourseData.category"
       [action]="showUpdateAddCourseData.action"
       [teachers]="teachers"
+      [newCourse]="newCourse"
+      (cancelingClickFunction)="onCancelUpdatingClick('course')"
     />
   </app-admin-dialog>
   } @else if(showUpdateAddCourseData.show && (showUpdateAddCourseData.category
@@ -140,7 +142,7 @@
           </span>
           <div class="flex gap-2 items-center">
             <button
-              (click)="viewCourseAddUpdateDialog('user', 'update', user)"
+              (click)="viewUserAddUpdateDialog('user', 'update', user)"
               class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 me-2 mb-2 text-center"
               title="Update course"
             >
@@ -162,18 +164,20 @@
 
   <div class="p-4 space-y-4">
     <div class="bg-white rounded-2xl shadow p-6">
-      <h2 class="text-xl font-semibold mb-4 text-blue-600">
-        Course Management
-      </h2>
+      <div class="flex justify-between items-center w-full px-4 py-3">
+        <h2 class="text-xl font-semibold mb-4 text-blue-600">
+          Course Management
+        </h2>
 
-      <!-- ------------------COURSE MANAGEMET FORM-------------------------- -->
-      <button
-        (click)="viewCourseAddUpdateDialog('course', 'add')"
-        class="text-white bg-green-600 hover:bg-green-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
-        title="View Sessions"
-      >
-        Add Course
-      </button>
+        <!-- ------------------COURSE MANAGEMET FORM-------------------------- -->
+        <button
+          (click)="viewCourseAddUpdateDialog('course', 'add')"
+          class="text-white bg-green-600 hover:bg-green-700 focus:outline-none font-medium rounded-lg text-base px-5 py-2.5 text-center me-1 mb-2 mr-5"
+          title="View Sessions"
+        >
+          Add Course
+        </button>
+      </div>
 
       <!-- ------------------COURSES LIST + BUTTONS--------------------------  -->
       <ul class="space-y-2">
@@ -202,7 +206,7 @@
               <!-- -------------------BUTTONS----------------------- -->
               <button
                 (click)="viewStudentData(course)"
-                class="text-white bg-green-600 hover:bg-green-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
+                class="text-green-700 bg-gray-100 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
                 title="View Student Data"
               >
                 Student Data
@@ -217,16 +221,18 @@
               >
                 Schedule Course Session
               </button> -->
+              <!-- bsic variant, the way it was on the site -->
               <button
                 (click)="viewSessionData(course)"
-                class="text-white bg-gray-600 hover:bg-gray-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
                 title="View Sessions"
+                class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
               >
                 View Sessions
               </button>
 
+              <!-- class="text-white bg-gray-600 hover:bg-gray-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2" -->
               <button
-                (click)="viewCourseAddUpdateDialog('course', 'update')"
+                (click)="viewCourseAddUpdateDialog('course', 'update', course)"
                 class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
                 title="Update course"
               >
