@@ -107,8 +107,7 @@ AdminDashService.newCourse().sessions!.length > 0) {
       </tr>
     </thead>
     <tbody>
-      @for (session of AdminDashService.newCourse().sessions; track session.id;
-      let i = $index) {
+      @for (session of sortedSessions; track session.id; let i = $index) {
       <tr class="border-b">
         <td class="py-2 px-3">{{ formatDate(session.date) }}</td>
         <td class="py-2 px-3">{{ session.startTime }}-{{ session.endTime }}</td>

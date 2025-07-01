@@ -39,13 +39,13 @@ export class SessionActionsComponent {
     this.showSessionModal = true;
   }
 
-  // get sortedSessions() {
-  //   return [...(this.AdminDashService.newCourse().sessions ?? [])].sort(
-  //     (a, b) => {
-  //       return new Date(a.date).getTime() - new Date(b.date).getTime();
-  //     }
-  //   );
-  // }
+  get sortedSessions() {
+    return [...(this.AdminDashService.newCourse().sessions ?? [])].sort(
+      (a, b) => {
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      }
+    );
+  }
 
   editSession(course: Course, sessionIndex: number): void {
     this.editingSession = { ...course.sessions![sessionIndex] };
@@ -70,6 +70,12 @@ export class SessionActionsComponent {
     }
 
     this.AdminDashService.newCourse.set(updatedCourse);
+    this.editingSession = {
+      id: uuidv4(),
+      date: new Date(),
+      startTime: '10:00',
+      endTime: '12:00',
+    };
     // this.closeSessionModal();
   }
 
