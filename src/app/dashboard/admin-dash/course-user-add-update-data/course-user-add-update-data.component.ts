@@ -1,4 +1,4 @@
-import { Component, Input, output, ViewChild } from '@angular/core';
+import { Component, inject, Input, output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
@@ -9,6 +9,7 @@ import * as UserActions from '../../../state/users/user.actions';
 import { ConfirmationDialogComponent } from '../../../core/confirmation-dialog/confirmation-dialog.component';
 import { SpinnerComponent } from '../../../core/spinner/spinner.component';
 import { SessionActionsComponent } from '../session-actions/session-actions.component';
+import { AdminDashService } from '../admin-dash.service';
 
 @Component({
   selector: 'app-course-user-add-update-data',
@@ -18,6 +19,7 @@ import { SessionActionsComponent } from '../session-actions/session-actions.comp
 })
 export class CourseUserAddUpdateDataComponent {
   @ViewChild('dialog') dialog!: ConfirmationDialogComponent;
+  AdminDashService = inject(AdminDashService);
 
   @Input({ required: true }) category!: 'course' | 'user' | '';
   @Input({ required: true }) action!: 'add' | 'update' | '';
@@ -25,13 +27,13 @@ export class CourseUserAddUpdateDataComponent {
   @Input() editingUserId?: string | null;
   @Input() teachers?: UserModel[];
   @Input() newUser?: UserModel;
-  @Input() newCourse: Course = {
-    name: '',
-    teacher: '',
-    schedule: '',
-    sessions: [],
-    enrolledStudents: [],
-  };
+  // @Input() AdminDashService.newCourse(): Course = {
+  //   name: '',
+  //   teacher: '',
+  //   schedule: '',
+  //   sessions: [],
+  //   enrolledStudents: [],
+  // };
 
   cancelUpdateCourseModel = false;
 
@@ -49,33 +51,36 @@ export class CourseUserAddUpdateDataComponent {
 
   addCourse() {
     if (this.editingCourseId) {
-      if (this.newCourse.teacherId) {
+      if (this.AdminDashService.newCourse().teacherId) {
         const selectedTeacher = this.teachers?.find(
-          (t) => t.id === this.newCourse.teacherId
+          (t) => t.id === this.AdminDashService.newCourse().teacherId
         );
         if (selectedTeacher) {
-          this.newCourse.teacher = selectedTeacher.fullName;
+          this.AdminDashService.newCourse().teacher = selectedTeacher.fullName;
         }
       }
 
       this.store.dispatch(
         CourseActions.updateCourse({
-          course: { ...this.newCourse, id: this.editingCourseId },
+          course: {
+            ...this.AdminDashService.newCourse(),
+            id: this.editingCourseId,
+          },
         })
       );
     } else {
-      if (this.newCourse.teacherId) {
+      if (this.AdminDashService.newCourse().teacherId) {
         const selectedTeacher = this.teachers?.find(
-          (t) => t.id === this.newCourse.teacherId
+          (t) => t.id === this.AdminDashService.newCourse().teacherId
         );
         if (selectedTeacher) {
-          this.newCourse.teacher = selectedTeacher.fullName;
+          this.AdminDashService.newCourse().teacher = selectedTeacher.fullName;
         }
       }
 
       const courseToAdd: Course = {
-        ...this.newCourse,
-        sessions: this.newCourse.sessions || [],
+        ...this.AdminDashService.newCourse(),
+        sessions: this.AdminDashService.newCourse().sessions || [],
         enrolledStudents: [],
       };
       this.store.dispatch(
@@ -88,15 +93,18 @@ export class CourseUserAddUpdateDataComponent {
   }
 
   editCourse(course: Course) {
-    this.newCourse = { ...course };
+    this.AdminDashService.newCourse.set({ ...course });
     this.editingCourseId = course.id!;
 
-    if (!this.newCourse.teacherId && this.newCourse.teacher) {
+    if (
+      !this.AdminDashService.newCourse().teacherId &&
+      this.AdminDashService.newCourse().teacher
+    ) {
       const foundTeacher = this.teachers?.find(
-        (t) => t.fullName === this.newCourse.teacher
+        (t) => t.fullName === this.AdminDashService.newCourse().teacher
       );
       if (foundTeacher) {
-        this.newCourse.teacherId = foundTeacher.id;
+        this.AdminDashService.newCourse().teacherId = foundTeacher.id;
       }
     }
   }
@@ -114,14 +122,14 @@ export class CourseUserAddUpdateDataComponent {
 
   //-------------------------- RESET FORM + CANCEL FORM UPDATE + FORM DATE, TIME----------------
   resetCourseForm(): void {
-    this.newCourse = {
+    this.AdminDashService.newCourse.set({
       name: '',
       teacher: '',
       schedule: '',
       teacherId: '',
       sessions: [],
       enrolledStudents: [],
-    };
+    });
     this.editingCourseId = null;
   }
 

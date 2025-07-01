@@ -4,14 +4,14 @@
   <form (ngSubmit)="addCourse()" class="grid gap-4 sm:grid-cols-6 mb-4">
     <!-- ------------------FORM ELEMENTS --------------------------  -->
     <input
-      [(ngModel)]="newCourse.name"
+      [(ngModel)]="AdminDashService.newCourse().name"
       name="courseName"
       placeholder="Course Name"
       class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none sm:col-span-2"
       required
     />
     <select
-      [(ngModel)]="newCourse.teacherId"
+      [(ngModel)]="AdminDashService.newCourse().teacherId"
       name="courseTeacherId"
       class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none sm:col-span-2"
       required
@@ -22,7 +22,7 @@
       }
     </select>
     <input
-      [(ngModel)]="newCourse.schedule"
+      [(ngModel)]="AdminDashService.newCourse().schedule"
       name="courseSchedule"
       placeholder="Day & Time (e.g. Mon & Wed 10:00)"
       class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none sm:col-span-2"
@@ -45,15 +45,12 @@
 
     <!-- ------------------SESSIONS TABLE + BUTTONS(EDIT/DELETE)--------------------------  -->
     <div class="sm:col-span-6 border rounded-lg p-3">
-      <app-session-actions
-        [editingCourseId]="editingCourseId"
-        [newCourse]="newCourse"
-      />
+      <app-session-actions [editingCourseId]="editingCourseId" />
     </div>
     }
 
     <!-- ------------------ADD/UPDATE & CANCEL FORM BUTTONS--------------------------  -->
-    @if(!cancelUpdateCourseModel){
+    @if(true || !cancelUpdateCourseModel){
     <button
       type="submit"
       class=" bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition {{

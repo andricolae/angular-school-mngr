@@ -1,9 +1,10 @@
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, inject, Input, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { v4 as uuidv4 } from 'uuid';
 import { Course, CourseSession } from '../../../core/user.model';
 import { ConfirmationDialogComponent } from '../../../core/confirmation-dialog/confirmation-dialog.component';
+import { AdminDashService } from '../admin-dash.service';
 
 @Component({
   selector: 'app-session-actions',
@@ -13,9 +14,10 @@ import { ConfirmationDialogComponent } from '../../../core/confirmation-dialog/c
 })
 export class SessionActionsComponent {
   @ViewChild('dialog') dialog!: ConfirmationDialogComponent;
+  AdminDashService = inject(AdminDashService);
 
   @Input({ required: true }) editingCourseId!: string | null | undefined;
-  @Input({ required: true }) newCourse!: Course;
+  // @Input({ required: true }) AdminDashService.newCourse()!: Course;
   showSessionModal = false;
   deleteSessionMessage = false;
   editingSession: CourseSession = {
@@ -37,11 +39,13 @@ export class SessionActionsComponent {
     this.showSessionModal = true;
   }
 
-  get sortedSessions() {
-    return [...(this.newCourse.sessions ?? [])].sort((a, b) => {
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
-    });
-  }
+  // get sortedSessions() {
+  //   return [...(this.AdminDashService.newCourse().sessions ?? [])].sort(
+  //     (a, b) => {
+  //       return new Date(a.date).getTime() - new Date(b.date).getTime();
+  //     }
+  //   );
+  // }
 
   editSession(course: Course, sessionIndex: number): void {
     this.editingSession = { ...course.sessions![sessionIndex] };
@@ -52,7 +56,7 @@ export class SessionActionsComponent {
   saveSession(): void {
     if (!this.editingCourseId) return;
 
-    const updatedCourse = { ...this.newCourse };
+    const updatedCourse = { ...this.AdminDashService.newCourse() };
 
     if (this.editingSessionIndex === -1) {
       updatedCourse.sessions = [
@@ -65,7 +69,7 @@ export class SessionActionsComponent {
       );
     }
 
-    this.newCourse = updatedCourse;
+    this.AdminDashService.newCourse.set(updatedCourse);
     // this.closeSessionModal();
   }
 
@@ -74,11 +78,11 @@ export class SessionActionsComponent {
       'Do you really want to delete this session?'
     );
     if (confirmed) {
-      const updatedCourse = { ...this.newCourse };
+      const updatedCourse = { ...this.AdminDashService.newCourse() };
       updatedCourse.sessions = updatedCourse.sessions!.filter(
         (_, index) => index !== sessionIndex
       );
-      this.newCourse = updatedCourse;
+      this.AdminDashService.newCourse.set(updatedCourse);
     }
   }
 
