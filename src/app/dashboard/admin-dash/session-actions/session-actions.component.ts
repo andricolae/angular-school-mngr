@@ -1,12 +1,13 @@
 import { Component, Input, ViewChild } from '@angular/core';
-import { Course, CourseSession } from '../../../core/user.model';
+import { FormsModule } from '@angular/forms';
 
 import { v4 as uuidv4 } from 'uuid';
+import { Course, CourseSession } from '../../../core/user.model';
 import { ConfirmationDialogComponent } from '../../../core/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-session-actions',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './session-actions.component.html',
   styleUrl: './session-actions.component.css',
 })
@@ -16,6 +17,7 @@ export class SessionActionsComponent {
   @Input({ required: true }) editingCourseId!: string | null | undefined;
   @Input({ required: true }) newCourse!: Course;
   showSessionModal = false;
+  deleteSessionMessage = false;
   editingSession: CourseSession = {
     id: '',
     date: new Date(),
@@ -33,6 +35,12 @@ export class SessionActionsComponent {
     };
     this.editingSessionIndex = -1;
     this.showSessionModal = true;
+  }
+
+  get sortedSessions() {
+    return [...(this.newCourse.sessions ?? [])].sort((a, b) => {
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    });
   }
 
   editSession(course: Course, sessionIndex: number): void {
@@ -58,7 +66,7 @@ export class SessionActionsComponent {
     }
 
     this.newCourse = updatedCourse;
-    this.closeSessionModal();
+    // this.closeSessionModal();
   }
 
   async deleteSession(sessionIndex: number): Promise<void> {
@@ -76,6 +84,10 @@ export class SessionActionsComponent {
 
   closeSessionModal(): void {
     this.showSessionModal = false;
+  }
+
+  onDeleteSessionClick() {
+    this.deleteSessionMessage = !this.deleteSessionMessage;
   }
 
   formatDate(date: Date): string {

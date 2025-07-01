@@ -45,21 +45,21 @@
       [teachers]="teachers"
       [newCourse]="newCourse"
       [editingCourseId]="editingCourseId"
-      (cancelingClickFunction)="onCancelUpdatingClick('course')"
+      (cancelingClickFunction)="closeCourseAddUpdateDialog()"
     />
   </app-admin-dialog>
   } @else if(showUpdateAddCourseData.show && (showUpdateAddCourseData.category
   === 'user')){
   <app-admin-dialog
     [title]="`${showUpdateAddCourseData.action.charAt(0).toUpperCase()}${showUpdateAddCourseData.action.slice(1)} ${showUpdateAddCourseData.category.charAt(0).toUpperCase()}${showUpdateAddCourseData.category.slice(1)}`"
-    (closingClickFunction)="closeCourseAddUpdateDialog()"
+    (closingClickFunction)="closeUserAddUpdateDialog()"
   >
     <app-course-user-add-update-data
       [category]="showUpdateAddCourseData.category"
       [action]="showUpdateAddCourseData.action"
       [newUser]="newUser"
       [editingUserId]="editingUserId"
-      (cancelingClickFunction)="onCancelUpdatingClick('user')"
+      (cancelingClickFunction)="closeUserAddUpdateDialog()"
     />
   </app-admin-dialog>
   }
@@ -207,7 +207,7 @@
               <!-- -------------------BUTTONS----------------------- -->
               <button
                 (click)="viewStudentData(course)"
-                class="text-green-700 bg-gray-100 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
+                class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
                 title="View Student Data"
               >
                 Student Data
@@ -226,15 +226,14 @@
               <button
                 (click)="viewSessionData(course)"
                 title="View Sessions"
-                class="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
+                class="text-white bg-gray-600 hover:bg-gray-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
               >
                 View Sessions
               </button>
 
-              <!-- class="text-white bg-gray-600 hover:bg-gray-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2" -->
               <button
                 (click)="viewCourseAddUpdateDialog('course', 'update', course)"
-                class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
+                class="text-white bg-green-600 hover:bg-green-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
                 title="Update course"
               >
                 Edit

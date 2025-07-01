@@ -2,7 +2,7 @@ import { Course, CourseSession, UserModel } from './../../core/user.model';
 import * as CourseActions from '../../state/courses/course.actions';
 import * as UserActions from '../../state/users/user.actions';
 import { Store } from '@ngrx/store';
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { selectAllCourses } from '../../state/courses/course.selector';
 import { AsyncPipe } from '@angular/common';
@@ -15,6 +15,7 @@ import { StudentDataComponent } from './student-data/student-data.component';
 import { SessionDataComponent } from './session-data/session-data.component';
 import { AdminDialogComponent } from './admin-dialog/admin-dialog.component';
 import { CourseUserAddUpdateDataComponent } from './course-user-add-update-data/course-user-add-update-data.component';
+import { AdminDashService } from './admin-dash.service';
 
 @Component({
   selector: 'app-admin-dash',
@@ -33,6 +34,7 @@ import { CourseUserAddUpdateDataComponent } from './course-user-add-update-data/
 })
 export class AdminDashComponent {
   @ViewChild('dialog') dialog!: ConfirmationDialogComponent;
+  AdminDashService = inject(AdminDashService);
 
   courseCount = 0;
   studentCount = 0;
@@ -249,9 +251,9 @@ export class AdminDashComponent {
   }
 
   editUser(user: UserModel) {
-    if (user.role === 'Admin') {
-      return;
-    }
+    // if (user.role === 'Admin') {
+    //   return;
+    // }
     this.newUser = {
       email: user.email,
       fullName: user.fullName,

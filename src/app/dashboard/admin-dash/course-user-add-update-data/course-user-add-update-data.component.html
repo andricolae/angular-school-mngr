@@ -1,19 +1,19 @@
 <div class="bg-white rounded-xl shadow-md p-6 max-w-3xl mx-auto">
   <app-spinner />
   @if(category === 'course' ){
-  <form (ngSubmit)="addCourse()" class="grid gap-4 sm:grid-cols-3 mb-4">
+  <form (ngSubmit)="addCourse()" class="grid gap-4 sm:grid-cols-6 mb-4">
     <!-- ------------------FORM ELEMENTS --------------------------  -->
     <input
       [(ngModel)]="newCourse.name"
       name="courseName"
       placeholder="Course Name"
-      class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+      class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none sm:col-span-2"
       required
     />
     <select
       [(ngModel)]="newCourse.teacherId"
       name="courseTeacherId"
-      class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+      class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none sm:col-span-2"
       required
     >
       <option value="" disabled selected>Select Teacher</option>
@@ -25,7 +25,7 @@
       [(ngModel)]="newCourse.schedule"
       name="courseSchedule"
       placeholder="Day & Time (e.g. Mon & Wed 10:00)"
-      class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+      class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none sm:col-span-2"
       required
     />
 
@@ -44,7 +44,7 @@
     </div> -->
 
     <!-- ------------------SESSIONS TABLE + BUTTONS(EDIT/DELETE)--------------------------  -->
-    <div class="sm:col-span-3 border rounded-lg p-3">
+    <div class="sm:col-span-6 border rounded-lg p-3">
       <app-session-actions
         [editingCourseId]="editingCourseId"
         [newCourse]="newCourse"
@@ -53,10 +53,11 @@
     }
 
     <!-- ------------------ADD/UPDATE & CANCEL FORM BUTTONS--------------------------  -->
+    @if(!cancelUpdateCourseModel){
     <button
       type="submit"
       class=" bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition {{
-        editingCourseId ? 'sm:col-span-2' : 'sm:col-span-3'
+        editingCourseId ? 'sm:col-span-4' : 'sm:col-span-6'
       }}"
     >
       {{ action === "update" ? "Update Course" : "Add Course" }}
@@ -66,36 +67,59 @@
     @if(editingCourseId){
     <button
       type="button"
-      class="sm:col-span-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition"
-      (click)="onCancelUpdatingClick('course')"
+      class="sm:col-span-2 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition"
+      (click)="onCancelUpdateCourseModel()"
     >
       Cancel Updating Course
     </button>
+    } } @else {
+    <!-- <div class="sm:col-span-3"> -->
+    <!-- <div class="sm:grid-cols-3"> -->
+    <p class="text-lg font-medium sm:col-span-4 mt-2 text-red-400">
+      Do you really want to cancel updating this course?
+    </p>
+    <button
+      type="button"
+      class="block bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
+      (click)="onCancelClick()"
+    >
+      Yes
+    </button>
+    <button
+      type="button"
+      class="block bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
+      (click)="onCancelUpdateCourseModel()"
+    >
+      No
+    </button>
+    <!-- </div> -->
+    <!-- </div> -->
     }
   </form>
   <!-- ------------------------USER FORM------------------------------- -->
   } @else if ( category === 'user') {
-  <form (ngSubmit)="updateUser()" class="grid gap-4 sm:grid-cols-4 mb-4">
+  <form (ngSubmit)="updateUser()" class="grid gap-4 sm:grid-cols-6 mb-4">
     <input
       [(ngModel)]="newUser!.fullName"
       name="userName"
       placeholder="Full Name"
-      class="p-3 sm:col-span-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+      class="p-3 sm:col-span-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
       required
     />
     <select
       [(ngModel)]="newUser!.role"
       name="userRole"
-      class="p-3 sm:col-span-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+      class="p-3 sm:col-span-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
       required
     >
       <option value="" disabled selected>Select Role</option>
       <option value="Teacher">Teacher</option>
       <option value="Student">Student</option>
+      <option value="Admin">Admin</option>
     </select>
     <button
       type="submit"
-      class="sm:col-span-3 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition"
+      class="sm:col-span-4 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition"
     >
       Update User
     </button>
@@ -104,8 +128,8 @@
 
     <button
       type="button"
-      class="sm:col-span-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition"
-      (click)="onCancelClick('user')"
+      class="sm:col-span-2 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition"
+      (click)="onCancelClick()"
     >
       Cancel Updating User
     </button>

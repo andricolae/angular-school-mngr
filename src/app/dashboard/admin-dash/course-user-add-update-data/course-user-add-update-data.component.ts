@@ -33,9 +33,11 @@ export class CourseUserAddUpdateDataComponent {
     enrolledStudents: [],
   };
 
+  cancelUpdateCourseModel = false;
+
   cancelingClickFunction = output<void>();
 
-  async onCancelClick(category: 'user' | 'course'): Promise<void> {
+  async onCancelClick(): Promise<void> {
     this.cancelingClickFunction.emit();
   }
 
@@ -82,7 +84,7 @@ export class CourseUserAddUpdateDataComponent {
         })
       );
     }
-    this.resetCourseForm();
+    this.action === 'update' ? this.onCancelClick() : this.resetCourseForm();
   }
 
   editCourse(course: Course) {
@@ -101,25 +103,13 @@ export class CourseUserAddUpdateDataComponent {
 
   //-------------------------- USER RELATED METHODS/FUNCTIONS----------------
 
-  // editUser(user: UserModel) {
-  //   if (user.role === 'Admin') {
-  //     return;
-  //   }
-  //   this.newUser = {
-  //     email: user.email,
-  //     fullName: user.fullName,
-  //     role: user.role,
-  //   };
-  //   this.editingUserId = user.id!;
-  // }
-
   updateUser() {
     this.store.dispatch(
       UserActions.updateUser({
         user: { ...this.newUser!, id: this.editingUserId! },
       })
     );
-    this.resetUserForm();
+    this.onCancelClick();
   }
 
   //-------------------------- RESET FORM + CANCEL FORM UPDATE + FORM DATE, TIME----------------
@@ -138,6 +128,10 @@ export class CourseUserAddUpdateDataComponent {
   resetUserForm(): void {
     this.newUser = { email: '', fullName: '', role: '' };
     this.editingUserId = null;
+  }
+
+  onCancelUpdateCourseModel() {
+    this.cancelUpdateCourseModel = !this.cancelUpdateCourseModel;
   }
 
   async onCancelUpdatingClick(formName: 'course' | 'user'): Promise<void> {

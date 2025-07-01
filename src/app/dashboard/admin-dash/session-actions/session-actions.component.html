@@ -4,13 +4,95 @@
   <h3 class="font-semibold">Course Sessions</h3>
   <button
     type="button"
-    (click)="openAddSessionModal(newCourse)"
+    (click)="
+      showSessionModal === false
+        ? openAddSessionModal(newCourse)
+        : closeSessionModal()
+    "
     class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm transition"
   >
-    Add Session
+    {{ showSessionModal === false ? "Add Session" : "Close Session" }}
   </button>
 </div>
-@if (newCourse.sessions && newCourse.sessions.length > 0) {
+
+@if (showSessionModal) {
+<div class="flex items-center justify-center">
+  <div class="rounded-lg p-6 w-full">
+    <h3 class="text-lg font-semibold mb-4">
+      {{ editingSessionIndex === -1 ? "Add" : "Edit" }} Session
+    </h3>
+
+    <div class="grid grid-cols-7 gap-4">
+      <div class="sm:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+        <input
+          type="date"
+          [(ngModel)]="editingSession.date"
+          class="w-full p-2 border rounded-lg"
+        />
+      </div>
+
+      <div class="sm:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-1"
+          >Start Time</label
+        >
+        <input
+          type="time"
+          [(ngModel)]="editingSession.startTime"
+          class="w-full p-2 border rounded-lg"
+        />
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-1"
+          >End Time</label
+        >
+        <input
+          type="time"
+          [(ngModel)]="editingSession.endTime"
+          class="w-full p-2 border rounded-lg"
+        />
+      </div>
+      <!-- buttons -->
+      <div class="flex justify-end gap-2 sm:col-span-1 mt-6">
+        <!-- <button
+        type="button"
+        (click)="closeSessionModal()"
+        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition"
+      >
+        Cancel
+      </button> -->
+        <button
+          type="button"
+          (click)="saveSession()"
+          class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if(deleteSessionMessage){
+<div>
+  <p class="text-lg font-medium sm:col-span-4 mt-2 text-red-400">
+    Do you really want to cancel updating this course?
+  </p>
+  <button
+    type="button"
+    class="block bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
+  >
+    Yes
+  </button>
+  <button
+    type="button"
+    class="block bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
+    (click)="onDeleteSessionClick()"
+  >
+    No
+  </button>
+</div>
+} } @if (newCourse.sessions && newCourse.sessions.length > 0) {
 
 <div class="max-h-48 overflow-y-auto">
   <table class="min-w-full">
@@ -22,7 +104,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (session of newCourse.sessions; track session.id; let i = $index) {
+      @for (session of sortedSessions; track session.id; let i = $index) {
       <tr class="border-b">
         <td class="py-2 px-3">{{ formatDate(session.date) }}</td>
         <td class="py-2 px-3">{{ session.startTime }}-{{ session.endTime }}</td>
