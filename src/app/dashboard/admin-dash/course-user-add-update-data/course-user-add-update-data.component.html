@@ -30,43 +30,47 @@
     />
 
     <!-- EDITING COURSE  -->
-    @if (editingCourseId || true) {
 
-    <!-- ------------------SESSIONS TABLE + BUTTONS(EDIT/DELETE)--------------------------  -->
+    <!-- ------------------SESSIONS COMPONENT--------------------------  -->
     <div class="sm:col-span-6 border rounded-lg p-3">
       <app-session-actions
         [editingCourseId]="editingCourseId"
         [courseAction]="action"
       />
     </div>
-    }
 
     <!-- ------------------ADD/UPDATE & CANCEL FORM BUTTONS--------------------------  -->
     @if(!cancelUpdateCourseModel){
     <button
       type="submit"
-      class=" bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition {{
-        editingCourseId ? 'sm:col-span-4' : 'sm:col-span-6'
-      }}"
+      class="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition sm:col-span-4"
     >
       {{ action === "update" ? "Update Course" : "Add Course" }}
     </button>
 
     <!-- the Cancel Updating Course button -->
-    @if(editingCourseId){
+
     <button
       type="button"
       class="sm:col-span-2 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition"
       (click)="onCancelUpdateCourseModel()"
     >
-      Cancel Updating Course
+      {{
+        this.action === "update"
+          ? "Cancel Updating Course"
+          : "Cancel Adding Course"
+      }}
     </button>
-    }
+
     <!-- CONFIRMATION MESSAGE -->
     } @else {
 
     <p class="text-lg font-medium sm:col-span-4 mt-2 text-red-400">
-      Do you really want to cancel updating this course?
+      {{
+        this.action === "update"
+          ? "Do you really want to cancel updating this course?"
+          : "Do you really want to cancel adding this course?"
+      }}
     </p>
     <button
       type="button"

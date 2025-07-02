@@ -8,6 +8,7 @@ import { Component, Input, output, Output } from '@angular/core';
 })
 export class AdminDialogComponent {
   @Input({ required: true }) title!: string;
+  @Input({}) category?: 'user' | 'course' | '';
 
   closingClickFunction = output<void>();
 

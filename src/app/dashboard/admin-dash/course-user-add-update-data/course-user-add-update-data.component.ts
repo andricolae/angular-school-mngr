@@ -27,13 +27,6 @@ export class CourseUserAddUpdateDataComponent {
   @Input() editingUserId?: string | null;
   @Input() teachers?: UserModel[];
   @Input() newUser?: UserModel;
-  // @Input() AdminDashService.newCourse(): Course = {
-  //   name: '',
-  //   teacher: '',
-  //   schedule: '',
-  //   sessions: [],
-  //   enrolledStudents: [],
-  // };
 
   cancelUpdateCourseModel = false;
   cancelUpdateUserModel = false;
@@ -44,13 +37,16 @@ export class CourseUserAddUpdateDataComponent {
     this.cancelingClickFunction.emit();
   }
 
-  // newUser: UserModel = { fullName: '', role: '', email: '' };
-
   constructor(private store: Store) {}
 
   //-------------------------- SESSION RELATED METHODS/FUNCTIONS  ----------------
 
   addCourse() {
+    if (
+      this.AdminDashService.newCourse().name === '' ||
+      this.AdminDashService.newCourse().teacherId === ''
+    )
+      return console.log('empty course');
     if (this.editingCourseId) {
       if (this.AdminDashService.newCourse().teacherId) {
         const selectedTeacher = this.teachers?.find(
