@@ -157,4 +157,52 @@ export class WeeklyScheduleComponent {
   getThemeColor(): string {
     return this.viewType === 'teacher' ? 'green' : 'yellow';
   }
+
+  goToPreviousWeek(): void {
+    this.startOfWeek.setDate(this.startOfWeek.getDate() - 7);
+    this.endOfWeek.setDate(this.endOfWeek.getDate() - 7);
+    this.generateWeekDays();
+    this.generateWeekSchedule();
+  }
+
+  goToNextWeek(): void {
+    this.startOfWeek.setDate(this.startOfWeek.getDate() + 7);
+    this.endOfWeek.setDate(this.endOfWeek.getDate() + 7);
+    this.generateWeekDays();
+    this.generateWeekSchedule();
+  }
+
+  generateWeekDays(): void {
+    this.weekDays = [];
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(this.startOfWeek);
+      currentDate.setDate(this.startOfWeek.getDate() + i);
+
+      const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'short' });
+      const dayNumber = currentDate.getDate().toString();
+      const isToday = this.isDateToday(currentDate);
+
+      this.weekDays.push({
+        date: currentDate,
+        dayName,
+        dayNumber,
+        isToday,
+        sessions: []
+      });
+    }
+  }
+
+  goToNextMonth(): void {
+    this.startOfWeek.setMonth(this.startOfWeek.getMonth() + 1);
+    this.endOfWeek.setMonth(this.endOfWeek.getMonth() + 1);
+    this.generateWeekDays();
+    this.generateWeekSchedule();
+  }
+
+  goToPreviousMonth(): void {
+    this.startOfWeek.setMonth(this.startOfWeek.getMonth() - 1);
+    this.endOfWeek.setMonth(this.endOfWeek.getMonth() - 1);
+    this.generateWeekDays();
+    this.generateWeekSchedule();
+  }
 }
