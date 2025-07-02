@@ -1,4 +1,4 @@
-import { Component, inject, Input, ViewChild } from '@angular/core';
+import { Component, inject, Input, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -19,7 +19,10 @@ export class SessionActionsComponent {
   @Input({ required: true }) editingCourseId!: string | null | undefined;
   // @Input({ required: true }) AdminDashService.newCourse()!: Course;
   showSessionModal = false;
-  deleteSessionMessage = false;
+  deleteSessionMessage = signal<{ show: boolean; sessionIndex: number }>({
+    show: false,
+    sessionIndex: -1,
+  });
   editingSession: CourseSession = {
     id: '',
     date: new Date(),
@@ -76,28 +79,35 @@ export class SessionActionsComponent {
       startTime: '10:00',
       endTime: '12:00',
     };
-    // this.closeSessionModal();
+    this.closeSessionModal();
   }
 
   async deleteSession(sessionIndex: number): Promise<void> {
-    const confirmed = await this.dialog.open(
-      'Do you really want to delete this session?'
+    const updatedCourse = { ...this.AdminDashService.newCourse() };
+    updatedCourse.sessions = updatedCourse.sessions!.filter(
+      (_, index) => index !== sessionIndex
     );
-    if (confirmed) {
-      const updatedCourse = { ...this.AdminDashService.newCourse() };
-      updatedCourse.sessions = updatedCourse.sessions!.filter(
-        (_, index) => index !== sessionIndex
-      );
-      this.AdminDashService.newCourse.set(updatedCourse);
-    }
+    this.AdminDashService.newCourse.set(updatedCourse);
+    this.resetDeleteSessionMessage();
   }
 
   closeSessionModal(): void {
     this.showSessionModal = false;
   }
 
-  onDeleteSessionClick() {
-    this.deleteSessionMessage = !this.deleteSessionMessage;
+  onDeleteSessionClick(sessionIndex: number) {
+    const current = this.deleteSessionMessage();
+    this.deleteSessionMessage.set({
+      show: !current.show,
+      sessionIndex: sessionIndex,
+    });
+  }
+
+  resetDeleteSessionMessage() {
+    this.deleteSessionMessage.set({
+      show: false,
+      sessionIndex: -1,
+    });
   }
 
   formatDate(date: Date): string {

@@ -36,6 +36,7 @@ export class CourseUserAddUpdateDataComponent {
   // };
 
   cancelUpdateCourseModel = false;
+  cancelUpdateUserModel = false;
 
   cancelingClickFunction = output<void>();
 
@@ -142,26 +143,32 @@ export class CourseUserAddUpdateDataComponent {
     this.cancelUpdateCourseModel = !this.cancelUpdateCourseModel;
   }
 
-  async onCancelUpdatingClick(formName: 'course' | 'user'): Promise<void> {
-    switch (formName) {
-      case 'course': {
-        const confirmed = await this.dialog.open(
-          'Do you really want to cancel updating this course?'
-        );
-        if (confirmed) {
-          this.resetCourseForm();
-        }
-        break;
-      }
-      case 'user': {
-        const confirmed = await this.dialog.open(
-          'Do you really want to cancel updating this user?'
-        );
-        if (confirmed) {
-          this.resetUserForm();
-        }
-        break;
-      }
-    }
+  onCancelUpdateUserModel() {
+    this.cancelUpdateUserModel = !this.cancelUpdateUserModel;
   }
+
+  //TO DELETE THIS CODE
+
+  // async onCancelUpdatingClick(formName: 'course' | 'user'): Promise<void> {
+  //   switch (formName) {
+  //     case 'course': {
+  //       const confirmed = await this.dialog.open(
+  //         'Do you really want to cancel updating this course?'
+  //       );
+  //       if (confirmed) {
+  //         this.resetCourseForm();
+  //       }
+  //       break;
+  //     }
+  //     case 'user': {
+  //       const confirmed = await this.dialog.open(
+  //         'Do you really want to cancel updating this user?'
+  //       );
+  //       if (confirmed) {
+  //         this.resetUserForm();
+  //       }
+  //       break;
+  //     }
+  //   }
+  // }
 }

@@ -73,28 +73,7 @@
   </div>
 </div>
 
-@if(deleteSessionMessage){
-<div>
-  <p class="text-lg font-medium sm:col-span-4 mt-2 text-red-400">
-    Do you really want to cancel updating this course?
-  </p>
-  <button
-    type="button"
-    class="block bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
-  >
-    Yes
-  </button>
-  <button
-    type="button"
-    class="block bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
-    (click)="onDeleteSessionClick()"
-  >
-    No
-  </button>
-</div>
-<!-- TESTING!!!!!! -->
-<!-- <p>{{ AdminDashService.newCourse().sessions }}</p> -->
-} } @if (AdminDashService.newCourse().sessions &&
+} @if (AdminDashService.newCourse().sessions &&
 AdminDashService.newCourse().sessions!.length > 0) {
 
 <div class="max-h-48 overflow-y-auto">
@@ -107,30 +86,58 @@ AdminDashService.newCourse().sessions!.length > 0) {
       </tr>
     </thead>
     <tbody>
-      @for (session of sortedSessions; track session.id; let i = $index) {
+      @for (session of AdminDashService.newCourse().sessions; track session.id;
+      let i = $index) {
       <tr class="border-b">
         <td class="py-2 px-3">{{ formatDate(session.date) }}</td>
         <td class="py-2 px-3">{{ session.startTime }}-{{ session.endTime }}</td>
-        <td class="py-2 px-3 flex justify-center gap-2">
+        <td class="py-2 px-3 flex justify-evenly gap-1">
           <button
             type="button"
             (click)="editSession(AdminDashService.newCourse(), i)"
-            class="text-blue-600 hover:text-blue-800"
+            class="bg-blue-500 hover:bg-blue-600 text-white py-1 rounded-lg font-medium transition w-14"
             title="Edit session"
           >
-            ✏️
+            Edit
           </button>
           <button
             type="button"
-            (click)="deleteSession(i)"
-            class="text-red-500 hover:text-red-700"
+            (click)="onDeleteSessionClick(i)"
+            class="bg-red-500 hover:bg-red-600 text-white py-1 rounded-lg font-medium transition w-14"
             title="Delete session"
           >
-            ✖
+            Delete
           </button>
         </td>
       </tr>
-      }
+      <!-- Confirmation Message when wanting to delete a session -->
+      @if(deleteSessionMessage().show && (deleteSessionMessage().sessionIndex===
+      i)){
+      <tr class="border-b">
+        <td colspan="2">
+          <p class="text-lg font-medium sm:col-span-4 mt-2 text-red-400">
+            Do you really want to delete this session?
+          </p>
+        </td>
+        <td class="py-2 px-3 flex justify-evenly gap-1">
+          <button
+            type="button"
+            class="block bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition text-sm w-12"
+            (click)="deleteSession(deleteSessionMessage().sessionIndex)"
+          >
+            Yes
+          </button>
+          <button
+            type="button"
+            class="block bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition text-sm w-12"
+            (click)="resetDeleteSessionMessage()"
+          >
+            No
+          </button>
+        </td>
+      </tr>
+
+      } }
     </tbody>
   </table>
 </div>

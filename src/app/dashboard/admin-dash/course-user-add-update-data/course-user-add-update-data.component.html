@@ -50,7 +50,7 @@
     }
 
     <!-- ------------------ADD/UPDATE & CANCEL FORM BUTTONS--------------------------  -->
-    @if(true || !cancelUpdateCourseModel){
+    @if(!cancelUpdateCourseModel){
     <button
       type="submit"
       class=" bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition {{
@@ -69,9 +69,10 @@
     >
       Cancel Updating Course
     </button>
-    } } @else {
-    <!-- <div class="sm:col-span-3"> -->
-    <!-- <div class="sm:grid-cols-3"> -->
+    }
+    <!-- CONFIRMATION MESSAGE -->
+    } @else {
+
     <p class="text-lg font-medium sm:col-span-4 mt-2 text-red-400">
       Do you really want to cancel updating this course?
     </p>
@@ -89,8 +90,7 @@
     >
       No
     </button>
-    <!-- </div> -->
-    <!-- </div> -->
+
     }
   </form>
   <!-- ------------------------USER FORM------------------------------- -->
@@ -114,6 +114,8 @@
       <option value="Student">Student</option>
       <option value="Admin">Admin</option>
     </select>
+    @if(!cancelUpdateUserModel){
+
     <button
       type="submit"
       class="sm:col-span-4 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition"
@@ -126,10 +128,33 @@
     <button
       type="button"
       class="sm:col-span-2 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition"
-      (click)="onCancelClick()"
+      (click)="onCancelUpdateUserModel()"
     >
       Cancel Updating User
     </button>
+    }
+    <!-- CONFIRMATION MESSAGE -->
+    @else {
+
+    <p class="text-lg font-medium sm:col-span-4 mt-2 text-red-400">
+      Do you really want to cancel updating this user?
+    </p>
+    <button
+      type="button"
+      class="block bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
+      (click)="onCancelClick()"
+    >
+      Yes
+    </button>
+    <button
+      type="button"
+      class="block bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
+      (click)="onCancelUpdateUserModel()"
+    >
+      No
+    </button>
+
+    }
   </form>
   }
 </div>
