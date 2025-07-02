@@ -35,8 +35,9 @@
   @if (showUpdateAddCourseData.show && (showUpdateAddCourseData.category ===
   'course')) {
 
+  <!-- [title]="`${showUpdateAddCourseData.action.charAt(0).toUpperCase()}${showUpdateAddCourseData.action.slice(1)} ${showUpdateAddCourseData.category.charAt(0).toUpperCase()}${showUpdateAddCourseData.category.slice(1)}`" -->
   <app-admin-dialog
-    [title]="`${showUpdateAddCourseData.action.charAt(0).toUpperCase()}${showUpdateAddCourseData.action.slice(1)} ${showUpdateAddCourseData.category.charAt(0).toUpperCase()}${showUpdateAddCourseData.category.slice(1)}`"
+    [title]="`${showUpdateAddCourseData.action.charAt(0).toUpperCase()}${showUpdateAddCourseData.action.slice(1)} Course`"
     (closingClickFunction)="closeCourseAddUpdateDialog()"
   >
     <app-course-user-add-update-data
@@ -50,7 +51,7 @@
   } @else if(showUpdateAddCourseData.show && (showUpdateAddCourseData.category
   === 'user')){
   <app-admin-dialog
-    [title]="`${showUpdateAddCourseData.action.charAt(0).toUpperCase()}${showUpdateAddCourseData.action.slice(1)} ${showUpdateAddCourseData.category.charAt(0).toUpperCase()}${showUpdateAddCourseData.category.slice(1)}`"
+    title="Edit User"
     (closingClickFunction)="closeUserAddUpdateDialog()"
   >
     <app-course-user-add-update-data

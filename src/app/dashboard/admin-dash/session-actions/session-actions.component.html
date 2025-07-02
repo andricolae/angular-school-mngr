@@ -82,7 +82,9 @@ AdminDashService.newCourse().sessions!.length > 0) {
       <tr class="bg-gray-50">
         <th class="py-2 px-3 text-left">Date</th>
         <th class="py-2 px-3 text-left">Time</th>
+        @if(courseAction==='update'){
         <th class="py-2 px-3 text-center">Actions</th>
+        }
       </tr>
     </thead>
     <tbody>
@@ -92,6 +94,8 @@ AdminDashService.newCourse().sessions!.length > 0) {
         <td class="py-2 px-3">{{ formatDate(session.date) }}</td>
         <td class="py-2 px-3">{{ session.startTime }}-{{ session.endTime }}</td>
         <td class="py-2 px-3 flex justify-evenly gap-1">
+          @if(courseAction==='update'){
+
           <button
             type="button"
             (click)="editSession(AdminDashService.newCourse(), i)"
@@ -108,6 +112,7 @@ AdminDashService.newCourse().sessions!.length > 0) {
           >
             Delete
           </button>
+          }
         </td>
       </tr>
       <!-- Confirmation Message when wanting to delete a session -->

@@ -17,7 +17,7 @@ export class SessionActionsComponent {
   AdminDashService = inject(AdminDashService);
 
   @Input({ required: true }) editingCourseId!: string | null | undefined;
-  // @Input({ required: true }) AdminDashService.newCourse()!: Course;
+  @Input({ required: true }) courseAction!: 'add' | 'update' | '';
   showSessionModal = false;
   deleteSessionMessage = signal<{ show: boolean; sessionIndex: number }>({
     show: false,
@@ -57,7 +57,11 @@ export class SessionActionsComponent {
   }
 
   saveSession(): void {
-    if (!this.editingCourseId) return;
+    if (
+      (this.courseAction === 'update' || this.courseAction === '') &&
+      !this.editingCourseId
+    )
+      return;
 
     const updatedCourse = { ...this.AdminDashService.newCourse() };
 

@@ -30,22 +30,14 @@
     />
 
     <!-- EDITING COURSE  -->
-    @if (editingCourseId) {
-    <!-- <div class="sm:col-span-3 border rounded-lg p-3">
-    <div class="flex justify-between items-center mb-2">
-      <h3 class="font-semibold">Course Sessions</h3>
-      <button
-        type="button"
-        (click)="openAddSessionModal(newCourse)"
-        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm transition"
-      >
-        Add Session
-      </button>
-    </div> -->
+    @if (editingCourseId || true) {
 
     <!-- ------------------SESSIONS TABLE + BUTTONS(EDIT/DELETE)--------------------------  -->
     <div class="sm:col-span-6 border rounded-lg p-3">
-      <app-session-actions [editingCourseId]="editingCourseId" />
+      <app-session-actions
+        [editingCourseId]="editingCourseId"
+        [courseAction]="action"
+      />
     </div>
     }
 
