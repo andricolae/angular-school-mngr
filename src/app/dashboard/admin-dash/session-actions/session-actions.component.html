@@ -11,7 +11,7 @@
     "
     class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm transition"
   >
-    {{ showSessionModal === false ? "Add Session" : "Close Session" }}
+    {{ showSessionModal === false ? "Add Session" : "Close Section" }}
   </button>
 </div>
 
@@ -82,24 +82,27 @@ AdminDashService.newCourse().sessions!.length > 0) {
       <tr class="bg-gray-50">
         <th class="py-2 px-3 text-left">Date</th>
         <th class="py-2 px-3 text-left">Time</th>
-        @if(courseAction==='update'){
         <th class="py-2 px-3 text-center">Actions</th>
-        }
       </tr>
     </thead>
     <tbody>
       @for (session of AdminDashService.newCourse().sessions; track session.id;
       let i = $index) {
-      <tr class="border-b">
+      <tr
+        class="{{
+          deleteSessionMessage().show &&
+          deleteSessionMessage().sessionIndex === i
+            ? ''
+            : 'border-b'
+        }}"
+      >
         <td class="py-2 px-3">{{ formatDate(session.date) }}</td>
         <td class="py-2 px-3">{{ session.startTime }}-{{ session.endTime }}</td>
-        <td class="py-2 px-3 flex justify-evenly gap-1">
-          @if(courseAction==='update'){
-
+        <td class="py-2 px-3 flex justify-around gap-1">
           <button
             type="button"
             (click)="editSession(AdminDashService.newCourse(), i)"
-            class="bg-blue-500 hover:bg-blue-600 text-white py-1 rounded-lg font-medium transition w-14"
+            class="bg-blue-500 hover:bg-blue-600 text-white py-1 rounded-lg font-medium transition w-16"
             title="Edit session"
           >
             Edit
@@ -107,12 +110,11 @@ AdminDashService.newCourse().sessions!.length > 0) {
           <button
             type="button"
             (click)="onDeleteSessionClick(i)"
-            class="bg-red-500 hover:bg-red-600 text-white py-1 rounded-lg font-medium transition w-14"
+            class="bg-red-500 hover:bg-red-600 text-white py-1 rounded-lg font-medium transition w-16"
             title="Delete session"
           >
             Delete
           </button>
-          }
         </td>
       </tr>
       <!-- Confirmation Message when wanting to delete a session -->
@@ -120,7 +122,7 @@ AdminDashService.newCourse().sessions!.length > 0) {
       i)){
       <tr class="border-b">
         <td colspan="2">
-          <p class="text-lg font-medium sm:col-span-4 mt-2 text-red-400">
+          <p class="text-lg font-medium sm:col-span-4 ml-2 text-red-400 italic">
             Do you really want to delete this session?
           </p>
         </td>

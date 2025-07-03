@@ -1,6 +1,10 @@
 <div class="bg-white rounded-xl shadow-md p-6 max-w-3xl mx-auto">
   <app-spinner />
-  @if(category === 'course' ){
+  @if(category === 'course' ){ @if(inputFieldsEmpty){
+  <p class="text-lg font-medium sm:col-span-4 ml-2 mb-4 text-red-400 italic">
+    For adding a course the: name, teacher and schedule are mandatory
+  </p>
+  }
   <form (ngSubmit)="addCourse()" class="grid gap-4 sm:grid-cols-6 mb-4">
     <!-- ------------------FORM ELEMENTS --------------------------  -->
     <input

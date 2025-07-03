@@ -30,9 +30,10 @@ export class CourseUserAddUpdateDataComponent {
 
   cancelUpdateCourseModel = false;
   cancelUpdateUserModel = false;
+  inputFieldsEmpty = false;
 
+  // used for closing the entire dialog (in add course) if all the input fiels and session are empty
   cancelingClickFunction = output<void>();
-
   async onCancelClick(): Promise<void> {
     this.cancelingClickFunction.emit();
   }
@@ -42,11 +43,11 @@ export class CourseUserAddUpdateDataComponent {
   //-------------------------- SESSION RELATED METHODS/FUNCTIONS  ----------------
 
   addCourse() {
-    if (
-      this.AdminDashService.newCourse().name === '' ||
-      this.AdminDashService.newCourse().teacherId === ''
-    )
-      return console.log('empty course');
+    this.AdminDashService.onCheckIfEmpty();
+    if (this.AdminDashService.inputFieldsEmpty) {
+      return;
+    }
+
     if (this.editingCourseId) {
       if (this.AdminDashService.newCourse().teacherId) {
         const selectedTeacher = this.teachers?.find(
@@ -86,6 +87,7 @@ export class CourseUserAddUpdateDataComponent {
         })
       );
     }
+
     this.action === 'update' ? this.onCancelClick() : this.resetCourseForm();
   }
 
@@ -136,35 +138,17 @@ export class CourseUserAddUpdateDataComponent {
   }
 
   onCancelUpdateCourseModel() {
+    if (this.action === 'add') {
+      this.AdminDashService.onCheckIfEmpty();
+      if (this.AdminDashService.inputFieldsEmpty) {
+        this.AdminDashService.inputFieldsEmpty = false;
+        this.onCancelClick();
+      }
+    }
     this.cancelUpdateCourseModel = !this.cancelUpdateCourseModel;
   }
 
   onCancelUpdateUserModel() {
     this.cancelUpdateUserModel = !this.cancelUpdateUserModel;
   }
-
-  //TO DELETE THIS CODE
-
-  // async onCancelUpdatingClick(formName: 'course' | 'user'): Promise<void> {
-  //   switch (formName) {
-  //     case 'course': {
-  //       const confirmed = await this.dialog.open(
-  //         'Do you really want to cancel updating this course?'
-  //       );
-  //       if (confirmed) {
-  //         this.resetCourseForm();
-  //       }
-  //       break;
-  //     }
-  //     case 'user': {
-  //       const confirmed = await this.dialog.open(
-  //         'Do you really want to cancel updating this user?'
-  //       );
-  //       if (confirmed) {
-  //         this.resetUserForm();
-  //       }
-  //       break;
-  //     }
-  //   }
-  // }
 }

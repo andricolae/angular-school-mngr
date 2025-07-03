@@ -54,6 +54,7 @@ export class SessionActionsComponent {
     this.editingSession = { ...course.sessions![sessionIndex] };
     this.editingSessionIndex = sessionIndex;
     this.showSessionModal = true;
+    this.resetDeleteSessionMessage();
   }
 
   saveSession(): void {
@@ -105,6 +106,7 @@ export class SessionActionsComponent {
       show: !current.show,
       sessionIndex: sessionIndex,
     });
+    this.closeSessionModal();
   }
 
   resetDeleteSessionMessage() {

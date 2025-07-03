@@ -5,8 +5,16 @@ import { Course } from '../../core/user.model';
   providedIn: 'root',
 })
 export class AdminDashService {
+  newCourse = signal<Course>({
+    name: '',
+    teacher: '',
+    schedule: '',
+    sessions: [],
+    enrolledStudents: [],
+  });
   cancelUpdateCourseModel = false;
   cancelUpdateUserModel = false;
+  inputFieldsEmpty = false;
 
   onCancelUpdateCourseModel() {
     this.cancelUpdateCourseModel = !this.cancelUpdateCourseModel;
@@ -16,11 +24,14 @@ export class AdminDashService {
     this.cancelUpdateUserModel = !this.cancelUpdateUserModel;
   }
 
-  newCourse = signal<Course>({
-    name: '',
-    teacher: '',
-    schedule: '',
-    sessions: [],
-    enrolledStudents: [],
-  });
+  onCheckIfEmpty() {
+    if (
+      this.newCourse().name === '' &&
+      this.newCourse().teacher === '' &&
+      this.newCourse().schedule === '' &&
+      this.newCourse().sessions?.length === 0
+    ) {
+      this.inputFieldsEmpty = true;
+    }
+  }
 }
