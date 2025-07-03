@@ -84,6 +84,7 @@ export class WeeklyScheduleComponent {
     }
   }
 
+
   generateWeekSchedule(): void {
     this.weekDays.forEach(day => (day.sessions = []));
 
@@ -180,5 +181,4 @@ export class WeeklyScheduleComponent {
     this.generateWeekDays();
     this.generateWeekSchedule();
   }
-
 }
