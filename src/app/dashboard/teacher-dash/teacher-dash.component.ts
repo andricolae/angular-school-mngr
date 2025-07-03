@@ -22,7 +22,7 @@ import { WeeklyScheduleComponent } from '../student-dash/weekly-schedule/weekly-
 })
 export class TeacherDashComponent {
   teacherName = '';
-  activeTab: 'grades' | 'attendance' = 'grades';
+  activeTab: 'grades' | 'attendance' | 'pending' = 'grades';
   selectedCourse: string | null = null;
   isAddGradeModalOpen = false;
   currentDate = new Date();
@@ -83,6 +83,8 @@ export class TeacherDashComponent {
         this.myCourses = courses
           .filter(course => course.teacherId === this.currentUser?.id || course.teacher === this.currentUser?.fullName)
           .map(course => {
+            console.log('Max attendees:', (course as any).maxNoOfAttendees); //VERIFICARE 
+             
             const students = course.enrolledStudents?.map(studentId => {
               const student = users.find(u => u.id === studentId);
 
@@ -104,18 +106,35 @@ export class TeacherDashComponent {
                 });
               }
 
+
               return {
                 id: studentId,
                 name: student?.fullName || 'Unknown Student',
                 email: student?.email || '',
                 grades: grades,
-                attendance: attendance
+                attendance: attendance,
               };
+
+            
             }) || [];
+
+            const pendingS = (course as any).pendingStudents?.map((studentId : string) => {
+              const student = users.find(u => u.id === studentId);
+
+            return {
+              id: studentId,
+              name: student?.fullName || 'Unknown Student',
+              email: student?.email || '',
+            };
+          }) || [];
+
 
             return {
               ...course,
-              students: students
+              students: students,
+              maxNoOfAttendees: (course as any).maxNoOfAttendees,
+              pendingS: pendingS,
+             
             };
           });
       }
