@@ -26,11 +26,13 @@ export class AdminDashService {
 
   onCheckIfEmpty() {
     if (
-      this.newCourse().name === '' &&
-      this.newCourse().teacher === '' &&
-      this.newCourse().schedule === '' &&
-      this.newCourse().sessions?.length === 0
+      this.newCourse().name !== '' ||
+      this.newCourse().teacher !== '' ||
+      this.newCourse().schedule !== '' ||
+      this.newCourse().sessions?.length !== 0
     ) {
+      this.inputFieldsEmpty = false;
+    } else {
       this.inputFieldsEmpty = true;
     }
   }

@@ -99,6 +99,8 @@ AdminDashService.newCourse().sessions!.length > 0) {
         <td class="py-2 px-3">{{ formatDate(session.date) }}</td>
         <td class="py-2 px-3">{{ session.startTime }}-{{ session.endTime }}</td>
         <td class="py-2 px-3 flex justify-around gap-1">
+          @if(!deleteSessionMessage().show || (deleteSessionMessage().show &&
+          (deleteSessionMessage().sessionIndex !== i))){
           <button
             type="button"
             (click)="editSession(AdminDashService.newCourse(), i)"
@@ -115,6 +117,7 @@ AdminDashService.newCourse().sessions!.length > 0) {
           >
             Delete
           </button>
+          }
         </td>
       </tr>
       <!-- Confirmation Message when wanting to delete a session -->
@@ -122,7 +125,7 @@ AdminDashService.newCourse().sessions!.length > 0) {
       i)){
       <tr class="border-b">
         <td colspan="2">
-          <p class="text-lg font-medium sm:col-span-4 ml-2 text-red-400 italic">
+          <p class="text-lg font-medium ml-2 text-red-400 italic">
             Do you really want to delete this session?
           </p>
         </td>

@@ -28,13 +28,11 @@ export class CourseUserAddUpdateDataComponent {
   @Input() teachers?: UserModel[];
   @Input() newUser?: UserModel;
 
-  cancelUpdateCourseModel = false;
-  cancelUpdateUserModel = false;
-  inputFieldsEmpty = false;
-
   // used for closing the entire dialog (in add course) if all the input fiels and session are empty
   cancelingClickFunction = output<void>();
   async onCancelClick(): Promise<void> {
+    this.AdminDashService.cancelUpdateCourseModel = false;
+    this.AdminDashService.cancelUpdateUserModel = false;
     this.cancelingClickFunction.emit();
   }
 
@@ -142,13 +140,20 @@ export class CourseUserAddUpdateDataComponent {
       this.AdminDashService.onCheckIfEmpty();
       if (this.AdminDashService.inputFieldsEmpty) {
         this.AdminDashService.inputFieldsEmpty = false;
+        this.AdminDashService.cancelUpdateCourseModel = false;
         this.onCancelClick();
+        return;
+      } else {
+        this.AdminDashService.cancelUpdateCourseModel =
+          !this.AdminDashService.cancelUpdateCourseModel;
       }
     }
-    this.cancelUpdateCourseModel = !this.cancelUpdateCourseModel;
+    this.AdminDashService.cancelUpdateCourseModel =
+      !this.AdminDashService.cancelUpdateCourseModel;
   }
 
   onCancelUpdateUserModel() {
-    this.cancelUpdateUserModel = !this.cancelUpdateUserModel;
+    this.AdminDashService.cancelUpdateUserModel =
+      !this.AdminDashService.cancelUpdateUserModel;
   }
 }

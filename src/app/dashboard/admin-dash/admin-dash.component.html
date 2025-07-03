@@ -38,6 +38,8 @@
   <app-admin-dialog
     [title]="`${showUpdateAddCourseData.action.charAt(0).toUpperCase()}${showUpdateAddCourseData.action.slice(1)} Course`"
     (closingClickFunction)="closeCourseAddUpdateDialog()"
+    category="course"
+    [action]="showUpdateAddCourseData.action"
   >
     <app-course-user-add-update-data
       [category]="showUpdateAddCourseData.category"
@@ -52,6 +54,7 @@
   <app-admin-dialog
     title="Edit User"
     (closingClickFunction)="closeUserAddUpdateDialog()"
+    category="user"
   >
     <app-course-user-add-update-data
       [category]="showUpdateAddCourseData.category"

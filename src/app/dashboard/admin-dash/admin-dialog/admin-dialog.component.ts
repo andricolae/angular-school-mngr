@@ -10,6 +10,7 @@ import { AdminDashService } from '../admin-dash.service';
 export class AdminDialogComponent {
   @Input({ required: true }) title!: string;
   @Input({}) category?: 'user' | 'course' | '';
+  @Input({}) action?: 'add' | 'update' | '';
 
   adminDashService = inject(AdminDashService);
 
@@ -17,16 +18,30 @@ export class AdminDialogComponent {
 
   onCloseClick() {
     if (this.category === 'course') {
-      this.adminDashService.cancelUpdateCourseModel =
-        this.adminDashService.cancelUpdateCourseModel === false ? true : false;
-      if (this.adminDashService.inputFieldsEmpty) return;
+      if (this.action === 'add') {
+        this.adminDashService.onCheckIfEmpty();
+        if (this.adminDashService.inputFieldsEmpty) {
+          this.adminDashService.inputFieldsEmpty = false;
+          this.adminDashService.cancelUpdateCourseModel = false;
+          this.closingClickFunction.emit();
+        } else {
+          this.adminDashService.cancelUpdateCourseModel =
+            this.adminDashService.cancelUpdateCourseModel === false
+              ? true
+              : true;
+        }
+      }
+
+      if (this.action === 'update') {
+        this.adminDashService.cancelUpdateCourseModel =
+          this.adminDashService.cancelUpdateCourseModel === false ? true : true;
+      }
     }
     if (this.category === 'user') {
       this.adminDashService.cancelUpdateUserModel =
-        this.adminDashService.cancelUpdateUserModel === false ? true : false;
+        this.adminDashService.cancelUpdateUserModel === false ? true : true;
       return;
     }
     if (this.category === '') return;
-    this.closingClickFunction.emit();
   }
 }
