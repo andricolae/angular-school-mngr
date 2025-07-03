@@ -49,37 +49,23 @@ export class WeeklyScheduleComponent {
   }
 
   initializeWeek(): void {
-    const now = new Date();
+    const today = new Date();
+    this.today = new Date(today);
+    this.today.setHours(0, 0, 0, 0);
 
-    const startDay = now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1);
-    this.startOfWeek = new Date(now.setDate(startDay));
+    const dayOfWeek = today.getDay();
+    const offset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    this.startOfWeek = new Date(today);
+    this.startOfWeek.setDate(today.getDate() + offset);
     this.startOfWeek.setHours(0, 0, 0, 0);
-
-    now.setHours(0, 0, 0, 0);
-    this.today = new Date(now);
 
     this.endOfWeek = new Date(this.startOfWeek);
     this.endOfWeek.setDate(this.startOfWeek.getDate() + 6);
     this.endOfWeek.setHours(23, 59, 59, 999);
 
-    this.weekDays = [];
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date(this.startOfWeek);
-      currentDate.setDate(this.startOfWeek.getDate() + i);
-
-      const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'short' });
-      const dayNumber = currentDate.getDate().toString();
-      const isToday = this.isDateToday(currentDate);
-
-      this.weekDays.push({
-        date: currentDate,
-        dayName,
-        dayNumber,
-        isToday,
-        sessions: []
-      });
-    }
+    this.generateWeekDays();
   }
+
 
   generateWeekSchedule(): void {
     this.weekDays.forEach(day => day.sessions = []);
