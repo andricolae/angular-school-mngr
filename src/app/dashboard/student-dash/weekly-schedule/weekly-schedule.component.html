@@ -1,44 +1,37 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-<div class="mb-4 flex justify-center space-x-3">
-  <button (click)="navigateMonth(-1)"
-          class="bg-gray-200 hover:bg-gray-300 text-gray-800 border border-gray-400 px-3 py-1 rounded-md shadow"
-          title="Previous Month">
-    <i class="fas fa-angle-double-left fa-lg"></i>
-  </button>
-
-  <button (click)="navigateWeek(-1)"
-          class="bg-gray-200 hover:bg-gray-300 text-gray-800 border border-gray-400 px-3 py-1 rounded-md shadow"
-          title="Previous Week">
-    <i class="fas fa-chevron-left fa-lg"></i>
-  </button>
-
-  <button (click)="navigateWeek(1)"
-          class="bg-gray-200 hover:bg-gray-300 text-gray-800 border border-gray-400 px-3 py-1 rounded-md shadow"
-          title="Next Week">
-    <i class="fas fa-chevron-right fa-lg"></i>
-  </button>
-
-  <button (click)="navigateMonth(1)"
-          class="bg-gray-200 hover:bg-gray-300 text-gray-800 border border-gray-400 px-3 py-1 rounded-md shadow"
-          title="Next Month">
-    <i class="fas fa-angle-double-right fa-lg"></i>
-  </button>
-</div>
-
 <div class="bg-white rounded-2xl shadow-md p-4">
+  <div class="flex justify-between items-center mb-3">
+    <h2 class="text-lg font-semibold mb-3" [class.text-yellow-600]="viewType === 'student'"
+      [class.text-green-600]="viewType === 'teacher'">
+      {{ viewType === 'teacher' ? 'Teaching Schedule' : 'Weekly Schedule' }}
+    </h2>
+
+
+    <div class="space-x-2">
+      <button (click)="navigateMonth(-1)" class="px-3 py-1 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700">
+        &#xab;
+      </button>
+      <button (click)="navigateWeek(-1)" class="px-3 py-1 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700">
+        &lt;
+      </button>
+      <button (click)="navigateWeek(1)" class="px-3 py-1 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700">
+        &gt;
+      </button>
+      <button (click)="navigateMonth(1)" class="px-3 py-1 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700">
+        &#xbb;
+      </button>
+    </div>
+  </div>
+
+
   <!-- restul orarului tău aici -->
   <div class="grid grid-cols-7 gap-2">
-    <div *ngFor="let day of weekDays" class="text-center"
-        [class.bg-yellow-50]="viewType === 'student' && day.isToday"
-        [class.bg-green-50]="viewType === 'teacher' && day.isToday"
-        [class.rounded-lg]="day.isToday">
+    <div *ngFor="let day of weekDays" class="text-center" [class.bg-yellow-50]="viewType === 'student' && day.isToday"
+      [class.bg-green-50]="viewType === 'teacher' && day.isToday" [class.rounded-lg]="day.isToday">
       <div class="mb-1">
         <div class="font-medium text-gray-700">{{ day.dayName }}</div>
         <div class="inline-block rounded-full w-7 h-7 flex items-center justify-center"
-            [class.bg-yellow-500]="viewType === 'student' && day.isToday"
-            [class.bg-green-500]="viewType === 'teacher' && day.isToday"
-            [class.text-white]="day.isToday">
+          [class.bg-yellow-500]="viewType === 'student' && day.isToday"
+          [class.bg-green-500]="viewType === 'teacher' && day.isToday" [class.text-white]="day.isToday">
           {{ day.dayNumber }}
         </div>
       </div>
@@ -49,11 +42,9 @@
       <ng-template #hasSessions>
         <div class="space-y-2 mt-2">
           <div *ngFor="let session of day.sessions" class="rounded-lg p-2 text-left text-xs shadow-sm"
-              [class.bg-yellow-100]="viewType === 'student'"
-              [class.bg-green-100]="viewType === 'teacher'">
-            <div class="font-medium"
-                [class.text-yellow-800]="viewType === 'student'"
-                [class.text-green-800]="viewType === 'teacher'">
+            [class.bg-yellow-100]="viewType === 'student'" [class.bg-green-100]="viewType === 'teacher'">
+            <div class="font-medium" [class.text-yellow-800]="viewType === 'student'"
+              [class.text-green-800]="viewType === 'teacher'">
               {{ session.courseName }}
             </div>
             <div class="text-gray-600">{{ formatTimeRange(session.startTime, session.endTime) }}</div>
@@ -65,4 +56,3 @@
       </ng-template>
     </div>
   </div>
-</div>

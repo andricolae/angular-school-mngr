@@ -180,4 +180,5 @@ export class WeeklyScheduleComponent {
     this.generateWeekDays();
     this.generateWeekSchedule();
   }
+
 }
