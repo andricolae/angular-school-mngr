@@ -34,6 +34,7 @@ interface EnrolledCourse {
   teacher: string;
   schedule: string;
   grades: CourseGrade[];
+  pendingStudents?: string[];
   sessions: {
     id: string;
     date: Date;

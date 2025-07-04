@@ -8,6 +8,7 @@ import * as CourseSelectors from '../../../state/courses/course.selector';
 import * as CourseActions from '../../../state/courses/course.actions';
 import { SpinnerComponent } from '../../../core/spinner/spinner.component';
 import { SpinnerService } from '../../../core/services/spinner.service';
+import { CourseService } from '../../../core/services/course.service';
 
 interface AppState {
   courses: {
@@ -43,9 +44,14 @@ export class CourseEnrollmentComponent implements OnInit, OnDestroy {
 
   private coursesSubscription?: Subscription;
 
+  enrolledCourses: string[] = []
+  pendingEnrollments: string[] = [];
+  selectedStatus: 'All' | 'Enrolled' | 'Pending' | 'Not Enrolled' = 'All';
+
   constructor(
     private store: Store<AppState>,
-    private spinner: SpinnerService
+    private spinner: SpinnerService,
+    private courseService: CourseService
   ) {
     this.availableCourses$ = this.store.select(CourseSelectors.selectAvailableCourses);
     this.loading$ = this.store.select(CourseSelectors.selectCoursesLoading);
@@ -62,6 +68,9 @@ export class CourseEnrollmentComponent implements OnInit, OnDestroy {
         .filter(teacher => teacher)
         .sort();
 
+      this.pendingEnrollments = courses
+        .filter(course => course.pendingStudents && course.pendingStudents.includes(this.studentId))
+        .map(course => course.id!);
       this.filterCourses();
     });
   }
@@ -82,28 +91,41 @@ export class CourseEnrollmentComponent implements OnInit, OnDestroy {
     this.spinner.show();
     this.isLoading = true;
 
-    setTimeout(() => {
-      let updatedEnrollments: string[];
+    let updatedEnrollments: string[] = [...this.enrolledCourseIds];
 
-      if (this.isEnrolled(course.id!)) {
-        this.store.dispatch(CourseActions.unenrollStudent({
-          courseId: course.id!,
-          studentId: this.studentId
-        }));
-        updatedEnrollments = this.enrolledCourseIds.filter(id => id !== course.id);
-      } else {
-        this.store.dispatch(CourseActions.enrollStudent({
-          courseId: course.id!,
-          studentId: this.studentId
-        }));
-        updatedEnrollments = [...this.enrolledCourseIds, course.id!];
-      }
+    if (this.isEnrolled(course.id!)) {
+      this.store.dispatch(CourseActions.unenrollStudent({
+        courseId: course.id!,
+        studentId: this.studentId
+      }));
+      updatedEnrollments = updatedEnrollments.filter(id => id !== course.id);
 
       this.spinner.hide();
       this.isLoading = false;
-
       this.enrollmentChanged.emit(updatedEnrollments);
-    }, 500);
+
+    } else if (this.isPending(course.id!)) {
+      this.courseService.cancelEnrollment(course.id!, this.studentId).subscribe(() => {
+        this.pendingEnrollments = this.pendingEnrollments.filter(id => id !== course.id);
+
+        this.spinner.hide();
+        this.isLoading = false;
+      });
+
+    } else {
+      console.log(this.courseService);
+      this.courseService.requestEnrollment(course.id!, this.studentId).subscribe(() => {
+        this.pendingEnrollments.push(course.id!);
+
+        this.spinner.hide();
+        this.isLoading = false;
+      });
+    }
+    console.log('CourseService este:', this.courseService);
+  }
+
+  isPending(courseId: string): boolean {
+    return this.pendingEnrollments.includes(courseId);
   }
 
   close() {
@@ -139,13 +161,22 @@ export class CourseEnrollmentComponent implements OnInit, OnDestroy {
       const searchMatch = !this.searchTerm ||
         course.name.toLowerCase().includes(this.searchTerm.toLowerCase());
 
-      return teacherMatch && searchMatch;
+      let statusMatch = true;
+      if (this.selectedStatus === 'Enrolled') {
+        statusMatch = this.isEnrolled(course.id!);
+      } else if (this.selectedStatus === 'Pending') {
+        statusMatch = this.isPending(course.id!);
+      } else if (this.selectedStatus === 'Not Enrolled') {
+        statusMatch = !this.isEnrolled(course.id!) && !this.isPending(course.id!);
+      }
+      return teacherMatch && searchMatch && statusMatch;
     });
   }
 
   resetFilters(): void {
     this.searchTerm = '';
     this.selectedTeacher = '';
+    this.selectedStatus = 'All';
     this.filterCourses();
   }
 

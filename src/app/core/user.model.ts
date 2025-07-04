@@ -37,6 +37,7 @@ export interface Course {
     }
   };
   pendingSchedule?: boolean;
+  pendingStudents?: string[]; 
 }
 
 export interface CourseSession {
