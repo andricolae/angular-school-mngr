@@ -218,4 +218,14 @@ export class CourseService {
       })
     );
   }
+
+  acceptPendingStudent(courseId: string, studentId: string): Observable<void> {
+    const courseDoc = doc(this.firestore, `courses/${courseId}`);
+    return from(
+      updateDoc(courseDoc, {
+        enrolledStudents: arrayUnion(studentId),
+        pendingStudents: arrayRemove(studentId)
+      })
+    );
+  }
 }

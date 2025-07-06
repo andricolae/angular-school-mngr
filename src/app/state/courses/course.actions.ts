@@ -189,3 +189,18 @@ export const removePendingStudentFailure = createAction(
   '[Course] Remove Pending Student Failure',
   props<{ error: any }>()
 );
+
+export const acceptPendingStudent = createAction(
+  '[Course] Accept Pending Student',
+  props<{ courseId: string, studentId: string }>()
+);
+
+export const acceptPendingStudentSuccess = createAction(
+  '[Course] Accept Pending Student Success',
+  props<{ courseId: string, studentId: string }>()
+);
+
+export const acceptPendingStudentFailure = createAction(
+  '[Course] Accept Pending Student Failure',
+  props<{ error: any }>()
+);
