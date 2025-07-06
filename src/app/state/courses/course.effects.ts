@@ -608,4 +608,31 @@ enrollStudent$ = createEffect(() =>
   //     )
   //   )
   // );
+  removePendingStudent$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CourseActions.removePendingStudent),
+      mergeMap(({ courseId, studentId }) =>
+        this.courseService.removePendingStudent(courseId, studentId).pipe(
+          map(() => {
+            this.logger.logStudent(
+              'REMOVE_PENDING_STUDENT_SUCCESS',
+              `Successfully removed pending student with ID "${studentId}" from course "${courseId}"`,
+              { courseId, studentId }
+            );
+            NotificationComponent.show('success', 'Pending student removed successfully');
+            return CourseActions.removePendingStudentSuccess({ courseId, studentId });
+          }),
+          /*catchError((error) => {
+            this.logger.logStudent(
+              'REMOVE_PENDING_STUDENT_FAIL',
+              `Failed to remove pending student with ID "${studentId}" from course "${courseId}": ${error.message}`,
+              { courseId, studentId, error: error.message }
+            );
+            NotificationComponent.show('alert', `Failed to remove pending student: ${error.message}`);
+            return of(CourseActions.removePendingStudentFail({ error: error.message }));
+          })*/
+        )
+      )
+    )
+  );
 }

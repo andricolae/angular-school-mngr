@@ -99,6 +99,17 @@
                       <h5 class="font-medium">{{ student.name }}</h5>
                     </div>
                   </div>
+                  <div class="flex gap-2 mt-2">
+                    <button
+                      class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm transition">
+                      Approve Enrollment
+                    </button>
+                    <button
+                      (click)="onDecline(course.id, student.id)"
+                      class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm transition">
+                      Decline Enrollment
+                    </button>
+                  </div>
                 }
               }
             }

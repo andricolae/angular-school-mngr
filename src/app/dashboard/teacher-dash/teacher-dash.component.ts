@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { selectAllCourses } from '../../state/courses/course.selector';
 import { combineLatest, Subscription } from 'rxjs';
 import { WeeklyScheduleComponent } from '../student-dash/weekly-schedule/weekly-schedule.component';
+import { removePendingStudent } from '../../state/courses/course.actions';
 
 @Component({
   selector: 'app-teacher-dash',
@@ -275,5 +276,8 @@ export class TeacherDashComponent {
     });
   }
 
+  onDecline(courseId: string, studentId: string) {
+    this.store.dispatch(removePendingStudent({ courseId, studentId }));
+  }
   
 }

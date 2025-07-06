@@ -174,3 +174,18 @@ export const checkScheduleStatusFail = createAction(
   '[Courses] Check Schedule Status Fail',
   props<{ error: string }>()
 );
+
+export const removePendingStudent = createAction(
+  '[Course] Remove Pending Student',
+  props<{ courseId: string, studentId: string }>()
+);
+
+export const removePendingStudentSuccess = createAction(
+  '[Course] Remove Pending Student Success',
+  props<{ courseId: string, studentId: string }>()
+);
+
+export const removePendingStudentFailure = createAction(
+  '[Course] Remove Pending Student Failure',
+  props<{ error: any }>()
+);
