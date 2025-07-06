@@ -281,6 +281,10 @@ export class TeacherDashComponent {
   }
   
   onApprove(courseId: string, studentId: string) {
+    const course = this.myCourses.find(c => c.id === courseId);
+    if (course && course.students.length >= course.maxNoOfAttendees) {
+      return;
+    }
   this.store.dispatch(acceptPendingStudent({ courseId, studentId }));
 }
 
