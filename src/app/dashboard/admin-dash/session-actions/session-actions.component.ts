@@ -35,16 +35,21 @@ export class SessionActionsComponent {
   };
 
   editingSessionIndex: number = -1;
+
   //-------------------------- SESSION RELATED METHODS/FUNCTIONS + OPEN/CLOSE MODAL----------------
 
   // doesn't work, was created with the intent of showing the sessions ordered by date, but it breaks the edit and delete actions
-  // get sortedSessions() {
-  //   return [...(this.AdminDashService.newCourse().sessions ?? [])].sort(
-  //     (a, b) => {
-  //       return new Date(a.date).getTime() - new Date(b.date).getTime();
-  //     }
-  //   );
-  // }
+  sortSessionsByDate(): void {
+    const currentCourse = this.AdminDashService.newCourse();
+    const sortedSessions = [...(currentCourse.sessions ?? [])].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    this.AdminDashService.newCourse.update((course) => ({
+      ...course,
+      sessions: sortedSessions,
+    }));
+  }
 
   // -----------------------SAVING SESSIONS--------------------------------
 
@@ -76,6 +81,7 @@ export class SessionActionsComponent {
       startTime: '00:00',
       endTime: '00:00',
     };
+    this.sortSessionsByDate();
     this.closeSessionModal();
   }
 
