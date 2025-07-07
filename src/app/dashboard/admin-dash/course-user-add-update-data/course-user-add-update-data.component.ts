@@ -28,6 +28,11 @@ export class CourseUserAddUpdateDataComponent {
   @Input() teachers?: UserModel[];
   @Input() newUser?: UserModel;
 
+  constructor(private store: Store) {}
+
+  confirmationAddUpdateMessage = false;
+  allCourseInputNotEmpty = true;
+
   // used for closing the entire dialog (in add course) if all the input fiels and session are empty
   cancelingClickFunction = output<void>();
   async onCancelClick(): Promise<void> {
@@ -35,8 +40,6 @@ export class CourseUserAddUpdateDataComponent {
     this.AdminDashService.cancelUpdateUserModel = false;
     this.cancelingClickFunction.emit();
   }
-
-  constructor(private store: Store) {}
 
   //-------------------------- SESSION RELATED METHODS/FUNCTIONS  ----------------
 
@@ -86,24 +89,9 @@ export class CourseUserAddUpdateDataComponent {
       );
     }
 
+    //if update close the dialog, if add just reset form and keep dialog open
     this.action === 'update' ? this.onCancelClick() : this.resetCourseForm();
-  }
-
-  editCourse(course: Course) {
-    this.AdminDashService.newCourse.set({ ...course });
-    this.editingCourseId = course.id!;
-
-    if (
-      !this.AdminDashService.newCourse().teacherId &&
-      this.AdminDashService.newCourse().teacher
-    ) {
-      const foundTeacher = this.teachers?.find(
-        (t) => t.fullName === this.AdminDashService.newCourse().teacher
-      );
-      if (foundTeacher) {
-        this.AdminDashService.newCourse().teacherId = foundTeacher.id;
-      }
-    }
+    this.confirmationAddUpdateMessage = false;
   }
 
   //-------------------------- USER RELATED METHODS/FUNCTIONS----------------
@@ -135,19 +123,46 @@ export class CourseUserAddUpdateDataComponent {
     this.editingUserId = null;
   }
 
+  onAddUpdateShowConfirmationMessage() {
+    if (this.category === 'course') {
+      this.onCheckAllInputsNotEmpty();
+      if (!this.allCourseInputNotEmpty) {
+        return;
+      }
+      this.confirmationAddUpdateMessage = !this.confirmationAddUpdateMessage;
+    } else {
+      this.confirmationAddUpdateMessage = !this.confirmationAddUpdateMessage;
+    }
+  }
+
+  onCheckAllInputsNotEmpty() {
+    this.allCourseInputNotEmpty =
+      this.AdminDashService.newCourse().name !== '' &&
+      this.AdminDashService.newCourse().teacherId !== '' &&
+      this.AdminDashService.newCourse().schedule !== '';
+  }
+
   onCancelUpdateCourseModel() {
     if (this.action === 'add') {
       this.AdminDashService.onCheckIfEmpty();
+      //all fields empty close dialog
       if (this.AdminDashService.inputFieldsEmpty) {
+        console.log(
+          'here teacher id' + this.AdminDashService.newCourse().teacherId
+        );
         this.AdminDashService.inputFieldsEmpty = false;
         this.AdminDashService.cancelUpdateCourseModel = false;
+
         this.onCancelClick();
         return;
       } else {
+        //else show confirmation message
         this.AdminDashService.cancelUpdateCourseModel =
           !this.AdminDashService.cancelUpdateCourseModel;
+        return;
       }
     }
+    // show confirmation message
     this.AdminDashService.cancelUpdateCourseModel =
       !this.AdminDashService.cancelUpdateCourseModel;
   }

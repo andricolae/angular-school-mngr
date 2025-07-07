@@ -14,49 +14,41 @@ import { AdminDashService } from '../admin-dash.service';
 })
 export class SessionActionsComponent {
   @ViewChild('dialog') dialog!: ConfirmationDialogComponent;
-  AdminDashService = inject(AdminDashService);
+  AdminDashService = inject(AdminDashService); // injected for the newCourse signal
 
   @Input({ required: true }) editingCourseId!: string | null | undefined;
   @Input({ required: true }) courseAction!: 'add' | 'update' | '';
   showSessionModal = false;
+
+  // show: for showing the confirmation delele message, session Index: so we know which session shall be deleted
   deleteSessionMessage = signal<{ show: boolean; sessionIndex: number }>({
     show: false,
     sessionIndex: -1,
   });
+
+  //session structure
   editingSession: CourseSession = {
     id: '',
     date: new Date(),
     startTime: '',
     endTime: '',
   };
+
   editingSessionIndex: number = -1;
   //-------------------------- SESSION RELATED METHODS/FUNCTIONS + OPEN/CLOSE MODAL----------------
-  openAddSessionModal(course: Course): void {
-    this.editingSession = {
-      id: uuidv4(),
-      date: new Date(),
-      startTime: '10:00',
-      endTime: '12:00',
-    };
-    this.editingSessionIndex = -1;
-    this.showSessionModal = true;
-  }
 
-  get sortedSessions() {
-    return [...(this.AdminDashService.newCourse().sessions ?? [])].sort(
-      (a, b) => {
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
-      }
-    );
-  }
+  // doesn't work, was created with the intent of showing the sessions ordered by date, but it breaks the edit and delete actions
+  // get sortedSessions() {
+  //   return [...(this.AdminDashService.newCourse().sessions ?? [])].sort(
+  //     (a, b) => {
+  //       return new Date(a.date).getTime() - new Date(b.date).getTime();
+  //     }
+  //   );
+  // }
 
-  editSession(course: Course, sessionIndex: number): void {
-    this.editingSession = { ...course.sessions![sessionIndex] };
-    this.editingSessionIndex = sessionIndex;
-    this.showSessionModal = true;
-    this.resetDeleteSessionMessage();
-  }
+  // -----------------------SAVING SESSIONS--------------------------------
 
+  //saving the sessions
   saveSession(): void {
     if (
       (this.courseAction === 'update' || this.courseAction === '') &&
@@ -81,12 +73,39 @@ export class SessionActionsComponent {
     this.editingSession = {
       id: uuidv4(),
       date: new Date(),
-      startTime: '10:00',
-      endTime: '12:00',
+      startTime: '00:00',
+      endTime: '00:00',
     };
     this.closeSessionModal();
   }
 
+  // getting the session data by index and the actual index, showing the modal and closing any existing delete confirmation message
+  editSession(course: Course, sessionIndex: number): void {
+    this.editingSession = { ...course.sessions![sessionIndex] };
+    this.editingSessionIndex = sessionIndex;
+    this.showSessionModal = true;
+    this.resetDeleteSessionMessage();
+  }
+
+  // ----------------MODAL FOR EDITING AND ADDING DATA--------------
+  openAddSessionModal(course: Course): void {
+    this.editingSession = {
+      id: uuidv4(),
+      date: new Date(),
+      startTime: '00:00',
+      endTime: '00:00',
+    };
+    this.editingSessionIndex = -1;
+    this.showSessionModal = true;
+  }
+
+  closeSessionModal(): void {
+    this.showSessionModal = false;
+  }
+
+  // ------------------DELETE RELATED---------------------
+
+  //deleting a session
   async deleteSession(sessionIndex: number): Promise<void> {
     const updatedCourse = { ...this.AdminDashService.newCourse() };
     updatedCourse.sessions = updatedCourse.sessions!.filter(
@@ -96,10 +115,7 @@ export class SessionActionsComponent {
     this.resetDeleteSessionMessage();
   }
 
-  closeSessionModal(): void {
-    this.showSessionModal = false;
-  }
-
+  //when clicking on the delete session button
   onDeleteSessionClick(sessionIndex: number) {
     const current = this.deleteSessionMessage();
     this.deleteSessionMessage.set({
@@ -116,6 +132,7 @@ export class SessionActionsComponent {
     });
   }
 
+  // ----------------DATE FORMAT------------------------
   formatDate(date: Date): string {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',

@@ -24,10 +24,11 @@ export class AdminDashService {
     this.cancelUpdateUserModel = !this.cancelUpdateUserModel;
   }
 
+  //used for add course, if one of the input fields not empty, dialog can't be closed without conf message
   onCheckIfEmpty() {
     if (
       this.newCourse().name !== '' ||
-      this.newCourse().teacher !== '' ||
+      this.newCourse().teacherId !== '' ||
       this.newCourse().schedule !== '' ||
       this.newCourse().sessions?.length !== 0
     ) {

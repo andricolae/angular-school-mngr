@@ -1,11 +1,11 @@
-<div class="bg-white rounded-xl shadow-md p-6 max-w-3xl mx-auto">
+<div class="bg-white rounded-xl shadow-md p-6 mx-auto">
   <app-spinner />
-  @if(category === 'course' ){ @if(AdminDashService.inputFieldsEmpty){
+  @if(category === 'course' ){ @if(!allCourseInputNotEmpty){
   <p class="text-lg font-medium sm:col-span-4 ml-2 mb-4 text-red-400 italic">
     For adding a course the: name, teacher and schedule are mandatory
   </p>
   }
-  <form (ngSubmit)="addCourse()" class="grid gap-4 sm:grid-cols-6 mb-4">
+  <form (ngSubmit)="addCourse()" class="grid gap-4 sm:grid-cols-6 mb4">
     <!-- ------------------FORM ELEMENTS --------------------------  -->
     <input
       [(ngModel)]="AdminDashService.newCourse().name"
@@ -44,10 +44,12 @@
     </div>
 
     <!-- ------------------ADD/UPDATE & CANCEL FORM BUTTONS--------------------------  -->
-    @if(!AdminDashService.cancelUpdateCourseModel){
+    @if(!AdminDashService.cancelUpdateCourseModel &&
+    !confirmationAddUpdateMessage ){
     <button
-      type="submit"
+      type="button"
       class="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition sm:col-span-4"
+      (click)="onAddUpdateShowConfirmationMessage()"
     >
       {{ action === "update" ? "Update Course" : "Add Course" }}
     </button>
@@ -66,8 +68,8 @@
       }}
     </button>
 
-    <!-- CONFIRMATION MESSAGE -->
-    } @else {
+    <!-- CONFIRMATION MESSAGE FOR ADD UPDATE  -->
+    } @else if(AdminDashService.cancelUpdateCourseModel) {
 
     <p class="text-lg font-medium sm:col-span-4 mt-2 text-red-400">
       {{
@@ -91,6 +93,27 @@
       No
     </button>
 
+    } @else if(confirmationAddUpdateMessage){
+    <p class="text-lg font-medium sm:col-span-4 mt-2 text-blue-400">
+      {{
+        this.action === "update"
+          ? "Do you really want to update this course?"
+          : "Do you really want to add this course?"
+      }}
+    </p>
+    <button
+      type="submit"
+      class="block bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
+    >
+      Yes
+    </button>
+    <button
+      type="button"
+      class="block bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
+      (click)="onAddUpdateShowConfirmationMessage()"
+    >
+      No
+    </button>
     }
   </form>
   <!-- ------------------------USER FORM------------------------------- -->
@@ -114,11 +137,13 @@
       <option value="Student">Student</option>
       <option value="Admin">Admin</option>
     </select>
-    @if(!AdminDashService.cancelUpdateUserModel){
+    @if(!AdminDashService.cancelUpdateUserModel &&
+    !confirmationAddUpdateMessage){
 
     <button
-      type="submit"
+      type="button"
       class="sm:col-span-4 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition"
+      (click)="onAddUpdateShowConfirmationMessage()"
     >
       Update User
     </button>
@@ -134,7 +159,7 @@
     </button>
     }
     <!-- CONFIRMATION MESSAGE -->
-    @else {
+    @else if(AdminDashService.cancelUpdateUserModel) {
 
     <p class="text-lg font-medium sm:col-span-4 mt-2 text-red-400">
       Do you really want to cancel updating this user?
@@ -150,6 +175,25 @@
       type="button"
       class="block bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
       (click)="onCancelUpdateUserModel()"
+    >
+      No
+    </button>
+
+    } @else if(confirmationAddUpdateMessage){
+
+    <p class="text-lg font-medium sm:col-span-4 mt-2 text-blue-400">
+      Do you really want to update this user?
+    </p>
+    <button
+      type="submit"
+      class="block bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
+    >
+      Yes
+    </button>
+    <button
+      type="button"
+      class="block bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1"
+      (click)="onAddUpdateShowConfirmationMessage()"
     >
       No
     </button>

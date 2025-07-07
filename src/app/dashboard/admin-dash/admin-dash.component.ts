@@ -46,15 +46,6 @@ export class AdminDashComponent {
 
   teachers: UserModel[] = [];
 
-  // delete later
-
-  // AdminDashService.newCourse(): Course = {
-  //   name: '',
-  //   teacher: '',
-  //   schedule: '',
-  //   sessions: [],
-  //   enrolledStudents: [],
-  // };
   courses$ = this.store.select(selectAllCourses);
   editingCourseId: string | null = null;
   selectedCourseId: string | undefined = '';
@@ -105,49 +96,6 @@ export class AdminDashComponent {
   }
 
   //-------------------------- SESSION RELATED METHODS/FUNCTIONS  ----------------
-
-  addCourse() {
-    if (this.editingCourseId) {
-      if (this.AdminDashService.newCourse().teacherId) {
-        const selectedTeacher = this.teachers.find(
-          (t) => t.id === this.AdminDashService.newCourse().teacherId
-        );
-        if (selectedTeacher) {
-          this.AdminDashService.newCourse().teacher = selectedTeacher.fullName;
-        }
-      }
-
-      this.store.dispatch(
-        CourseActions.updateCourse({
-          course: {
-            ...this.AdminDashService.newCourse(),
-            id: this.editingCourseId,
-          },
-        })
-      );
-    } else {
-      if (this.AdminDashService.newCourse().teacherId) {
-        const selectedTeacher = this.teachers.find(
-          (t) => t.id === this.AdminDashService.newCourse().teacherId
-        );
-        if (selectedTeacher) {
-          this.AdminDashService.newCourse().teacher = selectedTeacher.fullName;
-        }
-      }
-
-      const courseToAdd: Course = {
-        ...this.AdminDashService.newCourse(),
-        sessions: this.AdminDashService.newCourse().sessions || [],
-        enrolledStudents: [],
-      };
-      this.store.dispatch(
-        CourseActions.addCourse({
-          course: courseToAdd,
-        })
-      );
-    }
-    this.resetCourseForm();
-  }
 
   editCourse(course: Course) {
     this.AdminDashService.newCourse.set({ ...course });
@@ -257,9 +205,6 @@ export class AdminDashComponent {
   }
 
   editUser(user: UserModel) {
-    // if (user.role === 'Admin') {
-    //   return;
-    // }
     this.newUser = {
       email: user.email,
       fullName: user.fullName,
@@ -276,61 +221,6 @@ export class AdminDashComponent {
     );
     this.resetUserForm();
   }
-
-  //-------------------------- SESSION RELATED METHODS/FUNCTIONS + OPEN/CLOSE MODAL----------------
-  // openAddSessionModal(course: Course): void {
-  //   this.editingSession = {
-  //     id: uuidv4(),
-  //     date: new Date(),
-  //     startTime: '10:00',
-  //     endTime: '12:00',
-  //   };
-  //   this.editingSessionIndex = -1;
-  //   this.showSessionModal = true;
-  // }
-
-  // editSession(course: Course, sessionIndex: number): void {
-  //   this.editingSession = { ...course.sessions![sessionIndex] };
-  //   this.editingSessionIndex = sessionIndex;
-  //   this.showSessionModal = true;
-  // }
-
-  // saveSession(): void {
-  //   if (!this.editingCourseId) return;
-
-  //   const updatedCourse = { ...this.AdminDashService.newCourse() };
-
-  //   if (this.editingSessionIndex === -1) {
-  //     updatedCourse.sessions = [
-  //       ...updatedCourse.sessions!,
-  //       this.editingSession,
-  //     ];
-  //   } else {
-  //     updatedCourse.sessions = updatedCourse.sessions!.map((session, index) =>
-  //       index === this.editingSessionIndex ? this.editingSession : session
-  //     );
-  //   }
-
-  //   this.AdminDashService.newCourse() = updatedCourse;
-  //   this.closeSessionModal();
-  // }
-
-  // async deleteSession(sessionIndex: number): Promise<void> {
-  //   const confirmed = await this.dialog.open(
-  //     'Do you really want to delete this session?'
-  //   );
-  //   if (confirmed) {
-  //     const updatedCourse = { ...this.AdminDashService.newCourse() };
-  //     updatedCourse.sessions = updatedCourse.sessions!.filter(
-  //       (_, index) => index !== sessionIndex
-  //     );
-  //     this.AdminDashService.newCourse() = updatedCourse;
-  //   }
-  // }
-
-  // closeSessionModal(): void {
-  //   this.showSessionModal = false;
-  // }
 
   //-------------------------- RESET FORM + CANCEL FORM UPDATE + FORM DATE, TIME----------------
   resetCourseForm(): void {

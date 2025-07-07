@@ -29,12 +29,14 @@ export class AdminDialogComponent {
             this.adminDashService.cancelUpdateCourseModel === false
               ? true
               : true;
+          return;
         }
       }
 
       if (this.action === 'update') {
         this.adminDashService.cancelUpdateCourseModel =
           this.adminDashService.cancelUpdateCourseModel === false ? true : true;
+        return;
       }
     }
     if (this.category === 'user') {
@@ -43,5 +45,6 @@ export class AdminDialogComponent {
       return;
     }
     if (this.category === '') return;
+    this.closingClickFunction.emit();
   }
 }
