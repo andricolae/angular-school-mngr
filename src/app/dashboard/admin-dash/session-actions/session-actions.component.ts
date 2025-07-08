@@ -26,6 +26,11 @@ export class SessionActionsComponent {
     sessionIndex: -1,
   });
 
+  dateValidation = {
+    showMessage: false,
+    message: '',
+  };
+
   //session structure
   editingSession: CourseSession = {
     id: '',
@@ -60,7 +65,10 @@ export class SessionActionsComponent {
       !this.editingCourseId
     )
       return;
-
+    this.isValidDate();
+    if (this.dateValidation.showMessage) {
+      return;
+    }
     const updatedCourse = { ...this.AdminDashService.newCourse() };
 
     if (this.editingSessionIndex === -1) {
@@ -107,6 +115,10 @@ export class SessionActionsComponent {
 
   closeSessionModal(): void {
     this.showSessionModal = false;
+    this.dateValidation = {
+      showMessage: false,
+      message: '',
+    };
   }
 
   // ------------------DELETE RELATED---------------------
@@ -145,5 +157,42 @@ export class SessionActionsComponent {
       month: 'short',
       day: 'numeric',
     });
+  }
+
+  isValidDate() {
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    const dateValid = regex.test(this.editingSession.date.toString());
+    const timeValid =
+      this.editingSession.startTime < this.editingSession.endTime;
+    const timeEqual =
+      this.editingSession.startTime === this.editingSession.endTime;
+
+    if (!dateValid) {
+      this.dateValidation = {
+        showMessage: true,
+        message: 'Please select a date for this session.',
+      };
+      return;
+    }
+    if (timeEqual) {
+      this.dateValidation = {
+        showMessage: true,
+        message: 'The start time and end time cannot be the same.',
+      };
+      return;
+    }
+    if (!timeValid) {
+      this.dateValidation = {
+        showMessage: true,
+        message: 'The start time cannot be greater than the end time.',
+      };
+      return;
+    }
+
+    this.dateValidation = {
+      showMessage: false,
+      message: '',
+    };
+    return;
   }
 }

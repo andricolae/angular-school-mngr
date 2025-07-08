@@ -36,7 +36,6 @@
   @if (showUpdateAddCourseData.show && (showUpdateAddCourseData.category ===
   'course')) {
 
-  <!-- [title]="`${showUpdateAddCourseData.action.charAt(0).toUpperCase()}${showUpdateAddCourseData.action.slice(1)} ${showUpdateAddCourseData.category.charAt(0).toUpperCase()}${showUpdateAddCourseData.category.slice(1)}`" -->
   <app-admin-dialog
     [title]="`${showUpdateAddCourseData.action.charAt(0).toUpperCase()}${showUpdateAddCourseData.action.slice(1)} Course`"
     (closingClickFunction)="closeCourseAddUpdateDialog()"
