@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -9,6 +9,7 @@ import * as CourseActions from '../../../state/courses/course.actions';
 import { SpinnerComponent } from '../../../core/spinner/spinner.component';
 import { SpinnerService } from '../../../core/services/spinner.service';
 import { CourseService } from '../../../core/services/course.service';
+import { ConfirmationDialogComponent } from '../../../core/confirmation-dialog/confirmation-dialog.component';
 
 interface AppState {
   courses: {
@@ -20,7 +21,7 @@ interface AppState {
 
 @Component({
   selector: 'app-course-enrollment',
-  imports: [CommonModule, SpinnerComponent, FormsModule],
+  imports: [CommonModule, SpinnerComponent, FormsModule, ConfirmationDialogComponent],
   templateUrl: './course-enrollment.component.html',
   styleUrl: './course-enrollment.component.css'
 })
@@ -29,6 +30,7 @@ export class CourseEnrollmentComponent implements OnInit, OnDestroy {
   @Input() enrolledCourseIds: string[] = [];
   @Output() closeModal = new EventEmitter<void>();
   @Output() enrollmentChanged = new EventEmitter<string[]>();
+  @ViewChild('dialog') dialog!: ConfirmationDialogComponent;
 
   availableCourses$: Observable<Course[]>;
   loading$: Observable<boolean>;
@@ -87,41 +89,42 @@ export class CourseEnrollmentComponent implements OnInit, OnDestroy {
 
   toggleEnrollment(course: Course): void {
     if (!this.studentId || !course.id) return;
+    if (this.isPending(course.id)) return;
 
-    this.spinner.show();
-    this.isLoading = true;
+    this.dialog.open(
+    this.isEnrolled(course.id) 
+        ? 'Do you really want to unenroll from this course?' 
+        : 'Do you really want to enroll in this course?'
+    ).then(confirmed => {
+      if (!confirmed) {
+        return;
+      }
 
-    let updatedEnrollments: string[] = [...this.enrolledCourseIds];
+      this.spinner.show();
+      this.isLoading = true;
+      let updatedEnrollments: string[] = [...this.enrolledCourseIds];
 
-    if (this.isEnrolled(course.id!)) {
-      this.store.dispatch(CourseActions.unenrollStudent({
-        courseId: course.id!,
-        studentId: this.studentId
-      }));
-      updatedEnrollments = updatedEnrollments.filter(id => id !== course.id);
-
-      this.spinner.hide();
-      this.isLoading = false;
-      this.enrollmentChanged.emit(updatedEnrollments);
-
-    } else if (this.isPending(course.id!)) {
-      this.courseService.cancelEnrollment(course.id!, this.studentId).subscribe(() => {
-        this.pendingEnrollments = this.pendingEnrollments.filter(id => id !== course.id);
-
-        this.spinner.hide();
-        this.isLoading = false;
-      });
-
-    } else {
-      console.log(this.courseService);
-      this.courseService.requestEnrollment(course.id!, this.studentId).subscribe(() => {
-        this.pendingEnrollments.push(course.id!);
+      if (this.isEnrolled(course.id!)) {
+        this.store.dispatch(CourseActions.unenrollStudent({
+          courseId: course.id!,
+          studentId: this.studentId
+        }));
+        updatedEnrollments = updatedEnrollments.filter(id => id !== course.id);
 
         this.spinner.hide();
         this.isLoading = false;
-      });
-    }
-    console.log('CourseService este:', this.courseService);
+        this.enrollmentChanged.emit(updatedEnrollments);
+
+      } else {
+        console.log(this.courseService);
+        this.courseService.requestEnrollment(course.id!, this.studentId).subscribe(() => {
+          this.pendingEnrollments.push(course.id!);
+
+          this.spinner.hide();
+          this.isLoading = false;
+        });
+      }
+    });
   }
 
   isPending(courseId: string): boolean {
@@ -183,4 +186,13 @@ export class CourseEnrollmentComponent implements OnInit, OnDestroy {
   getEnrollmentStatus(course: Course): { text: string; color: string } {
     return { text: 'Open', color: 'green' };
   }
+
+  async confirmRequest(courseId: string): Promise<void> {
+      const confirmed = await this.dialog.open(
+        'Do you really want to enroll in this course?'
+      );
+      if (confirmed) {
+        this.store.dispatch(CourseActions.deleteCourse({ courseId }));
+      }
+    }
 }

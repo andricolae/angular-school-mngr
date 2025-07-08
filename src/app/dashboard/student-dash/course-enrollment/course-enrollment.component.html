@@ -123,19 +123,18 @@
                 </div>
 
                 <div class="flex flex-col items-end">
-                  <button (click)="toggleEnrollment(course)" [class]="
-                      isEnrolled(course.id!)
-                        ? 'bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition'
-                        : isPending(course.id!)
-                          ? 'bg-yellow-500 text-white px-3 py-1 rounded-lg text-sm font-medium cursor-pointer transition'
-                          : 'bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition'
-                    ">
-                    {{ isEnrolled(course.id!) ? 'Unenroll' : isPending(course.id!) ? 'Pending' : 'Enroll' }}
-                  </button>
-                  @if (isPending(course.id!)) {
-                  <p class="text-sm text-yellow-600 mt-2 max-w-[12rem] text-right">
-                    Your enrollment request is pending approval.
-                  </p>
+                  @if (!isPending(course.id!)) {
+                    <button
+                    (click)="toggleEnrollment(course)"
+                    [class]="isEnrolled(course.id!)
+                      ? 'bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition'
+                      : 'bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition'">
+                    {{ isEnrolled(course.id!) ? 'Unenroll' : 'Enroll' }}
+                    </button>
+                  } @else {
+                    <p class="text-sm text-yellow-600 mt-2 max-w-[12rem] text-right">
+                      Your enrollment request is pending approval.
+                    </p>
                   }
                 </div>
               </div>
@@ -154,3 +153,5 @@
     </div>
   </div>
 </div>
+
+<app-confirmation-dialog #dialog></app-confirmation-dialog>
