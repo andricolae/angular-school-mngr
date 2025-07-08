@@ -4,8 +4,10 @@ import {
   inject,
   Input,
   output,
+  signal,
   ViewChild,
 } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
@@ -20,13 +22,15 @@ import { AdminDashService } from '../admin-dash.service';
 
 @Component({
   selector: 'app-course-user-add-update-data',
-  imports: [FormsModule, SpinnerComponent, SessionActionsComponent],
+  imports: [FormsModule, SpinnerComponent, SessionActionsComponent, NgClass],
   templateUrl: './course-user-add-update-data.component.html',
   styleUrl: './course-user-add-update-data.component.css',
 })
 export class CourseUserAddUpdateDataComponent {
   @ViewChild('dialog') dialog!: ConfirmationDialogComponent;
-  @ViewChild('form') form!: ElementRef;
+  @ViewChild('form') formRef!: ElementRef<HTMLFormElement>;
+  @ViewChild('session') sessionRef!: ElementRef<HTMLFormElement>;
+
   AdminDashService = inject(AdminDashService);
 
   @Input({ required: true }) category!: 'course' | 'user' | '';
@@ -38,6 +42,30 @@ export class CourseUserAddUpdateDataComponent {
 
   constructor(private store: Store) {}
 
+  formRowsClass = signal('sm:grid-rows-8');
+  sessionRowsClass = signal('sm:row-span-6');
+
+  ngAfterViewInit(): void {
+    const formEl = this.formRef.nativeElement;
+    const sessionEl = this.sessionRef.nativeElement;
+
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const height = entry.contentRect.height;
+        if (height < 453) {
+          this.formRowsClass.set('sm:grid-rows-4');
+          this.sessionRowsClass.set('sm:row-span-2');
+        } else {
+          this.formRowsClass.set('sm:grid-rows-8');
+          this.sessionRowsClass.set('sm:row-span-6');
+        }
+      }
+    });
+
+    observer.observe(formEl);
+  }
+
+  // -------------------------------------------------------
   confirmationAddUpdateMessage = false;
   allCourseInputNotEmpty = true;
 

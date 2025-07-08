@@ -7,8 +7,9 @@
   }
   <form
     (ngSubmit)="addCourse()"
-    class="grid gap-4 sm:grid-cols-6 sm:grid-rows-8 mb4 h-full"
     #form
+    class="grid gap-4 sm:grid-cols-6 mb4 h-full"
+    [ngClass]="formRowsClass()"
   >
     <!-- ------------------FORM ELEMENTS --------------------------  -->
     <input
@@ -41,7 +42,9 @@
 
     <!-- ------------------SESSIONS COMPONENT--------------------------  -->
     <div
-      class="sm:col-span-6 border rounded-lg p-3 sm:row-span-6 overflow-y-auto"
+      #session
+      class="sm:col-span-6 border rounded-lg p-3 overflow-y-auto"
+      [ngClass]="sessionRowsClass()"
     >
       <app-session-actions
         [editingCourseId]="editingCourseId"
