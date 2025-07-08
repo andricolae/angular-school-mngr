@@ -13,15 +13,20 @@ import { selectAllCourses } from '../../state/courses/course.selector';
 import { combineLatest, Subscription } from 'rxjs';
 import { WeeklyScheduleComponent } from '../student-dash/weekly-schedule/weekly-schedule.component';
 import { acceptPendingStudent, removePendingStudent } from '../../state/courses/course.actions';
+import { ViewChild } from '@angular/core';
+import { ConfirmationDialogComponent } from '../../core/confirmation-dialog/confirmation-dialog.component';
+
 
 @Component({
   selector: 'app-teacher-dash',
   standalone: true,
   templateUrl: './teacher-dash.component.html',
   styleUrl: './teacher-dash.component.css',
-  imports: [SpinnerComponent, NgClass, DatePipe, FormsModule, WeeklyScheduleComponent],
+  imports: [SpinnerComponent, NgClass, DatePipe, FormsModule, WeeklyScheduleComponent, ConfirmationDialogComponent],
 })
 export class TeacherDashComponent {
+  @ViewChild(ConfirmationDialogComponent) confirmationDialog!: ConfirmationDialogComponent;
+
   teacherName = '';
   activeTab: 'grades' | 'attendance' | 'pending' = 'grades';
   selectedCourse: string | null = null;
@@ -277,15 +282,40 @@ export class TeacherDashComponent {
   }
 
   onDecline(courseId: string, studentId: string) {
-    this.store.dispatch(removePendingStudent({ courseId, studentId }));
+    this.confirmationDialog
+    .open('Do you want to decline this enrollment request?')
+    .then(confirmed => {
+      if (confirmed) {
+        this.store.dispatch(removePendingStudent({ courseId, studentId }));
+      }
+    });
   }
   
   onApprove(courseId: string, studentId: string) {
     const course = this.myCourses.find(c => c.id === courseId);
     if (course && course.students.length >= course.maxNoOfAttendees) {
+      const exceededBy = course.students.length + 1 - course.maxNoOfAttendees;
+      this.confirmationDialog
+      .open(
+        `The number of enrolled students has reached or exceeded the maximum allowed for this course. ` +
+        `If you approve, you will exceed the limit by ${exceededBy} student${exceededBy > 1 ? 's' : ''}. ` +
+        `Do you want to approve this enrollment request?`
+      )
+      .then(confirmed => {
+        if (confirmed) {
+        this.store.dispatch(acceptPendingStudent({ courseId, studentId }));
+        }
+      });
       return;
     }
-  this.store.dispatch(acceptPendingStudent({ courseId, studentId }));
-}
+
+    this.confirmationDialog
+    .open('Do you want to approve this enrollment request?')
+    .then(confirmed => {
+      if (confirmed) {
+        this.store.dispatch(acceptPendingStudent({ courseId, studentId }));
+      }
+    });
+  }
 
 }
