@@ -1,9 +1,10 @@
 import { Component, inject, Input, output, Output } from '@angular/core';
 import { AdminDashService } from '../admin-dash.service';
+import { ClickedOutsideDirective } from './clicked-outside.directive';
 
 @Component({
   selector: 'app-admin-dialog',
-  imports: [],
+  imports: [ClickedOutsideDirective],
   templateUrl: './admin-dialog.component.html',
   styleUrl: './admin-dialog.component.css',
 })
