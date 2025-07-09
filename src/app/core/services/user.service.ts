@@ -1,10 +1,20 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, deleteDoc, doc, updateDoc, query, getDocs, where } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  collectionData,
+  deleteDoc,
+  doc,
+  updateDoc,
+  query,
+  getDocs,
+  where,
+} from '@angular/fire/firestore';
 import { from, map, Observable } from 'rxjs';
 import { User, UserModel } from '../user.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
   private usersCollection;
@@ -14,19 +24,35 @@ export class UserService {
   }
 
   getUsers(): Observable<UserModel[]> {
-    return collectionData(this.usersCollection, { idField: 'id' }) as Observable<UserModel[]>;
+    return collectionData(this.usersCollection, {
+      idField: 'id',
+    }) as Observable<UserModel[]>;
   }
+
+  // getUsersPagination(
+  //   pageIndex: number,
+  //   pageSize: number
+  // ): Observable<{ users: UserModel[]; total: number }> {
+  //   const params = new HttpParams()
+  //     .set('page', pageIndex.toString())
+  //     .set('limit', pageSize.toString());
+  //   return this.http.get<{ users: User[]; total: number }>(this.apiUrl, {
+  //     params,
+  //   });
+  // }
 
   getUser(user: UserModel): Observable<UserModel | null> {
     const usersRef = collection(this.firestore, 'users');
     const q = query(usersRef, where('email', '==', user.email));
-    return from(getDocs(q)).pipe( map(snapshot => {
-      if (!snapshot.empty) {
-        const userData = snapshot.docs[0].data() as UserModel;
-        return userData;
-      }
-      return null;
-    }));
+    return from(getDocs(q)).pipe(
+      map((snapshot) => {
+        if (!snapshot.empty) {
+          const userData = snapshot.docs[0].data() as UserModel;
+          return userData;
+        }
+        return null;
+      })
+    );
   }
 
   deleteUser(userId: string): Observable<void> {
