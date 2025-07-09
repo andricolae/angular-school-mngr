@@ -17,7 +17,7 @@ import { SpinnerComponent } from '../../../../core/spinner/spinner.component';
 import { Course, UserModel } from '../../../../core/user.model';
 
 import * as CourseActions from '../../../../state/courses/course.actions';
-import { SessionActionsComponent } from '../../session-actions/session-actions.component';
+import { SessionActionsComponent } from './session-actions/session-actions.component';
 
 @Component({
   selector: 'app-course-actions',

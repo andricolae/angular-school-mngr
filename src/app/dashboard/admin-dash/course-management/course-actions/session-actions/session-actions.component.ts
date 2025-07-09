@@ -2,9 +2,9 @@ import { Component, inject, Input, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { v4 as uuidv4 } from 'uuid';
-import { Course, CourseSession } from '../../../core/user.model';
-import { ConfirmationDialogComponent } from '../../../core/confirmation-dialog/confirmation-dialog.component';
-import { AdminDashService } from '../admin-dash.service';
+import { Course, CourseSession } from '../../../../../core/user.model';
+import { ConfirmationDialogComponent } from '../../../../../core/confirmation-dialog/confirmation-dialog.component';
+import { AdminDashService } from '../../../admin-dash.service';
 
 @Component({
   selector: 'app-session-actions',

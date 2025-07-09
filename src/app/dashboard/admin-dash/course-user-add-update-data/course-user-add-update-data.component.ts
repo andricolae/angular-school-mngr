@@ -17,7 +17,7 @@ import * as UserActions from '../../../state/users/user.actions';
 
 import { ConfirmationDialogComponent } from '../../../core/confirmation-dialog/confirmation-dialog.component';
 import { SpinnerComponent } from '../../../core/spinner/spinner.component';
-import { SessionActionsComponent } from '../session-actions/session-actions.component';
+import { SessionActionsComponent } from '../course-management/course-actions/session-actions/session-actions.component';
 import { AdminDashService } from '../admin-dash.service';
 
 @Component({
