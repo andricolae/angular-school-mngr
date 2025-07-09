@@ -209,4 +209,53 @@ export class CourseService {
       })
     );
   }
+
+
+  removePendingStudent(courseId: string, studentId: string): Observable<void> {
+    const courseDoc = doc(this.firestore, `courses/${courseId}`);
+    return from(
+      updateDoc(courseDoc, {
+        pendingStudents: arrayRemove(studentId)
+      })
+    );
+  }
+
+  acceptPendingStudent(courseId: string, studentId: string): Observable<void> {
+    const courseDoc = doc(this.firestore, `courses/${courseId}`);
+    return from(
+      updateDoc(courseDoc, {
+        enrolledStudents: arrayUnion(studentId),
+        pendingStudents: arrayRemove(studentId)
+      })
+    );
+  }
+  requestEnrollment(courseId: string, studentId: string): Observable<void> {
+    const courseRef = doc(this.firestore, `courses/${courseId}`);
+
+    return from(getDoc(courseRef)).pipe(
+      switchMap(docSnap => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const pending = data['pendingStudents'] || [];
+
+          if (!pending.includes(studentId)) {
+            return from(updateDoc(courseRef, {
+              pendingStudents: arrayUnion(studentId)
+            }));
+          } else {
+            return from(Promise.resolve());
+          }
+        } else {
+          return throwError(() => new Error('Course not found'));
+        }
+      })
+    );
+  }
+
+  cancelEnrollment(courseId: string, studentId: string): Observable<void> {
+    const courseRef = doc(this.firestore, `courses/${courseId}`);
+    return from(updateDoc(courseRef, {
+      pendingStudents: arrayRemove(studentId)
+    }));
+  }
 }

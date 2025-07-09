@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { Component, viewChild } from '@angular/core';
+import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationComponent } from '../../core/notification/notification.component';
@@ -9,9 +9,14 @@ import { SpinnerService } from '../../core/services/spinner.service';
   selector: 'app-register',
   imports: [FormsModule],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css'
+  styleUrl: './register.component.css',
 })
 export class RegisterComponent {
+  refName = viewChild<NgModel>('userName');
+  refEmail = viewChild<NgModel>('userEmail');
+  refRole = viewChild<NgModel>('userRole');
+  refPassword = viewChild<NgModel>('userPassword');
+
   email = '';
   password = '';
   confirmPassword = '';
@@ -23,12 +28,13 @@ export class RegisterComponent {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private spinner: SpinnerService) {}
+    private spinner: SpinnerService
+  ) {}
 
   ngOnInit() {
-    this.authService.user.subscribe(user => {
+    this.authService.user.subscribe((user) => {
       this.isAuthenticated = !!user;
-    })
+    });
   }
 
   onSubmit(form: NgForm) {
@@ -36,50 +42,97 @@ export class RegisterComponent {
 
     console.log(this.isFormValid);
     if (!this.isFormValid) {
-      NotificationComponent.show('alert', 'Fields must be valid before submitting!');
+      NotificationComponent.show(
+        'alert',
+        'Fields must be valid before submitting!'
+      );
       return;
     } else if (this.password !== this.confirmPassword) {
-        NotificationComponent.show('alert', 'Passwords do not match!');
-        return;
+      NotificationComponent.show('alert', 'Passwords do not match!');
+      return;
     }
 
-    this.authService.signup(this.email, this.password, this.name, this.role).subscribe({
-      next: () => {
-        this.spinner.hide();
-        form.reset();
-        this.email = '';
-        this.password = '';
-        this.confirmPassword = '';
-        this.name = '';
-        this.role = '';
-        this.navigateTo("/login");
-        NotificationComponent.show('success', 'Account created! Please log in.');
-      },
-      error: (err) => {
-        NotificationComponent.show('alert', 'Failed to register: + ${err.message}');
-      }
-    });
+    this.authService
+      .signup(this.email, this.password, this.name, this.role)
+      .subscribe({
+        next: () => {
+          this.spinner.hide();
+          form.reset();
+          this.email = '';
+          this.password = '';
+          this.confirmPassword = '';
+          this.name = '';
+          this.role = '';
+          this.navigateTo('/login');
+          NotificationComponent.show(
+            'success',
+            'Account created! Please log in.'
+          );
+        },
+        error: (err) => {
+          NotificationComponent.show(
+            'alert',
+            'Failed to register: + ${err.message}'
+          );
+        },
+      });
   }
 
-  validateForm() {
+  validateForm(typeToValidate: string): boolean {
     const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email);
     const passwordValid = this.password.length >= 6;
     const nameValid = /^[A-Za-z\s]+$/.test(this.name);
     const roleValid = this.role !== '';
     const confirmMatch = this.password === this.confirmPassword;
 
-    this.isFormValid = emailValid && passwordValid && nameValid && roleValid && confirmMatch;
+    this.isFormValid =
+      emailValid && passwordValid && nameValid && roleValid && confirmMatch;
 
-    if (!emailValid)
-      NotificationComponent.show('alert', 'Email must be valid');
-    if (!passwordValid)
-      NotificationComponent.show('alert', 'Password must be at least 6 characters');
-    if (!nameValid)
-      NotificationComponent.show('alert', 'Name must only contain letters and spaces!');
-    if (!roleValid)
-      NotificationComponent.show('alert', 'Please select a role!');
-    if (!confirmMatch)
-      NotificationComponent.show('alert', 'Passwords must match!');
+    switch (typeToValidate) {
+      case 'name':
+        return nameValid;
+      case 'email':
+        return emailValid;
+      case 'role':
+        return roleValid;
+      case 'password':
+        return passwordValid;
+      case 'confirmPassword': {
+        if (this.password === '') return false;
+        return confirmMatch;
+      }
+      default:
+        return true;
+    }
+  }
+
+  setPrevElAsTouched(currentEl: string) {
+    switch (currentEl) {
+      case 'email': {
+        this.refName()?.control.markAsTouched();
+        break;
+      }
+      case 'role': {
+        this.refName()?.control.markAsTouched();
+        this.refEmail()?.control.markAsTouched();
+        break;
+      }
+      case 'password': {
+        this.refName()?.control.markAsTouched();
+        this.refEmail()?.control.markAsTouched();
+        this.refRole()?.control.markAsTouched();
+        break;
+      }
+      case 'confirmPassword': {
+        this.refName()?.control.markAsTouched();
+        this.refEmail()?.control.markAsTouched();
+        this.refRole()?.control.markAsTouched();
+        this.refPassword()?.control.markAsTouched();
+        break;
+      }
+      default:
+        break;
+    }
   }
 
   navigateTo(route: string) {

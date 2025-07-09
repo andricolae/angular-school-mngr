@@ -1,63 +1,116 @@
 <div class="min-h-screen flex items-center justify-center bg-gray-100">
   <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
     <h2 class="text-2xl font-semibold text-center mb-6">Register</h2>
-    <form #registerForm="ngForm" (ngSubmit)="onSubmit(registerForm)" class="space-y-4">
+    <form
+      #registerForm="ngForm"
+      (ngSubmit)="onSubmit(registerForm)"
+      class="space-y-4"
+    >
+      @if(userName.touched && (userName.pristine || !validateForm("name"))) {
+      <p class="italic px-3 text-red-400">
+        Name must only contain letters and spaces!
+      </p>
+      }
       <input
         type="text"
         [(ngModel)]="name"
-        (input)="validateForm()"
         name="name"
+        #userName="ngModel"
         placeholder="Full Name"
-        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
+          !validateForm('name') ? 'focus:ring-red-400' : 'focus:ring-blue-400'
+        }}"
         required
       />
+
+      @if(userEmail.touched && (userEmail.pristine || !validateForm("email"))){
+      <p class="italic px-3 text-red-400">Email must be valid</p>
+      }
       <input
         type="email"
         [(ngModel)]="email"
-        (input)="validateForm()"
         name="email"
         placeholder="Email"
-        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+        #userEmail="ngModel"
+        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
+          !validateForm('email') ? 'focus:ring-red-400' : 'focus:ring-blue-400'
+        }}"
+        (click)="setPrevElAsTouched('email')"
         required
       />
+
+      @if(userRole.touched && !validateForm('role')){
+      <p class="italic px-3 text-red-400">Please select a role!</p>
+      }
       <select
-          name="userRole"
-          [(ngModel)]="role"
-          (input)="validateForm()"
-          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          required
-        >
-          <option value="" disabled selected>Select Role</option>
-          <option value="Teacher">Teacher</option>
-          <option value="Student">Student</option>
-        </select>
+        name="userRole"
+        [(ngModel)]="role"
+        #userRole="ngModel"
+        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
+          !validateForm('role') ? 'focus:ring-red-400' : 'focus:ring-blue-400'
+        }}"
+        (click)="setPrevElAsTouched('role')"
+        required
+      >
+        <option value="" disabled selected>Select Role</option>
+        <option value="Teacher">Teacher</option>
+        <option value="Student">Student</option>
+      </select>
+
+      @if(userPassword.touched && (userPassword.pristine ||
+      !validateForm("password"))){
+      <p class="italic px-3 text-red-400">
+        Password must be at least 6 characters
+      </p>
+      }
       <input
         type="password"
         [(ngModel)]="password"
-        (input)="validateForm()"
         name="password"
+        #userPassword="ngModel"
         placeholder="Password"
-        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
+          !validateForm('password')
+            ? 'focus:ring-red-400'
+            : 'focus:ring-blue-400'
+        }}"
+        (click)="setPrevElAsTouched('password')"
         required
       />
+
+      @if(userConfirmPassword.touched && (userConfirmPassword.pristine
+      ||!validateForm("confirmPassword"))){
+      <p class="italic px-3 text-red-400">Passwords must match!</p>
+      }
       <input
         type="password"
         [(ngModel)]="confirmPassword"
-        (input)="validateForm()"
         name="confirmPassword"
+        #userConfirmPassword="ngModel"
         placeholder="Confirm Password"
-        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 {{
+          !validateForm('confirmPassword')
+            ? 'focus:ring-red-400'
+            : 'focus:ring-blue-400'
+        }}"
+        (click)="setPrevElAsTouched('confirmPassword')"
         required
       />
       <button
         type="submit"
-        class="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition">
+        class="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition"
+      >
         Register
       </button>
     </form>
     <p class="mt-4 text-center">
       Already have an account?
-      <button (click)="navigateTo('/login')" class="text-blue-500 hover:underline">Sign In</button>
+      <button
+        (click)="navigateTo('/login')"
+        class="text-blue-500 hover:underline"
+      >
+        Sign In
+      </button>
     </p>
   </div>
 </div>
