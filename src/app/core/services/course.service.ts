@@ -228,7 +228,7 @@ export class CourseService {
         pendingStudents: arrayRemove(studentId)
       })
     );
-
+  }
   requestEnrollment(courseId: string, studentId: string): Observable<void> {
     const courseRef = doc(this.firestore, `courses/${courseId}`);
 
