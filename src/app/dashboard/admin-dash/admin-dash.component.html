@@ -50,21 +50,6 @@
       (cancelingClickFunction)="closeCourseAddUpdateDialog()"
     />
   </app-admin-dialog>
-  } @else if(showUpdateAddCourseData.show && (showUpdateAddCourseData.category
-  === 'user')){
-  <app-admin-dialog
-    title="Edit User"
-    (closingClickFunction)="closeUserAddUpdateDialog()"
-    category="user"
-  >
-    <app-course-user-add-update-data
-      [category]="showUpdateAddCourseData.category"
-      [action]="showUpdateAddCourseData.action"
-      [newUser]="newUser"
-      [editingUserId]="editingUserId"
-      (cancelingClickFunction)="closeUserAddUpdateDialog()"
-    />
-  </app-admin-dialog>
   }
 
   <!-- ---------------------------------------------------------------- -->
@@ -90,42 +75,7 @@
   <!-- ---------------------------------------------------------------- -->
   <!-- --------------------EDIT USER FORM------------------------------ -->
 
-  <div class="p-4 space-y-4">
-    <div class="bg-white rounded-2xl shadow p-6">
-      <h2 class="text-xl font-semibold mb-4 text-blue-600">User Management</h2>
-
-      <!-- --------------------USER LIST + BUTTONS------------------------------ -->
-
-      <ul class="space-y-2">
-        @for (user of users$ | async; track user.id) {
-        <li
-          class="bg-gray-50 rounded-lg p-3 flex justify-between items-center shadow"
-        >
-          <span>
-            <strong>{{ user.fullName }}</strong>
-            <span class="text-sm text-gray-500"> — {{ user.role }}</span>
-          </span>
-          <div class="flex gap-2 items-center">
-            <button
-              (click)="viewUserAddUpdateDialog('user', 'update', user)"
-              class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 me-2 mb-2 text-center"
-              title="Update course"
-            >
-              Edit
-            </button>
-            <button
-              (click)="deleteUser(user.id!)"
-              class="text-white bg-red-600 hover:bg-red-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-2 mb-2"
-              title="Delete user"
-            >
-              Delete
-            </button>
-          </div>
-        </li>
-        }
-      </ul>
-    </div>
-  </div>
+  <app-user-management />
 
   <div class="p-4 space-y-4">
     <div class="bg-white rounded-2xl shadow p-6">

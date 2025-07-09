@@ -16,6 +16,7 @@ import { SessionDataComponent } from './session-data/session-data.component';
 import { AdminDialogComponent } from './admin-dialog/admin-dialog.component';
 import { CourseUserAddUpdateDataComponent } from './course-user-add-update-data/course-user-add-update-data.component';
 import { AdminDashService } from './admin-dash.service';
+import { UserManagementComponent } from './user-management/user-management.component';
 
 @Component({
   selector: 'app-admin-dash',
@@ -29,6 +30,7 @@ import { AdminDashService } from './admin-dash.service';
     SessionDataComponent,
     AdminDialogComponent,
     CourseUserAddUpdateDataComponent,
+    UserManagementComponent,
   ],
   templateUrl: './admin-dash.component.html',
 })
@@ -41,7 +43,6 @@ export class AdminDashComponent {
   teacherCount = 0;
 
   newUser: UserModel = { fullName: '', role: '', email: '' };
-  editingUserId: string | null = null;
   users$ = this.store.select(selectAllUsers);
 
   teachers: UserModel[] = [];
@@ -171,56 +172,7 @@ export class AdminDashComponent {
     this.showUpdateAddCourseData.action = '';
   }
 
-  viewUserAddUpdateDialog(
-    category: 'course' | 'user',
-    action: 'add' | 'update',
-    userDetails?: UserModel
-  ): void {
-    if (userDetails) {
-      this.editUser(userDetails);
-    }
-
-    this.showUpdateAddCourseData.show = true;
-    this.showUpdateAddCourseData.category = category;
-    this.showUpdateAddCourseData.action = action;
-  }
-
-  closeUserAddUpdateDialog(): void {
-    this.resetUserForm();
-    this.editingUserId = null;
-    this.showUpdateAddCourseData.show = false;
-    this.showUpdateAddCourseData.category = '';
-    this.showUpdateAddCourseData.action = '';
-  }
-
   //-------------------------- USER RELATED METHODS/FUNCTIONS----------------
-  // DELETE STAYS HERE
-  async deleteUser(userId: string): Promise<void> {
-    const confirmed = await this.dialog.open(
-      'Do you really want to delete this user?'
-    );
-    if (confirmed) {
-      this.store.dispatch(UserActions.deleteUser({ userId }));
-    }
-  }
-
-  editUser(user: UserModel) {
-    this.newUser = {
-      email: user.email,
-      fullName: user.fullName,
-      role: user.role,
-    };
-    this.editingUserId = user.id!;
-  }
-
-  updateUser() {
-    this.store.dispatch(
-      UserActions.updateUser({
-        user: { ...this.newUser, id: this.editingUserId! },
-      })
-    );
-    this.resetUserForm();
-  }
 
   //-------------------------- RESET FORM + CANCEL FORM UPDATE + FORM DATE, TIME----------------
   resetCourseForm(): void {
@@ -233,11 +185,6 @@ export class AdminDashComponent {
       enrolledStudents: [],
     });
     this.editingCourseId = null;
-  }
-
-  resetUserForm(): void {
-    this.newUser = { email: '', fullName: '', role: '' };
-    this.editingUserId = null;
   }
 
   formatDate(date: Date): string {

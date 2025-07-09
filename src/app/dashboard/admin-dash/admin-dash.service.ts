@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Course } from '../../core/user.model';
+import { Course, UserModel } from '../../core/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +12,7 @@ export class AdminDashService {
     sessions: [],
     enrolledStudents: [],
   });
+
   cancelUpdateCourseModel = false;
   cancelUpdateUserModel = false;
   inputFieldsEmpty = false;
