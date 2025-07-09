@@ -1,1 +1,129 @@
-<p>course-actions works!</p>
+<div class="bg-white rounded-xl shadow-md p-6 mx-auto h-full overflow-y-auto">
+  <app-spinner />
+  @if(!allCourseInputNotEmpty){
+  <p class="text-lg font-medium sm:col-span-4 ml-2 mb-4 text-red-400 italic">
+    For adding a course the: name, teacher and schedule are mandatory
+  </p>
+  }
+  <form
+    (ngSubmit)="addCourse()"
+    #form
+    class="grid gap-4 sm:grid-cols-6 mb4 h-full"
+    [ngClass]="formRowsClass()"
+  >
+    <!-- ------------------FORM ELEMENTS --------------------------  -->
+    <input
+      [(ngModel)]="AdminDashService.newCourse().name"
+      name="courseName"
+      placeholder="Course Name"
+      class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none sm:col-span-2 sm:row-span-1 max-h-14 min-h-10 content-center"
+      required
+    />
+    <select
+      [(ngModel)]="AdminDashService.newCourse().teacherId"
+      name="courseTeacherId"
+      class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none sm:col-span-2 max-h-14 min-h-10"
+      required
+    >
+      <option value="" disabled selected>Select Teacher</option>
+      @for (teacher of teachers; track teacher.id) {
+      <option [value]="teacher.id">{{ teacher.fullName }}</option>
+      }
+    </select>
+    <input
+      [(ngModel)]="AdminDashService.newCourse().schedule"
+      name="courseSchedule"
+      placeholder="Schedule Description"
+      class="p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none sm:col-span-2 max-h-14 min-h-10"
+      required
+    />
+
+    <!-- EDITING COURSE  -->
+
+    <!-- ------------------SESSIONS COMPONENT--------------------------  -->
+    <div
+      #session
+      class="sm:col-span-6 border rounded-lg p-3 overflow-y-auto"
+      [ngClass]="sessionRowsClass()"
+    >
+      <app-session-actions
+        [editingCourseId]="editingCourseId"
+        [courseAction]="action"
+      />
+    </div>
+
+    <!-- ------------------ADD/UPDATE & CANCEL FORM BUTTONS--------------------------  -->
+    @if(!AdminDashService.cancelUpdateCourseModel && !showConfirmationMessage ){
+    <button
+      type="button"
+      class="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition sm:col-span-4 max-h-14 min-h-10"
+      (click)="onShowConfirmationMessage()"
+    >
+      {{ action === "update" ? "Update Course" : "Add Course" }}
+    </button>
+
+    <!-- the Cancel Updating Course button -->
+
+    <button
+      type="button"
+      class="sm:col-span-2 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition max-h-14 min-h-10"
+      (click)="onCancelUpdateCourseModel()"
+    >
+      {{
+        this.action === "update"
+          ? "Cancel Updating Course"
+          : "Cancel Adding Course"
+      }}
+    </button>
+
+    <!-- CONFIRMATION MESSAGE FOR ADD UPDATE  -->
+    } @else if(AdminDashService.cancelUpdateCourseModel) {
+
+    <p class="text-lg font-medium sm:col-span-4 mt-2 text-red-400">
+      {{
+        this.action === "update"
+          ? "Do you really want to cancel updating this course?"
+          : "Do you really want to cancel adding this course?"
+      }}
+    </p>
+    <button
+      type="button"
+      class="block bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1 max-h-14"
+      (click)="onCancelClick()"
+    >
+      Yes
+    </button>
+    <button
+      type="button"
+      class="block bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1 max-h-14"
+      (click)="onCancelUpdateCourseModel()"
+    >
+      No
+    </button>
+
+    } @else if(showConfirmationMessage){
+    <p
+      class="text-lg font-medium sm:col-span-4 sm:row-span-1 mt-2 text-blue-400"
+    >
+      {{
+        this.action === "update"
+          ? "Do you really want to update this course?"
+          : "Do you really want to add this course?"
+      }}
+    </p>
+    <button
+      type="submit"
+      class="block bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1 sm:row-span-1 max-h-14"
+    >
+      Yes
+    </button>
+    <button
+      type="button"
+      class="block bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1 sm:row-span-1 max-h-14"
+      (click)="onShowConfirmationMessage()"
+    >
+      No
+    </button>
+    }
+  </form>
+</div>

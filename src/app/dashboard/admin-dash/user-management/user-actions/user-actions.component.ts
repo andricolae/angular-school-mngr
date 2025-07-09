@@ -6,10 +6,11 @@ import { Store } from '@ngrx/store';
 import { UserModel } from '../../../../core/user.model';
 import { AdminDashService } from '../../admin-dash.service';
 import * as UserActions from '../../../../state/users/user.actions';
+import { SpinnerComponent } from '../../../../core/spinner/spinner.component';
 
 @Component({
   selector: 'app-user-actions',
-  imports: [FormsModule],
+  imports: [FormsModule, SpinnerComponent],
   templateUrl: './user-actions.component.html',
   styleUrl: './user-actions.component.css',
 })

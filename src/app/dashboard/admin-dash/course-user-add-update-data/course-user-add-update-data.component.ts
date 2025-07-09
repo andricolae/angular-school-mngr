@@ -132,15 +132,6 @@ export class CourseUserAddUpdateDataComponent {
 
   //-------------------------- USER RELATED METHODS/FUNCTIONS----------------
 
-  updateUser() {
-    this.store.dispatch(
-      UserActions.updateUser({
-        user: { ...this.newUser!, id: this.editingUserId! },
-      })
-    );
-    this.onCancelClick();
-  }
-
   //-------------------------- RESET FORM + CANCEL FORM UPDATE + FORM DATE, TIME----------------
   resetCourseForm(): void {
     this.AdminDashService.newCourse.set({
@@ -152,11 +143,6 @@ export class CourseUserAddUpdateDataComponent {
       enrolledStudents: [],
     });
     this.editingCourseId = null;
-  }
-
-  resetUserForm(): void {
-    this.newUser = { email: '', fullName: '', role: '' };
-    this.editingUserId = null;
   }
 
   onAddUpdateShowConfirmationMessage() {
@@ -201,10 +187,5 @@ export class CourseUserAddUpdateDataComponent {
     // show confirmation message
     this.AdminDashService.cancelUpdateCourseModel =
       !this.AdminDashService.cancelUpdateCourseModel;
-  }
-
-  onCancelUpdateUserModel() {
-    this.AdminDashService.cancelUpdateUserModel =
-      !this.AdminDashService.cancelUpdateUserModel;
   }
 }
