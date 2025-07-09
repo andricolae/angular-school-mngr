@@ -28,7 +28,7 @@ export class TeacherDashComponent {
   @ViewChild(ConfirmationDialogComponent) confirmationDialog!: ConfirmationDialogComponent;
 
   teacherName = '';
-  activeTab: 'grades' | 'attendance' | 'pending' = 'grades';
+  activeTab: 'grades' | 'attendance' | 'pending' | 'assignments' = 'grades';
   selectedCourse: string | null = null;
   isAddGradeModalOpen = false;
   currentDate = new Date();
