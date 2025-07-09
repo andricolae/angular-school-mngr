@@ -210,6 +210,25 @@ export class CourseService {
     );
   }
 
+
+  removePendingStudent(courseId: string, studentId: string): Observable<void> {
+    const courseDoc = doc(this.firestore, `courses/${courseId}`);
+    return from(
+      updateDoc(courseDoc, {
+        pendingStudents: arrayRemove(studentId)
+      })
+    );
+  }
+
+  acceptPendingStudent(courseId: string, studentId: string): Observable<void> {
+    const courseDoc = doc(this.firestore, `courses/${courseId}`);
+    return from(
+      updateDoc(courseDoc, {
+        enrolledStudents: arrayUnion(studentId),
+        pendingStudents: arrayRemove(studentId)
+      })
+    );
+
   requestEnrollment(courseId: string, studentId: string): Observable<void> {
     const courseRef = doc(this.firestore, `courses/${courseId}`);
 

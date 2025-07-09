@@ -12,17 +12,23 @@ import { FormsModule } from '@angular/forms';
 import { selectAllCourses } from '../../state/courses/course.selector';
 import { combineLatest, Subscription } from 'rxjs';
 import { WeeklyScheduleComponent } from '../student-dash/weekly-schedule/weekly-schedule.component';
+import { acceptPendingStudent, removePendingStudent } from '../../state/courses/course.actions';
+import { ViewChild } from '@angular/core';
+import { ConfirmationDialogComponent } from '../../core/confirmation-dialog/confirmation-dialog.component';
+
 
 @Component({
   selector: 'app-teacher-dash',
   standalone: true,
   templateUrl: './teacher-dash.component.html',
   styleUrl: './teacher-dash.component.css',
-  imports: [SpinnerComponent, NgClass, DatePipe, FormsModule, WeeklyScheduleComponent],
+  imports: [SpinnerComponent, NgClass, DatePipe, FormsModule, WeeklyScheduleComponent, ConfirmationDialogComponent],
 })
 export class TeacherDashComponent {
+  @ViewChild(ConfirmationDialogComponent) confirmationDialog!: ConfirmationDialogComponent;
+
   teacherName = '';
-  activeTab: 'grades' | 'attendance' = 'grades';
+  activeTab: 'grades' | 'attendance' | 'pending' = 'grades';
   selectedCourse: string | null = null;
   isAddGradeModalOpen = false;
   currentDate = new Date();
@@ -83,6 +89,8 @@ export class TeacherDashComponent {
         this.myCourses = courses
           .filter(course => course.teacherId === this.currentUser?.id || course.teacher === this.currentUser?.fullName)
           .map(course => {
+            console.log('Max attendees:', (course as any).maxNoOfAttendees); //VERIFICARE 
+             
             const students = course.enrolledStudents?.map(studentId => {
               const student = users.find(u => u.id === studentId);
 
@@ -104,18 +112,35 @@ export class TeacherDashComponent {
                 });
               }
 
+
               return {
                 id: studentId,
                 name: student?.fullName || 'Unknown Student',
                 email: student?.email || '',
                 grades: grades,
-                attendance: attendance
+                attendance: attendance,
               };
+
+            
             }) || [];
+
+            const pendingS = (course as any).pendingStudents?.map((studentId : string) => {
+              const student = users.find(u => u.id === studentId);
+
+            return {
+              id: studentId,
+              name: student?.fullName || 'Unknown Student',
+              email: student?.email || '',
+            };
+          }) || [];
+
 
             return {
               ...course,
-              students: students
+              students: students,
+              maxNoOfAttendees: (course as any).maxNoOfAttendees,
+              pendingS: pendingS,
+             
             };
           });
       }
@@ -256,5 +281,41 @@ export class TeacherDashComponent {
     });
   }
 
+  onDecline(courseId: string, studentId: string) {
+    this.confirmationDialog
+    .open('Do you want to decline this enrollment request?')
+    .then(confirmed => {
+      if (confirmed) {
+        this.store.dispatch(removePendingStudent({ courseId, studentId }));
+      }
+    });
+  }
   
+  onApprove(courseId: string, studentId: string) {
+    const course = this.myCourses.find(c => c.id === courseId);
+    if (course && course.students.length >= course.maxNoOfAttendees) {
+      const exceededBy = course.students.length + 1 - course.maxNoOfAttendees;
+      this.confirmationDialog
+      .open(
+        `The number of enrolled students has reached or exceeded the maximum allowed for this course. ` +
+        `If you approve, you will exceed the limit by ${exceededBy} student${exceededBy > 1 ? 's' : ''}. ` +
+        `Do you want to approve this enrollment request?`
+      )
+      .then(confirmed => {
+        if (confirmed) {
+        this.store.dispatch(acceptPendingStudent({ courseId, studentId }));
+        }
+      });
+      return;
+    }
+
+    this.confirmationDialog
+    .open('Do you want to approve this enrollment request?')
+    .then(confirmed => {
+      if (confirmed) {
+        this.store.dispatch(acceptPendingStudent({ courseId, studentId }));
+      }
+    });
+  }
+
 }

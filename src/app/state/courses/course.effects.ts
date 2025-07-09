@@ -608,4 +608,59 @@ enrollStudent$ = createEffect(() =>
   //     )
   //   )
   // );
+  removePendingStudent$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CourseActions.removePendingStudent),
+      mergeMap(({ courseId, studentId }) =>
+        this.courseService.removePendingStudent(courseId, studentId).pipe(
+          map(() => {
+            this.logger.logStudent(
+              'REMOVE_PENDING_STUDENT_SUCCESS',
+              `Successfully removed pending student with ID "${studentId}" from course "${courseId}"`,
+              { courseId, studentId }
+            );
+            NotificationComponent.show('success', 'Pending student removed successfully');
+            return CourseActions.removePendingStudentSuccess({ courseId, studentId });
+          }),
+          /*catchError((error) => {
+            this.logger.logStudent(
+              'REMOVE_PENDING_STUDENT_FAIL',
+              `Failed to remove pending student with ID "${studentId}" from course "${courseId}": ${error.message}`,
+              { courseId, studentId, error: error.message }
+            );
+            NotificationComponent.show('alert', `Failed to remove pending student: ${error.message}`);
+            return of(CourseActions.removePendingStudentFail({ error: error.message }));
+          })*/
+        )
+      )
+    )
+  );
+
+  acceptPendingStudent$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CourseActions.acceptPendingStudent),
+      mergeMap(({ courseId, studentId }) =>
+        this.courseService.acceptPendingStudent(courseId, studentId).pipe(
+          map(() => {
+            this.logger.logStudent(
+              'ACCEPT_PENDING_STUDENT_SUCCESS',
+              `Successfully accepted pending student with ID "${studentId}" for course "${courseId}"`,
+              { courseId, studentId }
+            );
+            NotificationComponent.show('success', 'Pending student accepted successfully');
+            return CourseActions.acceptPendingStudentSuccess({ courseId, studentId });
+          }),
+          /*catchError((error) => {
+            this.logger.logStudent(
+              'ACCEPT_PENDING_STUDENT_FAIL',
+              `Failed to accept pending student with ID "${studentId}" for course "${courseId}": ${error.message}`,
+              { courseId, studentId, error: error.message }
+            );
+            NotificationComponent.show('alert', `Failed to accept pending student: ${error.message}`);
+            return of(CourseActions.acceptPendingStudentFail({ error: error.message }));
+          })*/
+        )
+      )
+    )
+  );
 }
