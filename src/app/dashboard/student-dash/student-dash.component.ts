@@ -14,6 +14,8 @@ import { combineLatest, Observable, Subscription } from 'rxjs';
 import { NotificationComponent } from '../../core/notification/notification.component';
 import { WeeklyScheduleComponent } from './weekly-schedule/weekly-schedule.component';
 import { FormsModule } from '@angular/forms';
+import { Assignment } from '../../core/assignment.model';
+import { AssignmentService } from '../../core/services/assignment.service';
 interface CourseGrade {
   title: string;
   value: number;
@@ -34,6 +36,7 @@ interface EnrolledCourse {
   teacher: string;
   schedule: string;
   grades: CourseGrade[];
+  assignments?: Assignment[];
   pendingStudents?: string[];
   sessions: {
     id: string;
@@ -51,7 +54,7 @@ interface EnrolledCourse {
   styleUrl: './student-dash.component.css'
 })
 export class StudentDashComponent {
-  activeTab: 'grades' | 'attendance' = 'grades';
+  activeTab: 'grades' | 'attendance' | 'assignments' = 'grades';
   selectedCourse: string | null = null;
   isEnrollmentModalOpen = false;
 
@@ -67,8 +70,10 @@ export class StudentDashComponent {
   private userSubscription?: Subscription;
   private courseSubscription?: Subscription;
   private sessionCheckInterval: any;
+  selectedAssignmentId: string | null = null;
+  now: Date = new Date();
 
-  constructor(private store: Store, private spinner: SpinnerService) {}
+  constructor(private store: Store, private spinner: SpinnerService, private assignmentService: AssignmentService) {}
 
   ngOnInit() {
     this.spinner.show();
@@ -120,8 +125,19 @@ export class StudentDashComponent {
               schedule: course.schedule || '',
               grades: grades,
               sessions: sessions
-            };
+            } as EnrolledCourse;
           });
+        
+        this.enrolledCourses.forEach(course => {
+          this.assignmentService.getAssignmentsForCourse(course.id).subscribe({
+            next: assignments => {
+              course.assignments = assignments;
+            },
+            error: err => {
+              console.error(`Error loading assignments for course ${course.id}:`, err);
+            }
+          });
+        });
       }
     });
 
@@ -349,5 +365,16 @@ export class StudentDashComponent {
         } as EnrolledCourse;
       })
       .filter(course => course !== null) as EnrolledCourse[];
+  }
+  
+  getDeadlineColor(deadline: any): string {
+    if (!deadline) return '';
+    const deadlineDate = new Date(deadline);
+    const now = new Date();
+    return deadlineDate > now ? 'text-green-700' : 'text-red-700';
+  }
+
+  onSubmitAssignment(assignment: Assignment) {
+    console.log('Submit pressed for assignment:', assignment);
   }
 }
