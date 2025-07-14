@@ -14,6 +14,10 @@ import { combineLatest, Observable, Subscription } from 'rxjs';
 import { NotificationComponent } from '../../core/notification/notification.component';
 import { WeeklyScheduleComponent } from './weekly-schedule/weekly-schedule.component';
 import { FormsModule } from '@angular/forms';
+import { Assignment } from '../../core/assignment.model';
+import { AssignmentService } from '../../core/services/assignment.service';
+import { Timestamp } from '@angular/fire/firestore';
+
 interface CourseGrade {
   title: string;
   value: number;
@@ -34,6 +38,7 @@ interface EnrolledCourse {
   teacher: string;
   schedule: string;
   grades: CourseGrade[];
+  assignments?: Assignment[];
   pendingStudents?: string[];
   sessions: {
     id: string;
@@ -51,7 +56,7 @@ interface EnrolledCourse {
   styleUrl: './student-dash.component.css'
 })
 export class StudentDashComponent {
-  activeTab: 'grades' | 'attendance' = 'grades';
+  activeTab: 'grades' | 'attendance' | 'assignments' = 'grades';
   selectedCourse: string | null = null;
   isEnrollmentModalOpen = false;
 
@@ -67,8 +72,9 @@ export class StudentDashComponent {
   private userSubscription?: Subscription;
   private courseSubscription?: Subscription;
   private sessionCheckInterval: any;
+  selectedAssignmentId: string | null = null;
 
-  constructor(private store: Store, private spinner: SpinnerService) {}
+  constructor(private store: Store, private spinner: SpinnerService, private assignmentService: AssignmentService) {}
 
   ngOnInit() {
     this.spinner.show();
@@ -120,8 +126,32 @@ export class StudentDashComponent {
               schedule: course.schedule || '',
               grades: grades,
               sessions: sessions
-            };
+            } as EnrolledCourse;
           });
+        
+        this.enrolledCourses.forEach(course => {
+          this.assignmentService.getAssignmentsForCourse(course.id).subscribe({
+            next: assignments => {
+              course.assignments = assignments.map(assignment => {
+                let convertedDeadline: Date;
+                if (assignment.deadline && typeof assignment.deadline === 'object' && 'seconds' in assignment.deadline && 'nanoseconds' in assignment.deadline) {
+                  const firestoreTimestamp = assignment.deadline as { seconds: number; nanoseconds: number };
+                  convertedDeadline = new Date(firestoreTimestamp.seconds * 1000 + firestoreTimestamp.nanoseconds / 1_000_000);
+                } 
+                else {
+                  convertedDeadline = assignment.deadline instanceof Date ? assignment.deadline : new Date();
+                }
+                return {
+                  ...assignment,
+                  deadline: convertedDeadline
+                };
+              });
+            },
+            error: err => {
+              console.error(`Error loading assignments for course ${course.id}:`, err);
+            }
+          });
+        });
       }
     });
 
@@ -349,5 +379,14 @@ export class StudentDashComponent {
         } as EnrolledCourse;
       })
       .filter(course => course !== null) as EnrolledCourse[];
+  }
+  
+  getDeadlineColor(deadline: Date): string {
+    if (!deadline) return '';
+    return deadline > this.currentDate ? 'text-green-700' : 'text-red-700';
+  }
+
+  onSubmitAssignment(assignment: Assignment) {
+    console.log('Submit pressed for assignment:', assignment);
   }
 }

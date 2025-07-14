@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import {Firestore, collection, addDoc, Timestamp} from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, query, where, orderBy,  addDoc, Timestamp} from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { Assignment } from '../assignment.model'; 
+import { Assignment } from '../assignment.model';
 
 @Injectable({
   providedIn: 'root',
@@ -36,5 +36,16 @@ export class AssignmentService {
       console.error('Eroare la adăugarea assignment-ului:', error);
       throw error;
     }
+  }
+
+  getAssignmentsForCourse(courseId: string): Observable<Assignment[]> {
+    const assignmentsCollection = collection(this.firestore, 'assignments');
+    const assignmentsQuery = query(
+      assignmentsCollection,
+      where('course_id', '==', courseId),
+      orderBy('deadline', 'asc')
+    );
+
+    return collectionData(assignmentsQuery, { idField: 'id' }) as Observable<Assignment[]>;
   }
 }

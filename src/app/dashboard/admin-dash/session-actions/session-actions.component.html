@@ -1,0 +1,152 @@
+<!-- ------------------SESSIONS TABLE + BUTTONS(EDIT/DELETE)--------------------------  -->
+
+<div class="flex justify-between items-center mb-2">
+  <h3 class="font-semibold">Course Sessions</h3>
+  <button
+    type="button"
+    (click)="
+      showSessionModal === false
+        ? openAddSessionModal(AdminDashService.newCourse())
+        : closeSessionModal()
+    "
+    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm transition"
+  >
+    {{ showSessionModal === false ? "Add Session" : "Close Section" }}
+  </button>
+</div>
+
+@if (showSessionModal) {
+<div class="flex items-center justify-center">
+  <div class="rounded-lg p-6 w-full">
+    <h3 class="text-lg font-semibold mb-4">
+      {{ editingSessionIndex === -1 ? "Add" : "Edit" }} Session
+    </h3>
+    @if(dateValidation.showMessage){
+
+    <p class="text-lg font-medium ml-2 mb-4 text-red-400 italic">
+      {{ dateValidation.message }}
+    </p>
+    }
+    <div class="grid grid-cols-7 gap-4">
+      <div class="sm:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+        <input
+          type="date"
+          [(ngModel)]="editingSession.date"
+          class="w-full p-2 border rounded-lg"
+        />
+      </div>
+
+      <div class="sm:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-1"
+          >Start Time</label
+        >
+        <input
+          type="time"
+          [(ngModel)]="editingSession.startTime"
+          class="w-full p-2 border rounded-lg"
+        />
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-1"
+          >End Time</label
+        >
+        <input
+          type="time"
+          [(ngModel)]="editingSession.endTime"
+          class="w-full p-2 border rounded-lg"
+        />
+      </div>
+      <!-- buttons -->
+      <div class="flex justify-end gap-2 sm:col-span-1 mt-6">
+        <button
+          type="button"
+          (click)="saveSession()"
+          class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+} @if (AdminDashService.newCourse().sessions &&
+AdminDashService.newCourse().sessions!.length > 0) {
+
+<div class="flex min-h-64 overflow-y-auto">
+  <table class="min-w-full">
+    <thead>
+      <tr class="bg-gray-50">
+        <th class="py-2 px-3 text-left">Date</th>
+        <th class="py-2 px-3 text-left">Time</th>
+        <th class="py-2 px-3 text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (session of AdminDashService.newCourse().sessions; track session.id;
+      let i = $index) {
+      <tr
+        class="{{
+          deleteSessionMessage().show &&
+          deleteSessionMessage().sessionIndex === i
+            ? ''
+            : 'border-b'
+        }}"
+      >
+        <td class="py-2 px-3">{{ formatDate(session.date) }}</td>
+        <td class="py-2 px-3">{{ session.startTime }}-{{ session.endTime }}</td>
+        <td class="py-2 px-3 flex justify-around gap-1">
+          @if(!deleteSessionMessage().show || (deleteSessionMessage().show &&
+          (deleteSessionMessage().sessionIndex !== i))){
+          <button
+            type="button"
+            (click)="editSession(AdminDashService.newCourse(), i)"
+            class="bg-blue-500 hover:bg-blue-600 text-white py-1 rounded-lg font-medium transition w-16"
+            title="Edit session"
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            (click)="onDeleteSessionClick(i)"
+            class="bg-red-500 hover:bg-red-600 text-white py-1 rounded-lg font-medium transition w-16"
+            title="Delete session"
+          >
+            Delete
+          </button>
+          }
+        </td>
+      </tr>
+      <!-- Confirmation Message when wanting to delete a session -->
+      @if(deleteSessionMessage().show && (deleteSessionMessage().sessionIndex===
+      i)){
+      <tr class="border-b">
+        <td colspan="2" class="py-2 px-3">
+          <p class="text-base font-medium text-red-400 italic">
+            Do you really want to delete this session?
+          </p>
+        </td>
+        <td class="py-2 px-3 flex justify-around gap-1">
+          <button
+            type="button"
+            class="block bg-blue-500 hover:bg-blue-600 text-white py-1 rounded-lg font-medium transition text-sm w-16"
+            (click)="deleteSession(deleteSessionMessage().sessionIndex)"
+          >
+            Yes
+          </button>
+          <button
+            type="button"
+            class="block bg-red-500 hover:bg-red-600 text-white py-1 rounded-lg font-medium transition text-sm w-16"
+            (click)="resetDeleteSessionMessage()"
+          >
+            No
+          </button>
+        </td>
+      </tr>
+
+      } }
+    </tbody>
+  </table>
+</div>
+}
