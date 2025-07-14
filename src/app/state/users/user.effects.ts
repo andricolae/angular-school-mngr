@@ -3,7 +3,16 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import * as UserActions from './user.actions';
 import * as UserSelectors from './user.selector';
-import { catchError, map, mergeMap, of, take, tap } from 'rxjs';
+import {
+  catchError,
+  map,
+  mergeMap,
+  of,
+  take,
+  tap,
+  withLatestFrom,
+  switchMap,
+} from 'rxjs';
 import { Router } from '@angular/router';
 import { UserService } from '../../core/services/user.service';
 import { LoggingService } from '../../core/services/logging.service';
@@ -19,21 +28,78 @@ export class UsersEffects {
     private store: Store
   ) {}
 
-  loadUsers$ = createEffect(() =>
+  // loadUsers$ = createEffect(() =>
+  //   this.actions$.pipe(
+  //     ofType(UserActions.loadUsers),
+  //     tap(() => this.logger.logAdmin('LOAD_USERS', 'Loading all users')),
+  //     mergeMap(() =>
+  //       this.dbService.getUsers().pipe(
+  //         map((users) => {
+  //           this.logger.logAdmin(
+  //             'LOAD_USERS_SUCCESS',
+  //             `Successfully loaded ${users.length} users`
+  //           );
+  //           return UserActions.loadUsersSuccess({ users });
+  //         }),
+  //         catchError((err) => {
+  //           this.logger.logAdmin(
+  //             'LOAD_USERS_FAIL',
+  //             `Failed to load users: ${err.message}`,
+  //             { error: err.message }
+  //           );
+  //           return of(UserActions.loadUsersFail({ error: err.message }));
+  //         })
+  //       )
+  //     )
+  //   )
+  // );
+
+  loadUsersPage$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(UserActions.loadUsers),
-      tap(() => this.logger.logAdmin('LOAD_USERS', 'Loading all users')),
-      mergeMap(() =>
-        this.dbService.getUsers().pipe(
-          map((users) => {
-            this.logger.logAdmin('LOAD_USERS_SUCCESS', `Successfully loaded ${users.length} users`);
-            return UserActions.loadUsersSuccess({ users });
+      ofType(UserActions.loadUsersPage),
+      tap(() => this.logger.logAdmin('LOAD_USERS_PAGE', 'Loading users page')),
+      switchMap(({ cursor, direction }) =>
+        this.dbService.getUsersPage(cursor, direction).pipe(
+          map(({ users, startCursor, endCursor }) => {
+            this.logger.logAdmin(
+              'LOAD_USERS_PAGE_SUCCESS',
+              `Successfully loaded ${users.length} users page`
+            );
+            return UserActions.loadUsersPageSuccess({
+              users,
+              startCursor: startCursor?.id ?? null,
+              endCursor: endCursor?.id ?? null,
+            });
           }),
           catchError((err) => {
-            this.logger.logAdmin('LOAD_USERS_FAIL', `Failed to load users: ${err.message}`, { error: err.message });
-            return of(UserActions.loadUsersFail({ error: err.message }));
+            this.logger.logAdmin(
+              'LOAD_USERS_PAGE_FAIL',
+              `Failed to load users page: ${err.message}`,
+              { error: err.message }
+            );
+            return of(UserActions.loadUsersPageFail({ error: err.message }));
           })
         )
+      )
+    )
+  );
+
+  nextUsersPage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.nextUsersPage),
+      withLatestFrom(this.store.select(UserSelectors.selectEndCursor)),
+      map(([_, endCursor]) =>
+        UserActions.loadUsersPage({ cursor: endCursor, direction: 'next' })
+      )
+    )
+  );
+
+  previousUsersPage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.previousUsersPage),
+      withLatestFrom(this.store.select(UserSelectors.selectStartCursor)),
+      map(([_, startCursor]) =>
+        UserActions.loadUsersPage({ cursor: startCursor, direction: 'prev' })
       )
     )
   );
@@ -44,48 +110,57 @@ export class UsersEffects {
       mergeMap(({ userId }) => {
         return this.store.select(UserSelectors.selectAllUsers).pipe(
           take(1),
-          mergeMap(users => {
-            const user = users.find(u => u.id === userId);
+          mergeMap((users) => {
+            const user = users.find((u) => u.id === userId);
             const userName = user ? user.fullName : 'Unknown User';
             const userEmail = user ? user.email : 'Unknown Email';
             const userRole = user ? user.role : 'Unknown Role';
 
-            this.logger.logAdmin('DELETE_USER',
+            this.logger.logAdmin(
+              'DELETE_USER',
               `Deleting user "${userName}" (${userEmail}) with role "${userRole}"`,
               {
                 userId,
                 userName,
                 userEmail,
-                userRole
+                userRole,
               }
             );
 
             return this.dbService.deleteUser(userId).pipe(
               map(() => {
-                this.logger.logAdmin('DELETE_USER_SUCCESS',
+                this.logger.logAdmin(
+                  'DELETE_USER_SUCCESS',
                   `Successfully deleted user "${userName}" (${userEmail}) with role "${userRole}"`,
                   {
                     userId,
                     userName,
                     userEmail,
-                    userRole
+                    userRole,
                   }
                 );
-                NotificationComponent.show('success', 'User deleted successfully');
+                NotificationComponent.show(
+                  'success',
+                  'User deleted successfully'
+                );
                 return UserActions.deleteUserSuccess({ userId });
               }),
               catchError((err) => {
-                this.logger.logAdmin('DELETE_USER_FAIL',
+                this.logger.logAdmin(
+                  'DELETE_USER_FAIL',
                   `Failed to delete user "${userName}" (${userEmail}): ${err.message}`,
                   {
                     userId,
                     userName,
                     userEmail,
                     userRole,
-                    error: err.message
+                    error: err.message,
                   }
                 );
-                NotificationComponent.show('alert', `Failed to delete user: ${err.message}`);
+                NotificationComponent.show(
+                  'alert',
+                  `Failed to delete user: ${err.message}`
+                );
                 return of(UserActions.deleteUserFail({ error: err.message }));
               })
             );
@@ -98,42 +173,50 @@ export class UsersEffects {
   updateUser$ = createEffect(() =>
     this.actions$.pipe(
       ofType(UserActions.updateUser),
-      tap(({ user }) => this.logger.logAdmin('UPDATE_USER',
-        `Updating user "${user.fullName}" (${user.email}) with role "${user.role}"`,
-        {
-          userId: user.id,
-          userName: user.fullName,
-          userEmail: user.email,
-          userRole: user.role
-        }
-      )),
+      tap(({ user }) =>
+        this.logger.logAdmin(
+          'UPDATE_USER',
+          `Updating user "${user.fullName}" (${user.email}) with role "${user.role}"`,
+          {
+            userId: user.id,
+            userName: user.fullName,
+            userEmail: user.email,
+            userRole: user.role,
+          }
+        )
+      ),
       mergeMap(({ user }) =>
         this.dbService.updateUser(user).pipe(
           map(() => {
-            this.logger.logAdmin('UPDATE_USER_SUCCESS',
+            this.logger.logAdmin(
+              'UPDATE_USER_SUCCESS',
               `Successfully updated user "${user.fullName}" (${user.email}) with role "${user.role}"`,
               {
                 userId: user.id,
                 userName: user.fullName,
                 userEmail: user.email,
-                userRole: user.role
+                userRole: user.role,
               }
             );
             NotificationComponent.show('success', 'User updated successfully');
             return UserActions.updateUserSuccess({ user });
           }),
           catchError((err) => {
-            this.logger.logAdmin('UPDATE_USER_FAIL',
+            this.logger.logAdmin(
+              'UPDATE_USER_FAIL',
               `Failed to update user "${user.fullName}" (${user.email}): ${err.message}`,
               {
                 userId: user.id,
                 userName: user.fullName,
                 userEmail: user.email,
                 userRole: user.role,
-                error: err.message
+                error: err.message,
               }
             );
-            NotificationComponent.show('alert', `Failed to update user: ${err.message}`);
+            NotificationComponent.show(
+              'alert',
+              `Failed to update user: ${err.message}`
+            );
             return of(UserActions.updateUserFail({ error: err.message }));
           })
         )

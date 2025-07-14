@@ -3,29 +3,47 @@ import { UserModel } from '../../core/user.model';
 
 export const loadUsers = createAction('[Users] Load Users');
 
+export const loadUsersPage = createAction(
+  '[Users] Load Users Page',
+  props<{ cursor: any | null; direction: 'next' | 'prev' }>()
+);
+
+export const loadUsersPageSuccess = createAction(
+  '[Users] Load Users Page Success',
+  props<{ users: UserModel[]; startCursor: any; endCursor: any }>()
+);
+
+export const loadUsersPageFail = createAction(
+  '[Users] Load Users Page Failure',
+  props<{ error: any }>()
+);
+
+export const nextUsersPage = createAction('[Users] Next Users Page');
+export const previousUsersPage = createAction('[Users] Previous Users Page');
+
 export const loadUsersSuccess = createAction(
-    '[Users] Load Users Success',
-    props<{ users: UserModel[] }>()
+  '[Users] Load Users Success',
+  props<{ users: UserModel[] }>()
 );
 
 export const loadUsersFail = createAction(
-    '[Users] Load Users Fail',
-    props<{ error: string }>()
+  '[Users] Load Users Fail',
+  props<{ error: string }>()
 );
 
 export const deleteUser = createAction(
-    '[Users] Delete User',
-    props<{ userId: string }>()
+  '[Users] Delete User',
+  props<{ userId: string }>()
 );
 
 export const deleteUserSuccess = createAction(
-    '[Users] Delete User Success',
-    props<{ userId: string }>()
+  '[Users] Delete User Success',
+  props<{ userId: string }>()
 );
 
 export const deleteUserFail = createAction(
-    '[Users] Delete User Fail',
-    props<{ error: string }>()
+  '[Users] Delete User Fail',
+  props<{ error: string }>()
 );
 
 export const updateUser = createAction(
@@ -46,7 +64,7 @@ export const updateUserFail = createAction(
 export const getUser = createAction(
   '[User] Load User',
   props<{ user: UserModel }>()
-)
+);
 
 export const getUserSuccess = createAction(
   '[Users] Load User Success',

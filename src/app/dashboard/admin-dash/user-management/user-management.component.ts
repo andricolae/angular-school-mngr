@@ -1,13 +1,16 @@
 import { Component, inject, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, JsonPipe } from '@angular/common';
 
 import { Store } from '@ngrx/store';
 
 import { AdminDashService } from '../admin-dash.service';
 import * as UserActions from '../../../state/users/user.actions';
 
-import { selectAllUsers } from '../../../state/users/user.selector';
+import {
+  selectAllUsers,
+  selectUsersPage,
+} from '../../../state/users/user.selector';
 import { SpinnerComponent } from '../../../core/spinner/spinner.component';
 import { SpinnerService } from '../../../core/services/spinner.service';
 import { ConfirmationDialogComponent } from '../../../core/confirmation-dialog/confirmation-dialog.component';
@@ -24,6 +27,7 @@ import { UserActionsComponent } from './user-actions/user-actions.component';
     UserActionsComponent,
     SpinnerComponent,
     ConfirmationDialogComponent,
+    JsonPipe,
   ],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.css',
@@ -31,18 +35,25 @@ import { UserActionsComponent } from './user-actions/user-actions.component';
 export class UserManagementComponent {
   @ViewChild('dialog') dialog!: ConfirmationDialogComponent;
   AdminDashService = inject(AdminDashService);
-  users$ = this.store.select(selectAllUsers);
+
+  // users$ = this.store.select(selectAllUsers);
+  users$ = this.store.select(selectUsersPage);
 
   newUser: UserModel = { fullName: '', role: '', email: '' };
   editingUserId: string | null = null;
   showUserDialog = false;
 
+  // --------------------------------------------
+
   constructor(private store: Store, private spinner: SpinnerService) {}
 
   ngOnInit(): void {
     this.spinner.show();
-    this.store.dispatch(UserActions.loadUsers());
-
+    // this.store.dispatch(UserActions.loadUsers());
+    this.store.dispatch(
+      UserActions.loadUsersPage({ cursor: null, direction: 'next' })
+    );
+    console.log(this.users$);
     setTimeout(() => {
       this.spinner.hide();
     }, 300);
@@ -59,6 +70,15 @@ export class UserManagementComponent {
     this.resetUserForm();
     this.editingUserId = null;
     this.showUserDialog = false;
+  }
+
+  // NEXT AND PREV PAGE BUTTONS
+  nextPage() {
+    this.store.dispatch(UserActions.nextUsersPage());
+  }
+
+  prevPage() {
+    this.store.dispatch(UserActions.previousUsersPage());
   }
 
   //-------------------------- USER RELATED METHODS/FUNCTIONS----------------

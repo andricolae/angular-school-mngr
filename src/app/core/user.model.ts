@@ -29,15 +29,15 @@ export interface Course {
       title: string;
       value: number;
       date: string;
-    }[]
+    }[];
   };
   studentAttendance?: {
     [studentId: string]: {
-      [sessionId: string]: boolean
-    }
+      [sessionId: string]: boolean;
+    };
   };
   pendingSchedule?: boolean;
-  pendingStudents?: string[]; 
+  pendingStudents?: string[];
 }
 
 export interface CourseSession {
@@ -52,6 +52,18 @@ export interface UserModel {
   email: string;
   fullName: string;
   role: string;
+}
+
+export interface Pagination {
+  first: string;
+  last: string;
+  next: string;
+  prev: string;
+}
+
+export interface PaginationResult<T> {
+  result: T;
+  pagination: Pagination;
 }
 
 export interface LogEntry {
@@ -76,5 +88,5 @@ export enum LogCategory {
   GRADE = 'GRADE',
   ATTENDANCE = 'ATTENDANCE',
   ADMIN = 'ADMIN',
-  TEACHER = "TEACHER"
+  TEACHER = 'TEACHER',
 }

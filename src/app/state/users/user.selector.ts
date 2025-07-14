@@ -8,6 +8,20 @@ export const selectAllUsers = createSelector(
   (state) => state.users
 );
 
+export const selectUsersPage = createSelector(
+  selectUsersState,
+  (state) => state.users
+);
+
+export const selectStartCursor = createSelector(
+  selectUsersState,
+  (state) => state.startCursor
+);
+export const selectEndCursor = createSelector(
+  selectUsersState,
+  (state) => state.endCursor
+);
+
 export const selectUsersLoading = createSelector(
   selectUsersState,
   (state) => state.loading
