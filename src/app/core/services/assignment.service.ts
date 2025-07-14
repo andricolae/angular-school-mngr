@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Firestore, collection, addDoc, Timestamp} from '@angular/fire/firestore';
+import {Firestore, collection, addDoc} from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { Assignment } from '../assignment.model'; 
 
@@ -15,12 +15,11 @@ export class AssignmentService {
 
   async addAssignment(assignmentData: Omit<Assignment, 'id'>): Promise<string> {
     try {
-      const deadlineAsDate = new Date(assignmentData.deadline);
 
       const assignmentToSave: any = { 
         title: assignmentData.title,
         description: assignmentData.description,
-        deadline: Timestamp.fromDate(deadlineAsDate), // Stochează data ca Timestamp
+        deadline: assignmentData.deadline, // Stochează data ca Timestamp
         course_id: assignmentData.course_id,
       };
 

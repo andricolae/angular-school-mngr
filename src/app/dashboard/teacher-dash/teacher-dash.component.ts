@@ -354,7 +354,7 @@ export class TeacherDashComponent {
     this.newAssignment = {
       title: '',
       description: '',
-      deadline: new Date().toISOString().split('T')[0], // Data curentă
+      deadline: new Date().toISOString().slice(0, 16),
       course_id: course.id ?? '', 
       file: undefined
     };
@@ -374,7 +374,21 @@ export class TeacherDashComponent {
     // Asigură-te că course_id este setat corect
     this.newAssignment.course_id = this.selectedCourseObj.id;
 
+    //formatez data pentru a fi posibila sortarea ulterioara (pt andreea)
     this.spinner.show(); 
+        try {
+      const dateFromInput = new Date(this.newAssignment.deadline);
+      if (isNaN(dateFromInput.getTime())) {
+        throw new Error('Format de dată invalid pentru termenul limită.');
+      }
+      this.newAssignment.deadline = dateFromInput.toISOString(); // Convertim la string ISO 8601 complet
+      console.log('Termen limită formatat pentru salvare:', this.newAssignment.deadline);
+    } catch (dateError) {
+      console.error('Eroare la formatarea termenului limită:', dateError);
+      alert('Eroare la formatarea termenului limită. Asigură-te că data și ora sunt valide.');
+      this.spinner.hide();
+      return;
+    }
 
     console.log('Dispatching addAssignment with:', this.newAssignment);
     this.store.dispatch(AssignmentActions.addAssignment({ assignment: this.newAssignment }));
