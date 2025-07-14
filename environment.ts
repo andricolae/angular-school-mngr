@@ -7,3 +7,8 @@ export const firebaseConfig = {
   appId: "1:279359271859:web:6fcdd596f3fe509eaa91c6",
   measurementId: "G-LPRFT1T59D"
 };
+
+export const cloudinaryConfig = {
+  cloudName: 'dliqi2xmx', 
+    uploadPreset: 'angular_assignments_upload' 
+};

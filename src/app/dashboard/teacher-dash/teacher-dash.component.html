@@ -356,14 +356,23 @@
           class="w-full p-2 border rounded-lg">
       </div>
 
-      <div class="mb-4">
-        <label class="block text-gray-700 mb-2">File (Optional - e.g., URL or file name)</label>
-        <input
-          type="text"
-          [(ngModel)]="newAssignment.file"
-          placeholder="e.g., assignment_doc.pdf or https://example.com/file.pdf"
-          class="w-full p-2 border rounded-lg">
-      </div>
+<!-- 🚀 NOU: Input pentru fișier și indicatori Cloudinary -->
+    <div class="mb-4">
+      <label class="block text-gray-700 mb-2">Attach File (Optional)</label>
+      <input
+        type="file"
+        (change)="onFileSelected($event)"
+        class="w-full p-2 border rounded-lg">
+      @if (selectedFile) {
+        <p class="text-sm text-gray-500 mt-1">Selected: {{ selectedFile.name }}</p>
+      }
+      @if (isFileUploading) {
+        <p class="text-sm text-green-600 mt-1">Uploading file... {{ uploadProgress }}%</p>
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+          <div class="bg-green-500 h-2.5 rounded-full" [style.width.%]="uploadProgress"></div>
+        </div>
+      }
+    </div>
 
       <div class="flex justify-end gap-2 mt-6">
         <button

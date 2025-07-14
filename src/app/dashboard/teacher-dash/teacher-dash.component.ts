@@ -18,7 +18,11 @@ import { ConfirmationDialogComponent } from '../../core/confirmation-dialog/conf
 import { Assignment } from '../../core/assignment.model';
 import { AssignmentState } from '../../state/assignments/assignments.reducer';
 import * as AssignmentActions from '../../state/assignments/assignments.actions';
-
+import { HttpClient, HttpEventType } from '@angular/common/http'; // 🚀 NOU: Import HttpClient și HttpEventType
+import { catchError, finalize, map } from 'rxjs/operators'; // 🚀 NOU: Operatori RxJS
+import { of } from 'rxjs'; // 🚀 NOU: Pentru a returna un Observable gol în caz de eroare
+import { cloudinaryConfig } from '../../../../environment';
+//import { cloudinaryConfig } from '../environment.ts'; // 🚀 NOU: Importă configurația de mediu
 
 
 @Component({
@@ -75,16 +79,24 @@ export class TeacherDashComponent {
   course_id: '', // Va fi setat la deschiderea modalului
   file: undefined // Opțional, pentru URL-ul fișierului
   };
-   assignmentDeadlineString: string = '';
+  assignmentDeadlineString: string = '';
+
+  selectedFile: File | null = null; 
+  isFileUploading: boolean = false; 
+  uploadProgress: number = 0; 
 
   assignmentLoading$: Observable<boolean>;
   assignmentError$: Observable<any>;
   private assignmentSubscription: Subscription | null = null; 
 
-  constructor(private store: Store<{ assignments: AssignmentState }>, private spinner: SpinnerService) {
-    this.assignmentLoading$ = this.store.select(state => state.assignments.loading);
-    this.assignmentError$ = this.store.select(state => state.assignments.error);
-  }
+ constructor(
+  private store: Store<{ assignments: AssignmentState }>,
+  private spinner: SpinnerService,
+  private http: HttpClient // 🚀 NOU: Injectează HttpClient
+) {
+  this.assignmentLoading$ = this.store.select(state => state.assignments.loading);
+  this.assignmentError$ = this.store.select(state => state.assignments.error);
+}  
 
   ngOnInit() {
     this.spinner.show();
@@ -348,55 +360,136 @@ export class TeacherDashComponent {
   }
 
  // Metode pentru gestionarea modalului de Assignment
-  openAddAssignmentModal(course: Course): void {
-    console.log('openAddAssignmentModal called for course:', course);
-    this.selectedCourseObj = course;
-    this.isAddAssignmentModalOpen = true;
-    console.log('isAddAssignmentModalOpen set to:', this.isAddAssignmentModalOpen);
+openAddAssignmentModal(course: Course): void {
+  console.log('openAddAssignmentModal called for course:', course);
+  this.selectedCourseObj = course;
+  this.isAddAssignmentModalOpen = true;
+  console.log('isAddAssignmentModalOpen set to:', this.isAddAssignmentModalOpen);
 
-    this.newAssignment = {
-      title: '',
-      description: '',
-      deadline: new Date(), // Inițializăm cu un obiect Date
-      course_id: course.id ?? '',
-      file: undefined
-    };
+  this.newAssignment = {
+    title: '',
+    description: '',
+    deadline: new Date(), // Inițializăm cu un obiect Date
+    course_id: course.id ?? '',
+    file: undefined
+  };
+  this.assignmentDeadlineString = this.newAssignment.deadline.toISOString().slice(0, 16);
 
-    this.assignmentDeadlineString = this.newAssignment.deadline.toISOString().slice(0, 16);
-  }
+  this.selectedFile = null; 
+  this.isFileUploading = false; 
+  this.uploadProgress = 0; 
+}
 
   closeAddAssignmentModal(): void {
     this.isAddAssignmentModalOpen = false;
     console.log('isAddAssignmentModalOpen set to:', this.isAddAssignmentModalOpen);
   }
 
-  async saveNewAssignment(): Promise<void> {
-    if (!this.isNewAssignmentValid() || !this.selectedCourseObj) {
-      alert('Te rog completează toate câmpurile obligatorii pentru assignment.');
-      return;
-    }
-
-    this.newAssignment.course_id = this.selectedCourseObj.id;
-
-    this.spinner.show();
-
-    try {
-      const dateFromInput = new Date(this.assignmentDeadlineString);
-      if (isNaN(dateFromInput.getTime())) {
-        throw new Error('Format de dată invalid pentru termenul limită.');
-      }
-      this.newAssignment.deadline = dateFromInput; // Atribuim obiectul Date
-      console.log('Termen limită formatat pentru salvare:', this.newAssignment.deadline);
-    } catch (dateError) {
-      console.error('Eroare la formatarea termenului limită:', dateError);
-      alert('Eroare la formatarea termenului limită. Asigură-te că data și ora sunt valide.');
-      this.spinner.hide();
-      return;
-    }
-
-    this.newAssignment.file = undefined; 
-    this.dispatchAssignmentSave();
+async saveNewAssignment(): Promise<void> {
+  // Validăm formularul folosind isNewAssignmentValid() înainte de a continua.
+  if (!this.isNewAssignmentValid() || !this.selectedCourseObj) {
+    alert('Te rog completează toate câmpurile obligatorii pentru assignment.');
+    return;
   }
+
+  this.newAssignment.course_id = this.selectedCourseObj.id;
+
+  this.spinner.show();
+
+  // Convertim string-ul din input (assignmentDeadlineString) în obiect Date
+  // și îl atribuim la newAssignment.deadline.
+  try {
+    const dateFromInput = new Date(this.assignmentDeadlineString);
+    if (isNaN(dateFromInput.getTime())) {
+      throw new Error('Format de dată invalid pentru termenul limită.');
+    }
+    this.newAssignment.deadline = dateFromInput; // Atribuim obiectul Date
+    console.log('Termen limită formatat pentru salvare:', this.newAssignment.deadline);
+  } catch (dateError) {
+    console.error('Eroare la formatarea termenului limită:', dateError);
+    alert('Eroare la formatarea termenului limită. Asigură-te că data și ora sunt valide.');
+    this.spinner.hide();
+    return;
+  }
+
+  //Logica de încărcare Cloudinary
+  if (this.selectedFile) {
+    this.isFileUploading = true;
+    this.uploadProgress = 0; // Resetăm progresul la începutul încărcării
+    try {
+      const cloudinaryCloudName = cloudinaryConfig.cloudName;
+      const cloudinaryUploadPreset = cloudinaryConfig.uploadPreset;
+
+      const formData = new FormData();
+      formData.append('file', this.selectedFile);
+      formData.append('upload_preset', cloudinaryUploadPreset);
+
+      this.http.post(
+        `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/upload`,
+        formData,
+        {
+          reportProgress: true, 
+          observe: 'events'     
+        }
+      ).pipe(
+        map((event: any) => {
+          switch (event.type) {
+            case HttpEventType.UploadProgress:
+              // Calculează progresul încărcării
+              this.uploadProgress = Math.round(100 * event.loaded / event.total);
+              console.log(`Upload Progress: ${this.uploadProgress}%`);
+              break;
+            case HttpEventType.Response:
+              // Răspunsul final de la Cloudinary
+              this.newAssignment.file = event.body.secure_url;
+              console.log('Fișier încărcat pe Cloudinary:', this.newAssignment.file);
+              this.isFileUploading = false;
+              this.uploadProgress = 0; // Resetăm progresul după finalizare
+              break;
+          }
+        }),
+        catchError((error) => {
+          console.error('Eroare la încărcarea fișierului pe Cloudinary:', error);
+          alert(`Eroare la încărcarea fișierului: ${error.message || 'Eroare necunoscută'}`);
+          this.isFileUploading = false;
+          this.uploadProgress = 0; // Resetăm progresul la eroare
+          return of(null); // Returnează un Observable gol pentru a nu bloca fluxul
+        }),
+        finalize(() => {
+          if (!this.isFileUploading) { 
+            this.dispatchAssignmentSave();
+          }
+        })
+      ).subscribe(); 
+    } catch (error) {
+      // Această eroare ar prinde probleme înainte de a ajunge la HttpClient (ex: erori de configurare)
+      console.error('Eroare la inițializarea încărcării Cloudinary:', error);
+      const errorMessage = (error && typeof error === 'object' && 'message' in error) ? (error as any).message : 'Eroare necunoscută';
+      alert(`Eroare la inițializarea încărcării fișierului: ${errorMessage}`);
+      this.spinner.hide();
+      this.isFileUploading = false;
+      this.uploadProgress = 0;
+    }
+  } else {
+    // Dacă nu este selectat niciun fișier, asigură-te că `file` este `undefined`
+    this.newAssignment.file = undefined;
+    this.dispatchAssignmentSave(); // Dispatch direct dacă nu e fișier de încărcat
+  }
+}
+
+  // Metoda de selecție a fișierului
+onFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files.length > 0) {
+    this.selectedFile = input.files[0];
+    console.log('Selected file:', this.selectedFile.name);
+  } else {
+    this.selectedFile = null;
+  }
+  // Resetăm stările de încărcare la o nouă selecție
+  this.isFileUploading = false;
+  this.uploadProgress = 0;
+}
 
   private dispatchAssignmentSave(): void {
     console.log('Dispatching addAssignment with:', this.newAssignment);
@@ -407,17 +500,19 @@ export class TeacherDashComponent {
   }
 
   isNewAssignmentValid(): boolean {
-    let isDeadlineValid = false;
-    if (this.assignmentDeadlineString) {
-      const date = new Date(this.assignmentDeadlineString);
-      isDeadlineValid = !isNaN(date.getTime());
-    }
-
-    return !!this.newAssignment.title &&
-           this.newAssignment.title.trim() !== '' &&
-           !!this.newAssignment.description &&
-           this.newAssignment.description.trim() !== '' &&
-           isDeadlineValid && // Verificăm validitatea datei pe baza string-ului
-           !!this.newAssignment.course_id;
+  // Validăm data direct din assignmentDeadlineString
+  let isDeadlineValid = false;
+  if (this.assignmentDeadlineString) {
+    const date = new Date(this.assignmentDeadlineString);
+    isDeadlineValid = !isNaN(date.getTime());
   }
+
+  return !!this.newAssignment.title &&
+         this.newAssignment.title.trim() !== '' &&
+         !!this.newAssignment.description &&
+         this.newAssignment.description.trim() !== '' &&
+         isDeadlineValid && 
+         !!this.newAssignment.course_id &&
+         !this.isFileUploading; 
+}
 }
