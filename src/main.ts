@@ -19,6 +19,7 @@ import { logReducer } from './app/state/logs/log.reducer';
 import { LogEffects } from './app/state/logs/log.effects';
 import { AgGridModule } from 'ag-grid-angular';
 import { LoggingInterceptor } from './app/core/logging.interceptor';
+import { AssignmentEffects } from './app/state/assignments/assignments.effects';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -33,7 +34,8 @@ bootstrapApplication(AppComponent, {
     provideEffects([
       CoursesEffects,
       UsersEffects,
-      LogEffects
+      LogEffects,
+      AssignmentEffects
     ]),
     provideStoreDevtools({
       maxAge: 25,
