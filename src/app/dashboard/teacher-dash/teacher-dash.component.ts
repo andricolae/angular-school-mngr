@@ -71,10 +71,11 @@ export class TeacherDashComponent {
   newAssignment: Omit<Assignment, 'id'> = {
   title: '',
   description: '',
-  deadline: new Date().toISOString().split('T')[0], 
+  deadline: new Date(),
   course_id: '', // Va fi setat la deschiderea modalului
   file: undefined // Opțional, pentru URL-ul fișierului
   };
+   assignmentDeadlineString: string = '';
 
   assignmentLoading$: Observable<boolean>;
   assignmentError$: Observable<any>;
@@ -346,42 +347,45 @@ export class TeacherDashComponent {
     });
   }
 
-  // NEW: Metode pentru gestionarea modalului de Assignment
-  openAddAssignmentModal(course: Course): void { 
-    this.selectedCourseObj = course; 
+ // Metode pentru gestionarea modalului de Assignment
+  openAddAssignmentModal(course: Course): void {
+    console.log('openAddAssignmentModal called for course:', course);
+    this.selectedCourseObj = course;
     this.isAddAssignmentModalOpen = true;
-    
+    console.log('isAddAssignmentModalOpen set to:', this.isAddAssignmentModalOpen);
+
     this.newAssignment = {
       title: '',
       description: '',
-      deadline: new Date().toISOString().slice(0, 16),
-      course_id: course.id ?? '', 
+      deadline: new Date(), // Inițializăm cu un obiect Date
+      course_id: course.id ?? '',
       file: undefined
     };
+
+    this.assignmentDeadlineString = this.newAssignment.deadline.toISOString().slice(0, 16);
   }
 
   closeAddAssignmentModal(): void {
     this.isAddAssignmentModalOpen = false;
+    console.log('isAddAssignmentModalOpen set to:', this.isAddAssignmentModalOpen);
   }
 
-  saveNewAssignment(): void {
-    // Validează formularul înainte de a trimite
+  async saveNewAssignment(): Promise<void> {
     if (!this.isNewAssignmentValid() || !this.selectedCourseObj) {
       alert('Te rog completează toate câmpurile obligatorii pentru assignment.');
       return;
     }
 
-    // Asigură-te că course_id este setat corect
     this.newAssignment.course_id = this.selectedCourseObj.id;
 
-    //formatez data pentru a fi posibila sortarea ulterioara (pt andreea)
-    this.spinner.show(); 
-        try {
-      const dateFromInput = new Date(this.newAssignment.deadline);
+    this.spinner.show();
+
+    try {
+      const dateFromInput = new Date(this.assignmentDeadlineString);
       if (isNaN(dateFromInput.getTime())) {
         throw new Error('Format de dată invalid pentru termenul limită.');
       }
-      this.newAssignment.deadline = dateFromInput.toISOString(); // Convertim la string ISO 8601 complet
+      this.newAssignment.deadline = dateFromInput; // Atribuim obiectul Date
       console.log('Termen limită formatat pentru salvare:', this.newAssignment.deadline);
     } catch (dateError) {
       console.error('Eroare la formatarea termenului limită:', dateError);
@@ -390,19 +394,30 @@ export class TeacherDashComponent {
       return;
     }
 
+    this.newAssignment.file = undefined; 
+    this.dispatchAssignmentSave();
+  }
+
+  private dispatchAssignmentSave(): void {
     console.log('Dispatching addAssignment with:', this.newAssignment);
     this.store.dispatch(AssignmentActions.addAssignment({ assignment: this.newAssignment }));
 
     this.closeAddAssignmentModal();
-    this.spinner.hide(); 
+    this.spinner.hide();
   }
 
   isNewAssignmentValid(): boolean {
+    let isDeadlineValid = false;
+    if (this.assignmentDeadlineString) {
+      const date = new Date(this.assignmentDeadlineString);
+      isDeadlineValid = !isNaN(date.getTime());
+    }
+
     return !!this.newAssignment.title &&
            this.newAssignment.title.trim() !== '' &&
            !!this.newAssignment.description &&
            this.newAssignment.description.trim() !== '' &&
-           !!this.newAssignment.deadline &&
+           isDeadlineValid && // Verificăm validitatea datei pe baza string-ului
            !!this.newAssignment.course_id;
   }
 }
