@@ -16,6 +16,8 @@ import { WeeklyScheduleComponent } from './weekly-schedule/weekly-schedule.compo
 import { FormsModule } from '@angular/forms';
 import { Assignment } from '../../core/assignment.model';
 import { AssignmentService } from '../../core/services/assignment.service';
+import { Timestamp } from '@angular/fire/firestore';
+
 interface CourseGrade {
   title: string;
   value: number;
@@ -71,7 +73,6 @@ export class StudentDashComponent {
   private courseSubscription?: Subscription;
   private sessionCheckInterval: any;
   selectedAssignmentId: string | null = null;
-  now: Date = new Date();
 
   constructor(private store: Store, private spinner: SpinnerService, private assignmentService: AssignmentService) {}
 
@@ -131,7 +132,20 @@ export class StudentDashComponent {
         this.enrolledCourses.forEach(course => {
           this.assignmentService.getAssignmentsForCourse(course.id).subscribe({
             next: assignments => {
-              course.assignments = assignments;
+              course.assignments = assignments.map(assignment => {
+                let convertedDeadline: Date;
+                if (assignment.deadline && typeof assignment.deadline === 'object' && 'seconds' in assignment.deadline && 'nanoseconds' in assignment.deadline) {
+                  const firestoreTimestamp = assignment.deadline as { seconds: number; nanoseconds: number };
+                  convertedDeadline = new Date(firestoreTimestamp.seconds * 1000 + firestoreTimestamp.nanoseconds / 1_000_000);
+                } 
+                else {
+                  convertedDeadline = assignment.deadline instanceof Date ? assignment.deadline : new Date();
+                }
+                return {
+                  ...assignment,
+                  deadline: convertedDeadline
+                };
+              });
             },
             error: err => {
               console.error(`Error loading assignments for course ${course.id}:`, err);
@@ -367,11 +381,9 @@ export class StudentDashComponent {
       .filter(course => course !== null) as EnrolledCourse[];
   }
   
-  getDeadlineColor(deadline: any): string {
+  getDeadlineColor(deadline: Date): string {
     if (!deadline) return '';
-    const deadlineDate = new Date(deadline);
-    const now = new Date();
-    return deadlineDate > now ? 'text-green-700' : 'text-red-700';
+    return deadline > this.currentDate ? 'text-green-700' : 'text-red-700';
   }
 
   onSubmitAssignment(assignment: Assignment) {
