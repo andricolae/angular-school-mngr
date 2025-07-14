@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { UserModel } from '../../core/user.model';
+import { Course, UserModel } from '../../core/user.model';
 import * as UserActions from '../../state/users/user.actions';
 import * as CourseActions from '../../state/courses/course.actions'
 import { Store } from '@ngrx/store';
@@ -10,11 +10,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { DatePipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { selectAllCourses } from '../../state/courses/course.selector';
-import { combineLatest, Subscription } from 'rxjs';
+import { combineLatest, Observable, Subscription } from 'rxjs';
 import { WeeklyScheduleComponent } from '../student-dash/weekly-schedule/weekly-schedule.component';
 import { acceptPendingStudent, removePendingStudent } from '../../state/courses/course.actions';
 import { ViewChild } from '@angular/core';
 import { ConfirmationDialogComponent } from '../../core/confirmation-dialog/confirmation-dialog.component';
+import { Assignment } from '../../core/assignment.model';
+import { AssignmentState } from '../../state/assignments/assignments.reducer';
+import * as AssignmentActions from '../../state/assignments/assignments.actions';
+
 
 
 @Component({
@@ -62,9 +66,25 @@ export class TeacherDashComponent {
   users$ = this.store.select(selectAllUsers);
   courses$ = this.store.select(selectAllCourses);
 
-  loggedUser: UserModel = { fullName: 'loading', role: 'loading', email: 'loading' };
+  isAddAssignmentModalOpen: boolean = false;
 
-  constructor(private store: Store, private spinner: SpinnerService) {}
+  newAssignment: Omit<Assignment, 'id'> = {
+  title: '',
+  description: '',
+  deadline: new Date().toISOString().split('T')[0], 
+  course_id: '', // Va fi setat la deschiderea modalului
+  file: undefined // Opțional, pentru URL-ul fișierului
+  };
+
+  assignmentLoading$: Observable<boolean>;
+  assignmentError$: Observable<any>;
+  private assignmentSubscription: Subscription | null = null; 
+
+  constructor(private store: Store<{ assignments: AssignmentState }>, private spinner: SpinnerService) {
+    this.assignmentLoading$ = this.store.select(state => state.assignments.loading);
+    this.assignmentError$ = this.store.select(state => state.assignments.error);
+  }
+
   ngOnInit() {
     this.spinner.show();
 
@@ -146,6 +166,14 @@ export class TeacherDashComponent {
       }
 
       this.spinner.hide();
+    });
+        // NEW: Abonare la erorile de assignment pentru feedback utilizator
+    this.assignmentSubscription = this.assignmentError$.subscribe(error => {
+      if (error) {
+        // Afișează un mesaj de eroare utilizatorului
+        alert(`Eroare la adăugarea assignment-ului: ${error.message || 'Eroare necunoscută'}`);
+        console.error('Eroare Assignment:', error);
+      }
     });
   }
 
@@ -318,4 +346,49 @@ export class TeacherDashComponent {
     });
   }
 
+  // NEW: Metode pentru gestionarea modalului de Assignment
+  openAddAssignmentModal(course: Course): void { 
+    this.selectedCourseObj = course; 
+    this.isAddAssignmentModalOpen = true;
+    
+    this.newAssignment = {
+      title: '',
+      description: '',
+      deadline: new Date().toISOString().split('T')[0], // Data curentă
+      course_id: course.id ?? '', 
+      file: undefined
+    };
+  }
+
+  closeAddAssignmentModal(): void {
+    this.isAddAssignmentModalOpen = false;
+  }
+
+  saveNewAssignment(): void {
+    // Validează formularul înainte de a trimite
+    if (!this.isNewAssignmentValid() || !this.selectedCourseObj) {
+      alert('Te rog completează toate câmpurile obligatorii pentru assignment.');
+      return;
+    }
+
+    // Asigură-te că course_id este setat corect
+    this.newAssignment.course_id = this.selectedCourseObj.id;
+
+    this.spinner.show(); 
+
+    console.log('Dispatching addAssignment with:', this.newAssignment);
+    this.store.dispatch(AssignmentActions.addAssignment({ assignment: this.newAssignment }));
+
+    this.closeAddAssignmentModal();
+    this.spinner.hide(); 
+  }
+
+  isNewAssignmentValid(): boolean {
+    return !!this.newAssignment.title &&
+           this.newAssignment.title.trim() !== '' &&
+           !!this.newAssignment.description &&
+           this.newAssignment.description.trim() !== '' &&
+           !!this.newAssignment.deadline &&
+           !!this.newAssignment.course_id;
+  }
 }
