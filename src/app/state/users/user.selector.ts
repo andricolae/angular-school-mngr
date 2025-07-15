@@ -13,15 +13,6 @@ export const selectUsersPage = createSelector(
   (state) => state.users
 );
 
-export const selectStartCursor = createSelector(
-  selectUsersState,
-  (state) => state.startCursor
-);
-export const selectEndCursor = createSelector(
-  selectUsersState,
-  (state) => state.endCursor
-);
-
 export const selectUsersLoading = createSelector(
   selectUsersState,
   (state) => state.loading

@@ -4,16 +4,13 @@ import { UserModel } from '../../core/user.model';
 
 export interface UsersState {
   users: UserModel[];
-  startCursor: any;
-  endCursor: any;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: UsersState = {
   users: [],
-  startCursor: null,
-  endCursor: null,
+
   loading: false,
   error: null,
 };
@@ -23,16 +20,11 @@ export const usersReducer = createReducer(
   on(UserActions.loadUsers, (state) => ({ ...state, loading: true })),
 
   on(UserActions.loadUsersPage, (state) => ({ ...state, loading: true })),
-  on(
-    UserActions.loadUsersPageSuccess,
-    (state, { users, startCursor, endCursor }) => ({
-      ...state,
-      users,
-      startCursor,
-      endCursor,
-      loading: false,
-    })
-  ),
+  on(UserActions.loadUsersPageSuccess, (state, { users }) => ({
+    ...state,
+    users,
+    loading: false,
+  })),
   on(UserActions.loadUsersPageFail, (state, { error }) => ({
     ...state,
     loading: false,

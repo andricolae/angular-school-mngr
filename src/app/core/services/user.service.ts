@@ -13,6 +13,7 @@ import {
   getDocs,
   where,
   endBefore,
+  limitToLast,
   QueryDocumentSnapshot,
   DocumentData,
 } from '@angular/fire/firestore';
@@ -24,6 +25,11 @@ import { User, UserModel } from '../user.model';
 })
 export class UserService {
   private usersCollection;
+  private pageCursors = {
+    startCursor: null as QueryDocumentSnapshot<DocumentData> | null,
+    endCursor: null as QueryDocumentSnapshot<DocumentData> | null,
+    pageIndex: 0,
+  };
 
   constructor(private firestore: Firestore) {
     this.usersCollection = collection(this.firestore, 'users');
@@ -35,46 +41,30 @@ export class UserService {
     }) as Observable<UserModel[]>;
   }
 
-  // getItemsPage(cursor: any | null, direction: 'next' | 'prev') {
-  //   const usersRef = collection(this.firestore, 'users');
-  //   let query = this.afs.collection<UserModel>('items', (ref) => {
-  //     let base = ref.orderBy('fullName').limit(10);
-  //     if (cursor) {
-  //       base =
-  //         direction === 'next'
-  //           ? base.startAfter(cursor)
-  //           : base.endBefore(cursor);
-  //     }
-  //     return base;
-  //   });
+  getUsersPage(direction: 'next' | 'prev') {
+    let baseQuery = query(this.usersCollection, orderBy('fullName'), limit(5));
 
-  //   return query.snapshotChanges().pipe(
-  //     map((snaps) => {
-  //       const items = snaps.map((snap) => ({
-  //         id: snap.payload.doc.id,
-  //         ...snap.payload.doc.data(),
-  //       }));
-  //       const startCursor = snaps[0]?.payload.doc;
-  //       const endCursor = snaps[snaps.length - 1]?.payload.doc;
-  //       return { items, startCursor, endCursor };
-  //     })
-  //   );
-  // }
-
-  getUsersPage(cursor: any | null, direction: 'next' | 'prev') {
-    let baseQuery = query(this.usersCollection, orderBy('fullName'), limit(10));
-
-    if (cursor) {
+    if (this.pageCursors.endCursor && this.pageCursors.startCursor) {
       baseQuery = query(
         this.usersCollection,
         orderBy('fullName'),
-        direction === 'next' ? startAfter(cursor) : endBefore(cursor),
-        limit(10)
+        direction === 'next'
+          ? startAfter(this.pageCursors.endCursor)
+          : endBefore(this.pageCursors.startCursor),
+        direction === 'next' ? limit(5) : limitToLast(5)
       );
     }
-
     return from(getDocs(baseQuery)).pipe(
       map((snapshot) => {
+        this.pageCursors = {
+          startCursor: snapshot.docs[this.pageCursors.pageIndex * 5] ?? null,
+          endCursor: snapshot.docs[snapshot.docs.length - 1] ?? null,
+          pageIndex:
+            direction === 'next'
+              ? this.pageCursors.pageIndex++
+              : this.pageCursors.pageIndex--,
+        };
+
         const users = snapshot.docs.map(
           (doc) =>
             ({
@@ -82,15 +72,50 @@ export class UserService {
               ...doc.data(),
             } as UserModel)
         );
-
-        return {
-          users,
-          startCursor: snapshot.docs[0],
-          endCursor: snapshot.docs[snapshot.docs.length - 1],
-        };
+        console.log(this.pageCursors.startCursor);
+        return { users };
       })
     );
   }
+
+  getStartCursor() {
+    return this.pageCursors.startCursor;
+  }
+
+  getEndCursor() {
+    return this.pageCursors.endCursor;
+  }
+
+  // getUsersPage(cursor: any | null, direction: 'next' | 'prev') {
+  //   let baseQuery = query(this.usersCollection, orderBy('fullName'), limit(10));
+
+  //   if (cursor) {
+  //     baseQuery = query(
+  //       this.usersCollection,
+  //       orderBy('fullName'),
+  //       direction === 'next' ? startAfter(cursor) : endBefore(cursor),
+  //       limit(10)
+  //     );
+  //   }
+
+  //   return from(getDocs(baseQuery)).pipe(
+  //     map((snapshot) => {
+  //       const users = snapshot.docs.map(
+  //         (doc) =>
+  //           ({
+  //             id: doc.id,
+  //             ...doc.data(),
+  //           } as UserModel)
+  //       );
+
+  //       return {
+  //         users,
+  //         startCursor: snapshot.docs[0],
+  //         endCursor: snapshot.docs[snapshot.docs.length - 1],
+  //       };
+  //     })
+  //   );
+  // }
 
   getUser(user: UserModel): Observable<UserModel | null> {
     const usersRef = collection(this.firestore, 'users');

@@ -27,7 +27,6 @@ import { UserActionsComponent } from './user-actions/user-actions.component';
     UserActionsComponent,
     SpinnerComponent,
     ConfirmationDialogComponent,
-    JsonPipe,
   ],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.css',
@@ -42,6 +41,10 @@ export class UserManagementComponent {
   newUser: UserModel = { fullName: '', role: '', email: '' };
   editingUserId: string | null = null;
   showUserDialog = false;
+  // used for the display of the next and prev button (if we're on the first page, don't need to show prev button, and if last page no need for next button)
+  pageIndex = 0;
+
+  searchTerm: string = '';
 
   // --------------------------------------------
 
@@ -50,9 +53,7 @@ export class UserManagementComponent {
   ngOnInit(): void {
     this.spinner.show();
     // this.store.dispatch(UserActions.loadUsers());
-    this.store.dispatch(
-      UserActions.loadUsersPage({ cursor: null, direction: 'next' })
-    );
+    this.store.dispatch(UserActions.loadUsersPage({ direction: 'next' }));
     console.log(this.users$);
     setTimeout(() => {
       this.spinner.hide();
@@ -75,12 +76,15 @@ export class UserManagementComponent {
   // NEXT AND PREV PAGE BUTTONS
   nextPage() {
     this.store.dispatch(UserActions.nextUsersPage());
+    this.pageIndex++;
   }
 
   prevPage() {
     this.store.dispatch(UserActions.previousUsersPage());
+    this.pageIndex--;
   }
 
+  filterUsers() {}
   //-------------------------- USER RELATED METHODS/FUNCTIONS----------------
   // DELETE STAYS HERE
   async deleteUser(userId: string): Promise<void> {

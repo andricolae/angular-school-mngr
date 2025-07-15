@@ -58,17 +58,15 @@ export class UsersEffects {
     this.actions$.pipe(
       ofType(UserActions.loadUsersPage),
       tap(() => this.logger.logAdmin('LOAD_USERS_PAGE', 'Loading users page')),
-      switchMap(({ cursor, direction }) =>
-        this.dbService.getUsersPage(cursor, direction).pipe(
-          map(({ users, startCursor, endCursor }) => {
+      switchMap(({ direction }) =>
+        this.dbService.getUsersPage(direction).pipe(
+          map(({ users }) => {
             this.logger.logAdmin(
               'LOAD_USERS_PAGE_SUCCESS',
               `Successfully loaded ${users.length} users page`
             );
             return UserActions.loadUsersPageSuccess({
               users,
-              startCursor: startCursor?.id ?? null,
-              endCursor: endCursor?.id ?? null,
             });
           }),
           catchError((err) => {
@@ -87,20 +85,23 @@ export class UsersEffects {
   nextUsersPage$ = createEffect(() =>
     this.actions$.pipe(
       ofType(UserActions.nextUsersPage),
-      withLatestFrom(this.store.select(UserSelectors.selectEndCursor)),
-      map(([_, endCursor]) =>
-        UserActions.loadUsersPage({ cursor: endCursor, direction: 'next' })
-      )
+      map(() => {
+        return UserActions.loadUsersPage({
+          direction: 'next',
+        });
+      })
     )
   );
 
   previousUsersPage$ = createEffect(() =>
     this.actions$.pipe(
       ofType(UserActions.previousUsersPage),
-      withLatestFrom(this.store.select(UserSelectors.selectStartCursor)),
-      map(([_, startCursor]) =>
-        UserActions.loadUsersPage({ cursor: startCursor, direction: 'prev' })
-      )
+      map(() => {
+        const startCursor = this.dbService.getStartCursor(); // Pull from service
+        return UserActions.loadUsersPage({
+          direction: 'prev',
+        });
+      })
     )
   );
 

@@ -19,53 +19,87 @@
   <div class="bg-white rounded-2xl shadow p-6">
     <h2 class="text-xl font-semibold mb-4 text-blue-600">User Management</h2>
 
-    <!-- --------------------USER LIST + BUTTONS------------------------------ -->
+    <!-- search -->
 
-    <ul class="space-y-2">
-      @for (user of users$ | async; track user.id) {
-      <li
-        class="bg-gray-50 rounded-lg p-3 flex justify-between items-center shadow"
+    <label
+      for="courseSearch"
+      class="block text-sm font-medium text-gray-700 mb-1"
+      >Search by course name</label
+    >
+    <div class="relative">
+      <input
+        type="text"
+        id="courseSearch"
+        [(ngModel)]="searchTerm"
+        (input)="filterUsers()"
+        placeholder="Search courses..."
+        class="w-full p-2 pl-8 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 outline-none"
+      />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5 text-gray-400 absolute left-2 top-2.5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
       >
-        <span>
-          <strong>{{ user.fullName }}</strong>
-          <span class="text-sm text-gray-500"> — {{ user.role }}</span>
-        </span>
-        <div class="flex gap-2 items-center">
-          <button
-            (click)="viewUserDialog(user)"
-            class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 me-2 mb-2 text-center"
-            title="Update course"
-          >
-            Edit
-          </button>
-          <button
-            (click)="deleteUser(user.id!)"
-            class="text-white bg-red-600 hover:bg-red-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-2 mb-2"
-            title="Delete user"
-          >
-            Delete
-          </button>
-        </div>
-      </li>
-      }
-    </ul>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        />
+      </svg>
 
-    <!-- BUTTTONS -->
-    <div class="flex justify-between mt-4">
-      <button
-        (click)="prevPage()"
-        class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-      >
-        Previous
-      </button>
+      <!-- --------------------USER LIST + BUTTONS------------------------------ -->
 
-      <button
-        (click)="nextPage()"
-        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Next
-      </button>
+      <ul class="space-y-2">
+        @for (user of users$ | async; track user.id) {
+        <li
+          class="bg-gray-50 rounded-lg p-3 flex justify-between items-center shadow"
+        >
+          <span>
+            <strong>{{ user.fullName }}</strong>
+            <span class="text-sm text-gray-500"> — {{ user.role }}</span>
+          </span>
+          <div class="flex gap-2 items-center">
+            <button
+              (click)="viewUserDialog(user)"
+              class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 me-2 mb-2 text-center"
+              title="Update user"
+            >
+              Edit
+            </button>
+            <button
+              (click)="deleteUser(user.id!)"
+              class="text-white bg-red-600 hover:bg-red-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-2 mb-2"
+              title="Delete user"
+            >
+              Delete
+            </button>
+          </div>
+        </li>
+        }
+      </ul>
+
+      <!-- BUTTTONS -->
+      <div class="flex flex-row-reverse gap-2 mt-4 items-center">
+        @if(pageIndex !== 0){
+        <button
+          (click)="prevPage()"
+          class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+        >
+          Previous
+        </button>
+        } @if(pageIndex !== 4){
+        <button
+          (click)="nextPage()"
+          class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Next
+        </button>
+        }
+      </div>
+      <!-- BUTTONS -->
     </div>
-    <!-- BUTTONS -->
   </div>
 </div>

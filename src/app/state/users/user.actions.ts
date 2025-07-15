@@ -5,12 +5,12 @@ export const loadUsers = createAction('[Users] Load Users');
 
 export const loadUsersPage = createAction(
   '[Users] Load Users Page',
-  props<{ cursor: any | null; direction: 'next' | 'prev' }>()
+  props<{ direction: 'next' | 'prev' }>()
 );
 
 export const loadUsersPageSuccess = createAction(
   '[Users] Load Users Page Success',
-  props<{ users: UserModel[]; startCursor: any; endCursor: any }>()
+  props<{ users: UserModel[] }>()
 );
 
 export const loadUsersPageFail = createAction(
@@ -18,8 +18,14 @@ export const loadUsersPageFail = createAction(
   props<{ error: any }>()
 );
 
-export const nextUsersPage = createAction('[Users] Next Users Page');
-export const previousUsersPage = createAction('[Users] Previous Users Page');
+export const nextUsersPage = createAction(
+  '[Users] Next Users Page',
+  props<{ direction: 'next' | 'prev' }>
+);
+export const previousUsersPage = createAction(
+  '[Users] Previous Users Page',
+  props<{ direction: 'next' | 'prev' }>
+);
 
 export const loadUsersSuccess = createAction(
   '[Users] Load Users Success',
