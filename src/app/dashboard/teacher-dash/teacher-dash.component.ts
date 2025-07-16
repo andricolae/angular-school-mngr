@@ -7,7 +7,7 @@ import { selectAllUsers } from '../../state/users/user.selector';
 import { SpinnerService } from '../../core/services/spinner.service';
 import { SpinnerComponent } from "../../core/spinner/spinner.component";
 import { v4 as uuidv4 } from 'uuid';
-import { DatePipe, NgClass } from '@angular/common';
+import { CommonModule, DatePipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { selectAllCourses } from '../../state/courses/course.selector';
 import { combineLatest, Observable, Subscription } from 'rxjs';
@@ -23,6 +23,7 @@ import { catchError, finalize, map } from 'rxjs/operators'; // 🚀 NOU: Operato
 import { of } from 'rxjs'; // 🚀 NOU: Pentru a returna un Observable gol în caz de eroare
 import { cloudinaryConfig } from '../../../../environment';
 //import { cloudinaryConfig } from '../environment.ts'; // 🚀 NOU: Importă configurația de mediu
+import { AssignmentService } from '../../core/services/assignment.service';
 
 
 @Component({
@@ -30,7 +31,7 @@ import { cloudinaryConfig } from '../../../../environment';
   standalone: true,
   templateUrl: './teacher-dash.component.html',
   styleUrl: './teacher-dash.component.css',
-  imports: [SpinnerComponent, NgClass, DatePipe, FormsModule, WeeklyScheduleComponent, ConfirmationDialogComponent],
+  imports: [SpinnerComponent, NgClass, DatePipe, FormsModule, WeeklyScheduleComponent, ConfirmationDialogComponent, CommonModule],
 })
 export class TeacherDashComponent {
   @ViewChild(ConfirmationDialogComponent) confirmationDialog!: ConfirmationDialogComponent;
@@ -89,10 +90,14 @@ export class TeacherDashComponent {
   assignmentError$: Observable<any>;
   private assignmentSubscription: Subscription | null = null; 
 
+  courseAssignments$: Observable<Assignment[]> | null = null; // Observable to hold assignments
+ private assignmentsDataSubscription: Subscription | null = null; // To manage its subscription
+
  constructor(
   private store: Store<{ assignments: AssignmentState }>,
   private spinner: SpinnerService,
-  private http: HttpClient // 🚀 NOU: Injectează HttpClient
+  private http: HttpClient, // 🚀 NOU: Injectează HttpClient
+  private assignmentService: AssignmentService // Injected
 ) {
   this.assignmentLoading$ = this.store.select(state => state.assignments.loading);
   this.assignmentError$ = this.store.select(state => state.assignments.error);
@@ -197,12 +202,40 @@ export class TeacherDashComponent {
     if (this.coursesSubscription) {
       this.coursesSubscription.unsubscribe();
     }
+    if (this.assignmentsDataSubscription) {
+      this.assignmentsDataSubscription.unsubscribe();
+    }
   }
 
   toggleView(courseName: string) {
     this.selectedCourse = this.selectedCourse === courseName ? null : courseName;
     this.selectedCourseObj = this.myCourses.find(course => course.name === this.selectedCourse);
     this.activeTab = 'grades';
+
+     // 🚀 NEW: Logic to fetch assignments for the selected course
+    if (this.selectedCourseObj) {
+      // Unsubscribe from any previous assignments subscription to prevent memory leaks
+      if (this.assignmentsDataSubscription) {
+        this.assignmentsDataSubscription.unsubscribe();
+      }
+      // Fetch assignments for the newly selected course
+      this.courseAssignments$ = this.assignmentService.getAssignmentsForCourse(this.selectedCourseObj.id);
+      // Optional: If you need to perform actions with the assignments data directly in TS,
+      // you can subscribe here. Otherwise, for displaying in HTML with async pipe,
+      // assigning the observable is sufficient.
+      // Example of subscribing if needed:
+      // this.assignmentsDataSubscription = this.courseAssignments$.subscribe(assignments => {
+      //   console.log('Assignments for selected course:', assignments);
+      //   // You can process or store these assignments in a local array if preferred
+      // });
+    } else {
+      // If no course is selected (toggled off), clear the assignments observable
+      this.courseAssignments$ = null;
+      if (this.assignmentsDataSubscription) {
+        this.assignmentsDataSubscription.unsubscribe();
+        this.assignmentsDataSubscription = null;
+      }
+    }
   }
 
   calculateMeanGrade(grades: any[]): number {

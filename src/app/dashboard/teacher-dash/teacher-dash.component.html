@@ -113,6 +113,30 @@
                   </button>
                 </div>
                 <p class="italic text-gray-500">No assignments added yet for this course.</p>
+                <!-- Example in teacher-dash.component.html (inside the selected course view) -->
+<div *ngIf="selectedCourseObj && activeTab === 'assignments'">
+  <h3>Assignments for {{ selectedCourseObj.name }}</h3>
+  <div *ngIf="courseAssignments$ | async as assignments; else noAssignments">
+    <div *ngIf="assignments.length > 0; else noAssignments">
+      <ul class="list-disc pl-5">
+        <li *ngFor="let assignment of assignments" class="mb-2 p-2 border rounded-md">
+          <p class="font-semibold">{{ assignment.title }}</p>
+          <p>{{ assignment.description }}</p>
+          <p class="text-sm text-gray-600">Deadline: {{ assignment.deadline | date:'medium' }}</p>
+          <p *ngIf="assignment.file" class="text-sm text-blue-600">
+            <a [href]="assignment.file" target="_blank" rel="noopener noreferrer">Download File</a>
+          </p>
+        </li>
+      </ul>
+    </div>
+    <ng-template #noAssignments>
+      <p class="text-gray-500">No assignments found for this course.</p>
+    </ng-template>
+  </div>
+  <ng-template #noAssignments>
+    <p class="text-gray-500">Loading assignments or no assignments available.</p>
+  </ng-template>
+</div>
               </div>
             }
             @if (activeTab === 'pending') {
