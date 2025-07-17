@@ -81,6 +81,7 @@ export class TeacherDashComponent {
   file: undefined // Opțional, pentru URL-ul fișierului
   };
   assignmentDeadlineString: string = '';
+  selectedAssignmentId: string | null = null
 
   selectedFile: File | null = null; 
   isFileUploading: boolean = false; 
