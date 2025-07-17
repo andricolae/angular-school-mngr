@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Firestore, collection, collectionData, query, where, orderBy,  addDoc, Timestamp} from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Assignment } from '../assignment.model';
 
 @Injectable({
@@ -38,7 +38,18 @@ export class AssignmentService {
     }
   }
 
-  getAssignmentsForCourse(courseId: string): Observable<Assignment[]> {
+  // getAssignmentsForCourse(courseId: string): Observable<Assignment[]> {
+  //   const assignmentsCollection = collection(this.firestore, 'assignments');
+  //   const assignmentsQuery = query(
+  //     assignmentsCollection,
+  //     where('course_id', '==', courseId),
+  //     orderBy('deadline', 'asc')
+  //   );
+
+  //   return collectionData(assignmentsQuery, { idField: 'id' }) as Observable<Assignment[]>;
+  // }
+
+    getAssignmentsForCourse(courseId: string): Observable<Assignment[]> {
     const assignmentsCollection = collection(this.firestore, 'assignments');
     const assignmentsQuery = query(
       assignmentsCollection,
@@ -46,6 +57,19 @@ export class AssignmentService {
       orderBy('deadline', 'asc')
     );
 
-    return collectionData(assignmentsQuery, { idField: 'id' }) as Observable<Assignment[]>;
+    return collectionData(assignmentsQuery, { idField: 'id' }).pipe(
+      map((assignments: any[]) => { 
+        return assignments.map(assignment => {
+          // Convertim Timestamp-ul Firestore în obiect Date de JavaScript
+          if (assignment.deadline instanceof Timestamp) {
+            return {
+              ...assignment,
+              deadline: assignment.deadline.toDate() 
+            };
+          }
+          return assignment; // Returnează assignment-ul așa cum este dacă deadline-ul nu e Timestamp
+        });
+      })
+    ) as Observable<Assignment[]>;
   }
 }

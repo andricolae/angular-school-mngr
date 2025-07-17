@@ -220,14 +220,6 @@ export class TeacherDashComponent {
       }
       // Fetch assignments for the newly selected course
       this.courseAssignments$ = this.assignmentService.getAssignmentsForCourse(this.selectedCourseObj.id);
-      // Optional: If you need to perform actions with the assignments data directly in TS,
-      // you can subscribe here. Otherwise, for displaying in HTML with async pipe,
-      // assigning the observable is sufficient.
-      // Example of subscribing if needed:
-      // this.assignmentsDataSubscription = this.courseAssignments$.subscribe(assignments => {
-      //   console.log('Assignments for selected course:', assignments);
-      //   // You can process or store these assignments in a local array if preferred
-      // });
     } else {
       // If no course is selected (toggled off), clear the assignments observable
       this.courseAssignments$ = null;
