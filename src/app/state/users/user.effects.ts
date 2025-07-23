@@ -82,6 +82,17 @@ export class UsersEffects {
     )
   );
 
+  // loadUsersFilterPage$ = createEffect(() =>
+  //   this.actions$.pipe(
+  //     ofType(UserActions.loadUsersFilterPage),
+  //     map(() => {
+  //       return UserActions.loadUsersPage({
+  //         direction: 'next',
+  //       });
+  //     })
+  //   )
+  // );
+
   nextUsersPage$ = createEffect(() =>
     this.actions$.pipe(
       ofType(UserActions.nextUsersPage),

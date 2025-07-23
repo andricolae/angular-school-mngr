@@ -13,12 +13,14 @@ import {
   getDocs,
   where,
   endBefore,
+  or,
+  and,
   limitToLast,
   QueryDocumentSnapshot,
   DocumentData,
 } from '@angular/fire/firestore';
 import { from, map, Observable } from 'rxjs';
-import { User, UserModel } from '../user.model';
+import { FilterModel, User, UserFilter, UserModel } from '../user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +30,6 @@ export class UserService {
   private pageCursors = {
     startCursor: null as QueryDocumentSnapshot<DocumentData> | null,
     endCursor: null as QueryDocumentSnapshot<DocumentData> | null,
-    pageIndex: 0,
   };
 
   constructor(private firestore: Firestore) {
@@ -41,6 +42,40 @@ export class UserService {
     }) as Observable<UserModel[]>;
   }
 
+  getUsersByFilter(filter: FilterModel, direction: 'next' | 'prev') {
+    let baseQuery = query(
+      this.usersCollection,
+      where('role', '==', 'filter.role'),
+      orderBy('role'),
+      limit(5)
+    );
+
+    if (this.pageCursors.endCursor && this.pageCursors.startCursor) {
+      baseQuery = query(
+        this.usersCollection,
+        orderBy('fullName'),
+        direction === 'next'
+          ? startAfter(this.pageCursors.endCursor)
+          : endBefore(this.pageCursors.startCursor),
+        direction === 'next' ? limit(5) : limitToLast(5)
+      );
+    }
+
+    return baseQuery;
+  }
+
+  // where('role', '==', 'Student'),
+
+  //   const q = query(citiesRef,
+  //   or(where('capital', '==', true),
+  //      where('population', '>=', 1000000)
+  //   )
+  // );
+
+  // and(
+  //       where('role', '==', 'Student'),
+  //       where('fullName', 'array-contains-any', 'Andr')
+  //     )
   getUsersPage(direction: 'next' | 'prev') {
     let baseQuery = query(this.usersCollection, orderBy('fullName'), limit(5));
 
@@ -57,12 +92,8 @@ export class UserService {
     return from(getDocs(baseQuery)).pipe(
       map((snapshot) => {
         this.pageCursors = {
-          startCursor: snapshot.docs[this.pageCursors.pageIndex * 5] ?? null,
+          startCursor: snapshot.docs[0] ?? null,
           endCursor: snapshot.docs[snapshot.docs.length - 1] ?? null,
-          pageIndex:
-            direction === 'next'
-              ? this.pageCursors.pageIndex++
-              : this.pageCursors.pageIndex--,
         };
 
         const users = snapshot.docs.map(
@@ -130,33 +161,6 @@ export class UserService {
       })
     );
   }
-
-  // help me
-  // getUsersPage(
-  //   startAfterDoc?: QueryDocumentSnapshot<any>
-  // ): Observable<UserModel[]> {
-  //   let q;
-
-  //   if (startAfterDoc) {
-  //     q = query(
-  //       this.usersCollection,
-  //       orderBy('fullName'),
-  //       startAfter(startAfterDoc),
-  //       limit(10)
-  //     );
-  //   } else {
-  //     q = query(this.usersCollection, orderBy('fullName'), limit(10));
-  //   }
-
-  //   return from(getDocs(q)).pipe(
-  //     map((snapshot) => {
-  //       this.lastDoc = snapshot.docs[snapshot.docs.length - 1] ?? null; // store last doc for cursor
-  //       return snapshot.docs.map(
-  //         (doc) => ({ id: doc.id, ...doc.data() } as UserModel)
-  //       );
-  //     })
-  //   );
-  // }
 
   deleteUser(userId: string): Observable<void> {
     const userDoc = doc(this.firestore, `users/${userId}`);

@@ -19,87 +19,115 @@
   <div class="bg-white rounded-2xl shadow p-6">
     <h2 class="text-xl font-semibold mb-4 text-blue-600">User Management</h2>
 
-    <!-- search -->
-
-    <label
-      for="courseSearch"
-      class="block text-sm font-medium text-gray-700 mb-1"
-      >Search by course name</label
-    >
-    <div class="relative">
-      <input
-        type="text"
-        id="courseSearch"
-        [(ngModel)]="searchTerm"
-        (input)="filterUsers()"
-        placeholder="Search courses..."
-        class="w-full p-2 pl-8 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 outline-none"
-      />
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-5 w-5 text-gray-400 absolute left-2 top-2.5"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
+    <!-- BUTTON FOR SHOWING FILTERS -->
+    <div class="border-t border-b border-gray-300 flex items-center mb-4">
+      <!-- WORKING HERE NOW -->
+      <button
+        (click)="showFilters()"
+        class="px-4 m-2 border-r border-gray-300 flex items-center"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
+        <div class="mr-1">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="gray"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6 hover:fill-gray-600 hover:stroke-gray-600 stroke-gray-400 fill-gray-400"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
+            />
+          </svg>
+        </div>
+        <div class="text-gray-800 font-semibold">
+          {{ appliedFiltersCount }} Filters
+        </div>
+      </button>
+
+      <button
+        class="px-4 py-2 text-gray-400 hover:text-gray-600 m-2"
+        (click)="clearAllFilters()"
+      >
+        Clear all
+      </button>
+    </div>
+    <!-- / BUTTON FOR SHOWING FILTERS -->
+
+    <!-- FILTERS -->
+
+    <div class="relative grid grid-cols-4">
+      <!-- FILTERS -->
+      @if(isShowFilter){
+      <div class="col-span-1 mr-4">
+        <app-filters filterFor="user" />
+      </div>
+      }
 
       <!-- --------------------USER LIST + BUTTONS------------------------------ -->
 
-      <ul class="space-y-2">
-        @for (user of users$ | async; track user.id) {
-        <li
-          class="bg-gray-50 rounded-lg p-3 flex justify-between items-center shadow"
-        >
-          <span>
-            <strong>{{ user.fullName }}</strong>
-            <span class="text-sm text-gray-500"> — {{ user.role }}</span>
-          </span>
-          <div class="flex gap-2 items-center">
-            <button
-              (click)="viewUserDialog(user)"
-              class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 me-2 mb-2 text-center"
-              title="Update user"
-            >
-              Edit
-            </button>
-            <button
-              (click)="deleteUser(user.id!)"
-              class="text-white bg-red-600 hover:bg-red-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-2 mb-2"
-              title="Delete user"
-            >
-              Delete
-            </button>
-          </div>
-        </li>
-        }
-      </ul>
+      <div class="{{ isShowFilter ? 'col-span-3' : 'col-span-4' }}">
+        <ul class="space-y-2">
+          @for (user of users$ | async; track user.id) {
+          <li
+            class="bg-gray-50 rounded-lg p-3 flex justify-between items-center shadow"
+          >
+            <span>
+              <strong>{{ user.fullName }}</strong>
+              <span class="text-sm text-gray-500"> — {{ user.role }}</span>
+            </span>
+            <div class="flex gap-2 items-center">
+              <button
+                (click)="viewUserDialog(user)"
+                class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 me-2 mb-2 text-center"
+                title="Update user"
+              >
+                Edit
+              </button>
+              <button
+                (click)="deleteUser(user.id!)"
+                class="text-white bg-red-600 hover:bg-red-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-2 mb-2"
+                title="Delete user"
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+          }
+        </ul>
+      </div>
 
-      <!-- BUTTTONS -->
-      <div class="flex flex-row-reverse gap-2 mt-4 items-center">
-        @if(pageIndex !== 0){
+      <!-- PREV NEXT PAGE BUTTTONS -->
+      <div
+        class="flex justify-center gap-2 mt-4 mb-4 justify-items-end items-center"
+      >
+        <!--  {{pageIndex !== 0 ? [disabled] =false : [disabled] =true }} -->
         <button
           (click)="prevPage()"
-          class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+          class="px-4 py-2 border-gray-400 {{
+            disablePrevBtn ? 'hover:text-gray-600' : ''
+          }} border-2 rounded-lg hover:bg-gray-400"
+          [disabled]="disablePrevBtn"
         >
-          Previous
+          &larr; Previous
         </button>
-        } @if(pageIndex !== 4){
+        <p class="">{{ pageIndex }} of 5</p>
+
         <button
           (click)="nextPage()"
-          class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          class="px-4 py-2 border-gray-400 border {{
+            disableNextBtn ? 'hover:text-gray-600' : 'hover:text-white'
+          }}  rounded-lg
+          {{ disableNextBtn ? 'hover:bg-gray-400' : 'hover:bg-blue-400' }}
+          "
+          [disabled]="disableNextBtn"
         >
-          Next
+          Next &rarr;
         </button>
-        }
       </div>
-      <!-- BUTTONS -->
+      <!-- PREV NEXT PAGE BUTTONS -->
     </div>
   </div>
 </div>

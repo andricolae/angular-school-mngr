@@ -14,9 +14,14 @@ import {
 import { SpinnerComponent } from '../../../core/spinner/spinner.component';
 import { SpinnerService } from '../../../core/services/spinner.service';
 import { ConfirmationDialogComponent } from '../../../core/confirmation-dialog/confirmation-dialog.component';
-import { UserModel } from '../../../core/user.model';
+import {
+  UserFilter,
+  UserFilterInput,
+  UserModel,
+} from '../../../core/user.model';
 import { AdminDialogComponent } from '../admin-dialog/admin-dialog.component';
 import { UserActionsComponent } from './user-actions/user-actions.component';
+import { FiltersComponent } from '../filters/filters.component';
 
 @Component({
   selector: 'app-user-management',
@@ -27,6 +32,7 @@ import { UserActionsComponent } from './user-actions/user-actions.component';
     UserActionsComponent,
     SpinnerComponent,
     ConfirmationDialogComponent,
+    FiltersComponent,
   ],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.css',
@@ -39,12 +45,15 @@ export class UserManagementComponent {
   users$ = this.store.select(selectUsersPage);
 
   newUser: UserModel = { fullName: '', role: '', email: '' };
+  userFilter = UserFilterInput;
   editingUserId: string | null = null;
   showUserDialog = false;
   // used for the display of the next and prev button (if we're on the first page, don't need to show prev button, and if last page no need for next button)
-  pageIndex = 0;
-
-  searchTerm: string = '';
+  pageIndex = 1;
+  disableNextBtn = false;
+  disablePrevBtn = true;
+  isShowFilter = false;
+  appliedFiltersCount = 1;
 
   // --------------------------------------------
 
@@ -73,18 +82,50 @@ export class UserManagementComponent {
     this.showUserDialog = false;
   }
 
+  disableButtons() {
+    this.disableNextBtn = this.pageIndex !== 5 ? false : true;
+    this.disablePrevBtn = this.pageIndex !== 1 ? false : true;
+  }
+
   // NEXT AND PREV PAGE BUTTONS
   nextPage() {
     this.store.dispatch(UserActions.nextUsersPage());
     this.pageIndex++;
+    this.disableButtons();
   }
 
   prevPage() {
     this.store.dispatch(UserActions.previousUsersPage());
     this.pageIndex--;
+    this.disableButtons();
   }
 
   filterUsers() {}
+
+  showFilters() {
+    this.isShowFilter = !this.isShowFilter;
+    console.log(this.AdminDashService.newUserFilterInput());
+  }
+
+  clearAllFilters() {
+    // clear filter input (checked boxes become unchecked)
+    let clearFilterInput = { ...this.AdminDashService.newUserFilterInput() };
+    clearFilterInput.categoryOfFilters.forEach((filter) => {
+      clearFilterInput.filters[filter].forEach((category) => {
+        if (category.selected) {
+          category.selected = false;
+        }
+      });
+    });
+
+    this.AdminDashService.newUserFilterInput.set(clearFilterInput);
+
+    // clear filter
+    let clearFilter = { ...this.AdminDashService.newUserFilter() };
+    clearFilter = UserFilter;
+    this.AdminDashService.newUserFilter.set(clearFilter);
+  }
+
   //-------------------------- USER RELATED METHODS/FUNCTIONS----------------
   // DELETE STAYS HERE
   async deleteUser(userId: string): Promise<void> {

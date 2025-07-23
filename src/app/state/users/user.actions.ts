@@ -18,6 +18,11 @@ export const loadUsersPageFail = createAction(
   props<{ error: any }>()
 );
 
+export const loadUsersFilterPage = createAction(
+  '[Users] Load Users Page',
+  props<{ direction: 'next' | 'prev'; searchFilter: string }>()
+);
+
 export const nextUsersPage = createAction(
   '[Users] Next Users Page',
   props<{ direction: 'next' | 'prev' }>
