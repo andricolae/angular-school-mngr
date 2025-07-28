@@ -8,6 +8,7 @@ import { AdminDashService } from '../admin-dash.service';
 import * as UserActions from '../../../state/users/user.actions';
 
 import {
+  selectAllTeachers,
   selectAllUsers,
   selectUsersPage,
 } from '../../../state/users/user.selector';
@@ -18,6 +19,7 @@ import {
   UserFilter,
   UserFilterInput,
   UserModel,
+  UserSearch,
 } from '../../../core/user.model';
 import { AdminDialogComponent } from '../admin-dialog/admin-dialog.component';
 import { UserActionsComponent } from './user-actions/user-actions.component';
@@ -63,7 +65,7 @@ export class UserManagementComponent {
     this.spinner.show();
     // this.store.dispatch(UserActions.loadUsers());
     this.store.dispatch(UserActions.loadUsersPage({ direction: 'next' }));
-    console.log(this.users$);
+
     setTimeout(() => {
       this.spinner.hide();
     }, 300);
@@ -89,13 +91,35 @@ export class UserManagementComponent {
 
   // NEXT AND PREV PAGE BUTTONS
   nextPage() {
-    this.store.dispatch(UserActions.nextUsersPage());
+    if (this.AdminDashService.userAppliedFilterCount() > 0) {
+      const filters = this.AdminDashService.newUserFilter();
+      const search = this.AdminDashService.newUserSearch();
+
+      this.store.dispatch(
+        UserActions.nextFilteredUsersPage({
+          filters: filters,
+          search: search,
+          newFilter: false,
+        })
+      );
+    } else this.store.dispatch(UserActions.nextUsersPage());
     this.pageIndex++;
     this.disableButtons();
   }
 
   prevPage() {
-    this.store.dispatch(UserActions.previousUsersPage());
+    if (this.AdminDashService.userAppliedFilterCount() > 0) {
+      const filters = this.AdminDashService.newUserFilter();
+      const search = this.AdminDashService.newUserSearch();
+
+      this.store.dispatch(
+        UserActions.previousFilteredUsersPage({
+          filters: filters,
+          search: search,
+          newFilter: false,
+        })
+      );
+    } else this.store.dispatch(UserActions.previousUsersPage());
     this.pageIndex--;
     this.disableButtons();
   }
@@ -108,6 +132,11 @@ export class UserManagementComponent {
   }
 
   clearAllFilters() {
+    //clear search
+    let clearSearch = { ...this.AdminDashService.newUserSearch() };
+    clearSearch = UserSearch;
+    this.AdminDashService.newUserSearch.set(clearSearch);
+    this.AdminDashService.userAppliedSearchCount.set(0);
     // clear filter input (checked boxes become unchecked)
     let clearFilterInput = { ...this.AdminDashService.newUserFilterInput() };
     clearFilterInput.categoryOfFilters.forEach((filter) => {
@@ -124,6 +153,11 @@ export class UserManagementComponent {
     let clearFilter = { ...this.AdminDashService.newUserFilter() };
     clearFilter = UserFilter;
     this.AdminDashService.newUserFilter.set(clearFilter);
+    this.AdminDashService.userAppliedFilterCount.set(0);
+
+    //dispatch original pagination
+
+    this.store.dispatch(UserActions.loadUsersPage({ direction: 'next' }));
   }
 
   //-------------------------- USER RELATED METHODS/FUNCTIONS----------------

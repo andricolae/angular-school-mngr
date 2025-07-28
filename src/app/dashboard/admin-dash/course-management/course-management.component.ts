@@ -8,7 +8,10 @@ import { AdminDashService } from '../admin-dash.service';
 import * as CourseActions from '../../../state/courses/course.actions';
 import * as UserActions from '../../../state/users/user.actions';
 import { selectAllCourses } from '../../../state/courses/course.selector';
-import { selectAllUsers } from '../../../state/users/user.selector';
+import {
+  selectAllTeachers,
+  selectAllUsers,
+} from '../../../state/users/user.selector';
 
 import { Course, CourseSession, UserModel } from '../../../core/user.model';
 import { SpinnerService } from '../../../core/services/spinner.service';
@@ -39,7 +42,7 @@ export class CourseManagementComponent {
   AdminDashService = inject(AdminDashService);
 
   newUser: UserModel = { fullName: '', role: '', email: '' };
-  users$ = this.store.select(selectAllUsers);
+  users$ = this.store.select(selectAllTeachers);
 
   teachers: UserModel[] = [];
 
@@ -74,7 +77,7 @@ export class CourseManagementComponent {
   ngOnInit(): void {
     this.spinner.show();
     this.store.dispatch(CourseActions.loadCourses());
-    this.store.dispatch(UserActions.loadUsers());
+    this.store.dispatch(UserActions.loadTeachers());
     this.users$.subscribe((users) => {
       this.teachers = users.filter((user) => user.role === 'Teacher');
     });

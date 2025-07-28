@@ -79,17 +79,12 @@ export interface FilterInputModel {
 }
 
 export const UserFilterInput: FilterInputModel = {
-  categoryOfFilters: ['role', 'testing'],
+  categoryOfFilters: ['role'],
   filters: {
     role: [
       { id: 1, selected: false, name: 'Admin' },
       { id: 2, selected: false, name: 'Teacher' },
       { id: 3, selected: false, name: 'Student' },
-    ],
-    testing: [
-      { id: 4, selected: false, name: 'test1' },
-      { id: 5, selected: false, name: 'test2' },
-      { id: 6, selected: false, name: 'test3' },
     ],
   },
 };
@@ -100,6 +95,30 @@ export interface FilterModel {
 
 export const UserFilter: FilterModel = {
   role: [],
+};
+
+export interface SearchInputModel {
+  search: {
+    [key: string]: string;
+  };
+  categoryOfSearchers: string[];
+}
+
+export const UserSearchInput: SearchInputModel = {
+  categoryOfSearchers: ['fullName', 'email'],
+  search: {
+    fullName: '',
+    email: '',
+  },
+};
+
+export interface SearchModel {
+  [key: string]: string;
+}
+
+export const UserSearch: SearchModel = {
+  fullName: '',
+  email: '',
 };
 
 export interface LogEntry {

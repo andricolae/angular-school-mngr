@@ -4,20 +4,20 @@ import { UserModel } from '../../core/user.model';
 
 export interface UsersState {
   users: UserModel[];
+  teachers: UserModel[];
   loading: boolean;
   error: string | null;
 }
 
 const initialState: UsersState = {
   users: [],
-
+  teachers: [],
   loading: false,
   error: null,
 };
 
 export const usersReducer = createReducer(
   initialState,
-  on(UserActions.loadUsers, (state) => ({ ...state, loading: true })),
 
   on(UserActions.loadUsersPage, (state) => ({ ...state, loading: true })),
   on(UserActions.loadUsersPageSuccess, (state, { users }) => ({
@@ -30,6 +30,39 @@ export const usersReducer = createReducer(
     loading: false,
     error,
   })),
+
+  on(UserActions.loadTeachers, (state) => ({ ...state, loading: true })),
+
+  on(UserActions.loadTeachersSuccess, (state, { teachers }) => ({
+    ...state,
+    teachers,
+    loading: false,
+  })),
+
+  on(UserActions.loadTeachersFail, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
+  })),
+
+  on(UserActions.loadFilteredUsersPage, (state) => ({
+    ...state,
+    loading: true,
+  })),
+
+  on(UserActions.loadFilteredUsersPageSuccess, (state, { users }) => ({
+    ...state,
+    users,
+    loading: false,
+  })),
+
+  on(UserActions.loadFilteredUsersPageFail, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
+  })),
+
+  on(UserActions.loadUsers, (state) => ({ ...state, loading: true })),
 
   on(UserActions.loadUsersSuccess, (state, { users }) => ({
     ...state,

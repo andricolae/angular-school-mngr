@@ -43,7 +43,7 @@
           </svg>
         </div>
         <div class="text-gray-800 font-semibold">
-          {{ appliedFiltersCount }} Filters
+          {{ AdminDashService.userAppliedFilterCount() }} Filters
         </div>
       </button>
 
@@ -58,7 +58,7 @@
 
     <!-- FILTERS -->
 
-    <div class="relative grid grid-cols-4">
+    <div class="relative grid grid-cols-5">
       <!-- FILTERS -->
       @if(isShowFilter){
       <div class="col-span-1 mr-4">
@@ -68,7 +68,7 @@
 
       <!-- --------------------USER LIST + BUTTONS------------------------------ -->
 
-      <div class="{{ isShowFilter ? 'col-span-3' : 'col-span-4' }}">
+      <div class="{{ isShowFilter ? 'col-span-4' : 'col-span-5' }}">
         <ul class="space-y-2">
           @for (user of users$ | async; track user.id) {
           <li
@@ -101,7 +101,7 @@
 
       <!-- PREV NEXT PAGE BUTTTONS -->
       <div
-        class="flex justify-center gap-2 mt-4 mb-4 justify-items-end items-center"
+        class="flex justify-center gap-2 mt-4 mb-4 justify-items-end items-center col-start-3 col-span-1"
       >
         <!--  {{pageIndex !== 0 ? [disabled] =false : [disabled] =true }} -->
         <button

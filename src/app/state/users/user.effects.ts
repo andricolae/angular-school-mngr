@@ -82,16 +82,37 @@ export class UsersEffects {
     )
   );
 
-  // loadUsersFilterPage$ = createEffect(() =>
-  //   this.actions$.pipe(
-  //     ofType(UserActions.loadUsersFilterPage),
-  //     map(() => {
-  //       return UserActions.loadUsersPage({
-  //         direction: 'next',
-  //       });
-  //     })
-  //   )
-  // );
+  loadFilteredUsersPage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.loadFilteredUsersPage),
+      tap(() => this.logger.logAdmin('LOAD_USERS_PAGE', 'Loading users page')),
+      switchMap(({ filters, search, newFilter, direction }) =>
+        this.dbService
+          .getUsersPageByFilter(filters, search, newFilter, direction)
+          .pipe(
+            map(({ users }) => {
+              this.logger.logAdmin(
+                'LOAD_FILTERED_USERS_PAGE_SUCCESS',
+                `Successfully loaded ${users.length} users page`
+              );
+              return UserActions.loadFilteredUsersPageSuccess({
+                users,
+              });
+            }),
+            catchError((err) => {
+              this.logger.logAdmin(
+                'LOAD_FILTERED_USERS_PAGE_FAIL',
+                `Failed to load users page: ${err.message}`,
+                { error: err.message }
+              );
+              return of(
+                UserActions.loadFilteredUsersPageFail({ error: err.message })
+              );
+            })
+          )
+      )
+    )
+  );
 
   nextUsersPage$ = createEffect(() =>
     this.actions$.pipe(
@@ -108,11 +129,64 @@ export class UsersEffects {
     this.actions$.pipe(
       ofType(UserActions.previousUsersPage),
       map(() => {
-        const startCursor = this.dbService.getStartCursor(); // Pull from service
         return UserActions.loadUsersPage({
           direction: 'prev',
         });
       })
+    )
+  );
+
+  nextFilteredUsersPage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.nextFilteredUsersPage),
+      map(({ filters, search, newFilter }) => {
+        return UserActions.loadFilteredUsersPage({
+          filters,
+          search,
+          newFilter,
+          direction: 'next',
+        });
+      })
+    )
+  );
+
+  previousFilteredUsersPage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.previousFilteredUsersPage),
+      map(({ filters, search, newFilter }) => {
+        return UserActions.loadFilteredUsersPage({
+          filters,
+          search,
+          newFilter,
+          direction: 'prev',
+        });
+      })
+    )
+  );
+
+  loadTeachers$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.loadTeachers),
+      tap(() => this.logger.logAdmin('LOAD_USERS', 'Loading all users')),
+      mergeMap(() =>
+        this.dbService.getTeachers().pipe(
+          map((teachers) => {
+            this.logger.logAdmin(
+              'LOAD_USERS_SUCCESS',
+              `Successfully loaded ${teachers.length} users`
+            );
+            return UserActions.loadTeachersSuccess({ teachers });
+          }),
+          catchError((err) => {
+            this.logger.logAdmin(
+              'LOAD_USERS_FAIL',
+              `Failed to load users: ${err.message}`,
+              { error: err.message }
+            );
+            return of(UserActions.loadTeachersFail({ error: err.message }));
+          })
+        )
+      )
     )
   );
 

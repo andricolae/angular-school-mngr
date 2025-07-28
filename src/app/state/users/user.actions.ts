@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { UserModel } from '../../core/user.model';
+import { FilterModel, SearchModel, UserModel } from '../../core/user.model';
 
 export const loadUsers = createAction('[Users] Load Users');
 
@@ -18,18 +18,54 @@ export const loadUsersPageFail = createAction(
   props<{ error: any }>()
 );
 
-export const loadUsersFilterPage = createAction(
-  '[Users] Load Users Page',
-  props<{ direction: 'next' | 'prev'; searchFilter: string }>()
+export const loadFilteredUsersPage = createAction(
+  '[Users] Load Users Filter Page',
+  props<{
+    filters: FilterModel;
+    search: SearchModel;
+    direction: 'next' | 'prev';
+    newFilter: boolean;
+  }>()
+);
+
+export const loadFilteredUsersPageSuccess = createAction(
+  '[Users] Load Users Filters Page Success',
+  props<{ users: UserModel[] }>()
+);
+
+export const loadFilteredUsersPageFail = createAction(
+  '[Users] Load Users Filters Page Failure',
+  props<{ error: any }>()
 );
 
 export const nextUsersPage = createAction(
   '[Users] Next Users Page',
-  props<{ direction: 'next' | 'prev' }>
+  props<{
+    direction: 'next' | 'prev';
+  }>
 );
 export const previousUsersPage = createAction(
   '[Users] Previous Users Page',
-  props<{ direction: 'next' | 'prev' }>
+  props<{
+    direction: 'next' | 'prev';
+  }>
+);
+
+export const nextFilteredUsersPage = createAction(
+  '[Users] Next Filtered Users Page',
+  props<{
+    filters: FilterModel;
+    search: SearchModel;
+    newFilter: boolean;
+  }>()
+);
+export const previousFilteredUsersPage = createAction(
+  '[Users] Previous Filtered Users Page',
+  props<{
+    filters: FilterModel;
+    search: SearchModel;
+    newFilter: boolean;
+  }>()
 );
 
 export const loadUsersSuccess = createAction(
@@ -39,6 +75,18 @@ export const loadUsersSuccess = createAction(
 
 export const loadUsersFail = createAction(
   '[Users] Load Users Fail',
+  props<{ error: string }>()
+);
+
+export const loadTeachers = createAction('[Users] Load Users Teachers');
+
+export const loadTeachersSuccess = createAction(
+  '[Users] Load Users Teachers Success',
+  props<{ teachers: UserModel[] }>()
+);
+
+export const loadTeachersFail = createAction(
+  '[Users] Load Users Teachers Fail',
   props<{ error: string }>()
 );
 

@@ -6,6 +6,10 @@ import {
   UserModel,
   UserFilterInput,
   FilterModel,
+  UserSearch,
+  SearchModel,
+  SearchInputModel,
+  UserSearchInput,
 } from '../../core/user.model';
 
 @Injectable({
@@ -20,12 +24,21 @@ export class AdminDashService {
     enrolledStudents: [],
   });
 
-  newUserFilter = signal<FilterModel>({
-    role: [],
-  });
+  //filter and input filters
+  newUserFilter = signal<FilterModel>(UserFilter);
 
   newUserFilterInput = signal<FilterInputModel>(UserFilterInput);
 
+  //search and input search
+  newUserSearch = signal<SearchModel>(UserSearch);
+
+  newUserSearchInput = signal<SearchInputModel>(UserSearchInput);
+
+  userAppliedFilterCount = signal<number>(0);
+
+  userAppliedSearchCount = signal<number>(0);
+
+  //canceling
   cancelUpdateCourseModel = false;
   cancelUpdateUserModel = false;
   inputFieldsEmpty = false;

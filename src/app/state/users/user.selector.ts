@@ -13,6 +13,11 @@ export const selectUsersPage = createSelector(
   (state) => state.users
 );
 
+export const selectFilteredUsersPage = createSelector(
+  selectUsersState,
+  (state) => state.users
+);
+
 export const selectUsersLoading = createSelector(
   selectUsersState,
   (state) => state.loading
@@ -31,4 +36,9 @@ export const selectIsLoading = createSelector(
 export const selectUser = createSelector(
   selectUsersState,
   (state) => state.users
+);
+
+export const selectAllTeachers = createSelector(
+  selectUsersState,
+  (state) => state.teachers
 );

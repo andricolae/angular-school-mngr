@@ -13,14 +13,20 @@ import {
   getDocs,
   where,
   endBefore,
-  or,
-  and,
+  startAt,
+  endAt,
   limitToLast,
   QueryDocumentSnapshot,
   DocumentData,
 } from '@angular/fire/firestore';
 import { from, map, Observable } from 'rxjs';
-import { FilterModel, User, UserFilter, UserModel } from '../user.model';
+import {
+  FilterModel,
+  SearchModel,
+  User,
+  UserFilter,
+  UserModel,
+} from '../user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,6 +38,9 @@ export class UserService {
     endCursor: null as QueryDocumentSnapshot<DocumentData> | null,
   };
 
+  private elementsPerPage = 5;
+  private isPreviousFilter = false;
+
   constructor(private firestore: Firestore) {
     this.usersCollection = collection(this.firestore, 'users');
   }
@@ -42,26 +51,82 @@ export class UserService {
     }) as Observable<UserModel[]>;
   }
 
-  getUsersByFilter(filter: FilterModel, direction: 'next' | 'prev') {
+  getTeachers(): Observable<UserModel[]> {
+    const usersRef = collection(this.firestore, 'users');
+    const q = query(usersRef, where('role', '==', 'Teacher'));
+    return collectionData(q, {
+      idField: 'id',
+    }) as Observable<UserModel[]>;
+  }
+
+  getUsersPageByFilter(
+    filter: FilterModel,
+    search: SearchModel,
+    newFilter: boolean,
+    direction: 'next' | 'prev'
+  ) {
+    this.isPreviousFilter = true;
+    const condition = [];
+
+    if (search['fullName'].length > 0)
+      condition.push(
+        orderBy('fullName'),
+        startAt(search['fullName']),
+        endAt(search['fullName'] + '\uf8ff')
+      );
+    else if (search['email'].length > 0)
+      condition.push(
+        orderBy('email'),
+        startAt(search['email']),
+        endAt(search['email'] + '\uf8ff')
+      );
+    else condition.push(orderBy('fullName'), startAt('A'));
+
+    if (filter['role'].length > 0)
+      condition.push(where('role', 'in', filter['role']));
+
+    //in case a new filter has been added reset the cursors
+    if (newFilter) {
+      this.resetCursor();
+    }
+
     let baseQuery = query(
       this.usersCollection,
-      where('role', '==', 'filter.role'),
-      orderBy('role'),
-      limit(5)
+      ...condition,
+      limit(this.elementsPerPage)
     );
 
     if (this.pageCursors.endCursor && this.pageCursors.startCursor) {
       baseQuery = query(
         this.usersCollection,
-        orderBy('fullName'),
+        ...condition,
         direction === 'next'
           ? startAfter(this.pageCursors.endCursor)
           : endBefore(this.pageCursors.startCursor),
-        direction === 'next' ? limit(5) : limitToLast(5)
+        direction === 'next'
+          ? limit(this.elementsPerPage)
+          : limitToLast(this.elementsPerPage)
       );
     }
 
-    return baseQuery;
+    return from(getDocs(baseQuery)).pipe(
+      map((snapshot) => {
+        this.pageCursors = {
+          startCursor: snapshot.docs[0] ?? null,
+          endCursor: snapshot.docs[snapshot.docs.length - 1] ?? null,
+        };
+
+        const users = snapshot.docs.map(
+          (doc) =>
+            ({
+              id: doc.id,
+              ...doc.data(),
+            } as UserModel)
+        );
+
+        return { users };
+      })
+    );
   }
 
   // where('role', '==', 'Student'),
@@ -77,16 +142,27 @@ export class UserService {
   //       where('fullName', 'array-contains-any', 'Andr')
   //     )
   getUsersPage(direction: 'next' | 'prev') {
-    let baseQuery = query(this.usersCollection, orderBy('fullName'), limit(5));
+    if (this.isPreviousFilter) {
+      this.resetCursor();
+    }
+    let baseQuery = query(
+      this.usersCollection,
+      orderBy('fullName'),
+
+      limit(this.elementsPerPage)
+    );
 
     if (this.pageCursors.endCursor && this.pageCursors.startCursor) {
       baseQuery = query(
         this.usersCollection,
         orderBy('fullName'),
+
         direction === 'next'
           ? startAfter(this.pageCursors.endCursor)
           : endBefore(this.pageCursors.startCursor),
-        direction === 'next' ? limit(5) : limitToLast(5)
+        direction === 'next'
+          ? limit(this.elementsPerPage)
+          : limitToLast(this.elementsPerPage)
       );
     }
     return from(getDocs(baseQuery)).pipe(
@@ -103,10 +179,15 @@ export class UserService {
               ...doc.data(),
             } as UserModel)
         );
-        console.log(this.pageCursors.startCursor);
+
         return { users };
       })
     );
+  }
+
+  resetCursor() {
+    this.pageCursors.endCursor = null;
+    this.pageCursors.startCursor = null;
   }
 
   getStartCursor() {
@@ -116,37 +197,6 @@ export class UserService {
   getEndCursor() {
     return this.pageCursors.endCursor;
   }
-
-  // getUsersPage(cursor: any | null, direction: 'next' | 'prev') {
-  //   let baseQuery = query(this.usersCollection, orderBy('fullName'), limit(10));
-
-  //   if (cursor) {
-  //     baseQuery = query(
-  //       this.usersCollection,
-  //       orderBy('fullName'),
-  //       direction === 'next' ? startAfter(cursor) : endBefore(cursor),
-  //       limit(10)
-  //     );
-  //   }
-
-  //   return from(getDocs(baseQuery)).pipe(
-  //     map((snapshot) => {
-  //       const users = snapshot.docs.map(
-  //         (doc) =>
-  //           ({
-  //             id: doc.id,
-  //             ...doc.data(),
-  //           } as UserModel)
-  //       );
-
-  //       return {
-  //         users,
-  //         startCursor: snapshot.docs[0],
-  //         endCursor: snapshot.docs[snapshot.docs.length - 1],
-  //       };
-  //     })
-  //   );
-  // }
 
   getUser(user: UserModel): Observable<UserModel | null> {
     const usersRef = collection(this.firestore, 'users');
