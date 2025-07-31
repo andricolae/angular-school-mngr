@@ -4,56 +4,137 @@ import { UserModel } from '../../core/user.model';
 
 export interface UsersState {
   users: UserModel[];
+  teachers: UserModel[];
+  students: number;
+  maxPageIndex: number;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: UsersState = {
   users: [],
+  teachers: [],
+  students: 0,
+  maxPageIndex: 0,
   loading: false,
-  error: null
+  error: null,
 };
 
 export const usersReducer = createReducer(
-    initialState,
-    on(UserActions.loadUsers, state => ({ ...state, loading: true })),
+  initialState,
 
-    on(UserActions.loadUsersSuccess, (state, { users }) => ({
-        ...state,
-        users,
-        loading: false
-    })),
+  on(UserActions.loadUsersPage, (state) => ({ ...state, loading: true })),
+  on(UserActions.loadUsersPageSuccess, (state, { users }) => ({
+    ...state,
+    users,
+    loading: false,
+  })),
+  on(UserActions.loadUsersPageFail, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
+  })),
 
-    on(UserActions.loadUsersFail, (state, { error }) => ({
-        ...state,
-        error,
-        loading: false
-    })),
+  on(UserActions.loadFilteredUsersPage, (state) => ({
+    ...state,
+    loading: true,
+  })),
 
-    on(UserActions.deleteUserSuccess, (state, { userId }) => ({
-        ...state,
-        users: state.users.filter(u => u.id !== userId)
-    })),
+  on(UserActions.loadFilteredUsersPageSuccess, (state, { users }) => ({
+    ...state,
+    users,
+    loading: false,
+  })),
 
-    on(UserActions.updateUserSuccess, (state, { user }) => ({
-        ...state,
-        users: state.users.map(u => u.id === user.id ? user : u)
-    })),
+  on(UserActions.loadFilteredUsersPageFail, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
+  })),
+  //
+  on(UserActions.loadUsersMaxPageIndex, (state) => ({
+    ...state,
+    loading: true,
+  })),
 
-    on(UserActions.getUser, (state, { user }) => ({
-      ...state,
-      user: state.users.map(u => u.email === user.email ? user.email : u)
-    })),
+  on(UserActions.loadUsersMaxPageIndexSuccess, (state, { maxPageIndex }) => ({
+    ...state,
+    maxPageIndex,
+    loading: false,
+  })),
 
-    on(UserActions.getUserSuccess, (state, { user }) => ({
-      ...state,
-      user,
-      loading: false
-    })),
+  on(UserActions.loadUsersMaxPageIndexFail, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
+  })),
+  //
+  on(UserActions.loadUsers, (state) => ({ ...state, loading: true })),
 
-    on(UserActions.getUserFail, (state, { error }) => ({
-        ...state,
-        error,
-        loading: false
-    })),
+  on(UserActions.loadUsersSuccess, (state, { users }) => ({
+    ...state,
+    users,
+    loading: false,
+  })),
+
+  on(UserActions.loadUsersFail, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
+  })),
+
+  on(UserActions.loadStudentsCount, (state) => ({ ...state, loading: true })),
+
+  on(UserActions.loadStudentsCountSuccess, (state, { students }) => ({
+    ...state,
+    students,
+    loading: false,
+  })),
+
+  on(UserActions.loadStudentsCountFail, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
+  })),
+
+  on(UserActions.loadTeachers, (state) => ({ ...state, loading: true })),
+
+  on(UserActions.loadTeachersSuccess, (state, { teachers }) => ({
+    ...state,
+    teachers,
+    loading: false,
+  })),
+
+  on(UserActions.loadTeachersFail, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
+  })),
+
+  on(UserActions.deleteUserSuccess, (state, { userId }) => ({
+    ...state,
+    users: state.users.filter((u) => u.id !== userId),
+  })),
+
+  on(UserActions.updateUserSuccess, (state, { user }) => ({
+    ...state,
+    users: state.users.map((u) => (u.id === user.id ? user : u)),
+  })),
+
+  on(UserActions.getUser, (state, { user }) => ({
+    ...state,
+    user: state.users.map((u) => (u.email === user.email ? user.email : u)),
+  })),
+
+  on(UserActions.getUserSuccess, (state, { user }) => ({
+    ...state,
+    user,
+    loading: false,
+  })),
+
+  on(UserActions.getUserFail, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
+  }))
 );

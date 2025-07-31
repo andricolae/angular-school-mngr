@@ -29,15 +29,15 @@ export interface Course {
       title: string;
       value: number;
       date: string;
-    }[]
+    }[];
   };
   studentAttendance?: {
     [studentId: string]: {
-      [sessionId: string]: boolean
-    }
+      [sessionId: string]: boolean;
+    };
   };
   pendingSchedule?: boolean;
-  pendingStudents?: string[]; 
+  pendingStudents?: string[];
 }
 
 export interface CourseSession {
@@ -53,6 +53,57 @@ export interface UserModel {
   fullName: string;
   role: string;
 }
+
+
+export interface FilterInputModel {
+  filters: {
+    [key: string]: { id: number; selected: boolean; name: string }[];
+  };
+  categoryOfFilters: string[];
+}
+
+export const UserFilterInput: FilterInputModel = {
+  categoryOfFilters: ['role'],
+  filters: {
+    role: [
+      { id: 1, selected: false, name: 'Admin' },
+      { id: 2, selected: false, name: 'Teacher' },
+      { id: 3, selected: false, name: 'Student' },
+    ],
+  },
+};
+
+export interface FilterModel {
+  [key: string]: string[];
+}
+
+export const UserFilter: FilterModel = {
+  role: [],
+};
+
+export interface SearchInputModel {
+  search: {
+    [key: string]: string;
+  };
+  categoryOfSearchers: string[];
+}
+
+export const UserSearchInput: SearchInputModel = {
+  categoryOfSearchers: ['fullName', 'email'],
+  search: {
+    fullName: '',
+    email: '',
+  },
+};
+
+export interface SearchModel {
+  [key: string]: string;
+}
+
+export const UserSearch: SearchModel = {
+  fullName: '',
+  email: '',
+};
 
 export interface LogEntry {
   id?: string;
@@ -76,5 +127,5 @@ export enum LogCategory {
   GRADE = 'GRADE',
   ATTENDANCE = 'ATTENDANCE',
   ADMIN = 'ADMIN',
-  TEACHER = "TEACHER"
+  TEACHER = 'TEACHER',
 }

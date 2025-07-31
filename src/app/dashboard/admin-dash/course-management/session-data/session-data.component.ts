@@ -3,10 +3,10 @@ import { AsyncPipe } from '@angular/common';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 
-import { Course } from '../../../core/user.model';
-import { SpinnerService } from '../../../core/services/spinner.service';
-import * as CourseSelectors from '../../../state/courses/course.selector';
-import { SpinnerComponent } from '../../../core/spinner/spinner.component';
+import { Course } from '../../../../core/user.model';
+import { SpinnerService } from '../../../../core/services/spinner.service';
+import * as CourseSelectors from '../../../../state/courses/course.selector';
+import { SpinnerComponent } from '../../../../core/spinner/spinner.component';
 
 @Component({
   selector: 'app-session-data',

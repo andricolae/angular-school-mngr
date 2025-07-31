@@ -1,0 +1,140 @@
+<app-spinner />
+<app-confirmation-dialog #dialog />
+
+<!-- -----------------------DIALOGS------------------------------ -->
+
+<!-- --------------------STUDENT DIALOG------------------------------ -->
+
+@if (showStudentData && selectedCourseId) {
+<app-admin-dialog
+  title="Student Data"
+  (closingClickFunction)="closeStudentData()"
+>
+  <app-student-data [courseId]="selectedCourseId"></app-student-data>
+</app-admin-dialog>
+
+}
+
+<!-- --------------------SESSION DIALOG------------------------------ -->
+
+@if (showSessionData && selectedCourseId) {
+
+<app-admin-dialog
+  title="Student Data"
+  (closingClickFunction)="closeSessionData()"
+>
+  <div class="h-full flex flex-col">
+    <app-session-data [courseId]="selectedCourseId"></app-session-data>
+  </div>
+</app-admin-dialog>
+
+}
+
+<!-- --------------------------CRAZY-------------------------------------- -->
+
+@if (showCourseData.show) {
+
+<app-admin-dialog
+  [title]="`${showCourseData.action.charAt(0).toUpperCase()}${showCourseData.action.slice(1)} Course`"
+  (closingClickFunction)="closeCourseAddUpdateDialog()"
+  category="course"
+  [action]="showCourseData.action"
+>
+  <app-course-actions
+    [action]="showCourseData.action"
+    [teachers]="teachers"
+    [editingCourseId]="editingCourseId"
+    (cancelingClickFunction)="closeCourseAddUpdateDialog()"
+  />
+</app-admin-dialog>
+}
+
+<div class="p-4 space-y-4">
+  <div class="bg-white rounded-2xl shadow p-6">
+    <div class="flex justify-between items-center w-full px-4 py-3">
+      <h2 class="text-xl font-semibold mb-4 text-blue-600">
+        Course Management
+      </h2>
+
+      <!-- ------------------COURSE MANAGEMET FORM-------------------------- -->
+      <button
+        (click)="viewCourseAddUpdateDialog('add')"
+        class="text-white bg-green-600 hover:bg-green-700 focus:outline-none font-medium rounded-lg text-base px-5 py-2.5 text-center me-1 mb-2 mr-5"
+        title="View Sessions"
+      >
+        Add Course
+      </button>
+    </div>
+
+    <!-- ------------------COURSES LIST + BUTTONS--------------------------  -->
+    <ul class="space-y-2">
+      @for (course of courses$ | async; track course.id) {
+      <li
+        class="bg-gray-50 rounded-lg px-4 py-3 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow"
+      >
+        <div class="flex items-center justify-between w-full">
+          <div class="flex flex-col text-left">
+            <span class="font-semibold text-gray-800">{{ course.name }}</span>
+            <span class="text-sm text-gray-500">{{ course.teacher }}</span>
+            <span class="text-sm text-gray-500">{{ course.schedule }}</span>
+            <span class="text-xs text-gray-500 mt-1">
+              {{ course.sessions?.length || 0 }} sessions |
+              {{ course.enrolledStudents?.length || 0 }} students enrolled
+            </span>
+          </div>
+          <div class="flex gap-2 items-center ml-auto">
+            <!-- DON'T DELETE, FOR LATER USE -->
+            <!-- @if (isCourseSchedulePending(course)) {
+              <span
+                class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full"
+                >Pending Schedule</span
+              >
+              } -->
+            <!-- -------------------BUTTONS----------------------- -->
+            <button
+              (click)="viewStudentData(course)"
+              class="text-white bg-blue-600 hover:bg-blue-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
+              title="View Student Data"
+            >
+              Student Data
+            </button>
+
+            <!-- DON'T DELETE, FOR LATER USE -->
+
+            <!-- <button
+                (click)="scheduleCourse(course.id!)"
+                class="text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
+                title="Schedule course sessions"
+              >
+                Schedule Course Session
+              </button> -->
+            <!-- bsic variant, the way it was on the site -->
+            <button
+              (click)="viewSessionData(course)"
+              title="View Sessions"
+              class="text-white bg-gray-600 hover:bg-gray-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
+            >
+              View Sessions
+            </button>
+
+            <button
+              (click)="viewCourseAddUpdateDialog('update', course)"
+              class="text-white bg-green-600 hover:bg-green-700 focus:outline-none font-medium rounded-lg text-xs px-5 py-2.5 text-center me-1 mb-2"
+              title="Update course"
+            >
+              Edit
+            </button>
+            <button
+              (click)="deleteCourse(course.id!)"
+              class="text-white bg-red-600 hover:bg-red-700 focus:outline-none font-medium rounded-lg text-xs px-4 py-2.5 text-center me-1 mb-2"
+              title="Delete course"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </li>
+      }
+    </ul>
+  </div>
+</div>

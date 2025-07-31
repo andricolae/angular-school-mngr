@@ -8,6 +8,16 @@ export const selectAllUsers = createSelector(
   (state) => state.users
 );
 
+export const selectUsersPage = createSelector(
+  selectUsersState,
+  (state) => state.users
+);
+
+export const selectFilteredUsersPage = createSelector(
+  selectUsersState,
+  (state) => state.users
+);
+
 export const selectUsersLoading = createSelector(
   selectUsersState,
   (state) => state.loading
@@ -26,4 +36,19 @@ export const selectIsLoading = createSelector(
 export const selectUser = createSelector(
   selectUsersState,
   (state) => state.users
+);
+
+export const selectStudentsCount = createSelector(
+  selectUsersState,
+  (state) => state.students
+);
+
+export const selectAllTeachers = createSelector(
+  selectUsersState,
+  (state) => state.teachers
+);
+
+export const selectMaxPageIndex = createSelector(
+  selectUsersState,
+  (state) => state.maxPageIndex
 );
