@@ -54,22 +54,6 @@ export interface UserModel {
   role: string;
 }
 
-// export interface FilterInputModel {
-//   categoryOfFilters: string[];
-//   input: { id: number; category: string; selected: boolean; name: string }[];
-// }
-
-// export const UserFilterInput: FilterInputModel = {
-//   categoryOfFilters: ['role', 'testing'],
-//   input: [
-//     { id: 1, category: 'role', selected: false, name: 'Admin' },
-//     { id: 2, category: 'role', selected: false, name: 'Teacher' },
-//     { id: 3, category: 'role', selected: false, name: 'Student' },
-//     { id: 4, category: 'testing', selected: false, name: 'test1' },
-//     { id: 5, category: 'testing', selected: false, name: 'test2' },
-//     { id: 6, category: 'testing', selected: false, name: 'test3' },
-//   ],
-// };
 
 export interface FilterInputModel {
   filters: {

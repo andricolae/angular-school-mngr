@@ -18,6 +18,24 @@ export const loadUsersPageFail = createAction(
   props<{ error: any }>()
 );
 
+export const loadUsersMaxPageIndex = createAction(
+  '[Users] Load Users Max Page Index',
+  props<{
+    filters: FilterModel;
+    search: SearchModel;
+  }>()
+);
+
+export const loadUsersMaxPageIndexSuccess = createAction(
+  '[Users] Load Users Max Page Index Success',
+  props<{ maxPageIndex: number }>()
+);
+
+export const loadUsersMaxPageIndexFail = createAction(
+  '[Users] Load Users Max Page Index Failure',
+  props<{ error: any }>()
+);
+
 export const loadFilteredUsersPage = createAction(
   '[Users] Load Users Filter Page',
   props<{
@@ -75,6 +93,20 @@ export const loadUsersSuccess = createAction(
 
 export const loadUsersFail = createAction(
   '[Users] Load Users Fail',
+  props<{ error: string }>()
+);
+
+export const loadStudentsCount = createAction(
+  '[Users] Load Users Students Count'
+);
+
+export const loadStudentsCountSuccess = createAction(
+  '[Users] Load Users Students Count Success',
+  props<{ students: number }>()
+);
+
+export const loadStudentsCountFail = createAction(
+  '[Users] Load Users Students Count Fail',
   props<{ error: string }>()
 );
 

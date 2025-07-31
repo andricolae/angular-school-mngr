@@ -7,7 +7,11 @@ import { FormsModule } from '@angular/forms';
 import { selectAllCourses } from '../../state/courses/course.selector';
 import { SpinnerComponent } from '../../core/spinner/spinner.component';
 import { SpinnerService } from '../../core/services/spinner.service';
-import { selectAllUsers } from '../../state/users/user.selector';
+import {
+  selectAllTeachers,
+  selectAllUsers,
+  selectStudentsCount,
+} from '../../state/users/user.selector';
 
 import { AdminDashService } from './admin-dash.service';
 import { UserManagementComponent } from './user-management/user-management.component';
@@ -31,29 +35,28 @@ export class AdminDashComponent {
   studentCount = 0;
   teacherCount = 0;
 
-  newUser: UserModel = { fullName: '', role: '', email: '' };
-  users$ = this.store.select(selectAllUsers);
-
-  teachers: UserModel[] = [];
-
+  teachers$ = this.store.select(selectAllTeachers);
   courses$ = this.store.select(selectAllCourses);
+  students$ = this.store.select(selectStudentsCount);
 
   constructor(private store: Store, private spinner: SpinnerService) {}
 
   ngOnInit(): void {
     this.spinner.show();
     this.store.dispatch(CourseActions.loadCourses());
-    this.store.dispatch(UserActions.loadUsers());
+    this.store.dispatch(UserActions.loadTeachers());
+    this.store.dispatch(UserActions.loadStudentsCount());
+
     this.courses$.subscribe((courses) => {
       this.courseCount = courses.length;
     });
-    this.users$.subscribe((users) => {
-      this.teachers = users.filter((user) => user.role === 'Teacher');
-      this.teacherCount = this.teachers.length;
-      this.studentCount = users.filter(
-        (user) => user.role === 'Student'
-      ).length;
+    this.students$.subscribe((students) => {
+      this.studentCount = students;
     });
+    this.teachers$.subscribe((teachers) => {
+      this.teacherCount = teachers.length;
+    });
+
     setTimeout(() => {
       this.spinner.hide();
     }, 300);

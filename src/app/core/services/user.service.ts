@@ -16,6 +16,7 @@ import {
   startAt,
   endAt,
   limitToLast,
+  getCountFromServer,
   QueryDocumentSnapshot,
   DocumentData,
 } from '@angular/fire/firestore';
@@ -38,7 +39,7 @@ export class UserService {
     endCursor: null as QueryDocumentSnapshot<DocumentData> | null,
   };
 
-  private elementsPerPage = 5;
+  private elementsPerPage = 10;
   private isPreviousFilter = false;
 
   constructor(private firestore: Firestore) {
@@ -57,6 +58,41 @@ export class UserService {
     return collectionData(q, {
       idField: 'id',
     }) as Observable<UserModel[]>;
+  }
+
+  getStudentsCount(): Promise<number> {
+    const usersRef = collection(this.firestore, 'users');
+    const q = query(usersRef, where('role', '==', 'Student'));
+    return getCountFromServer(q).then((snap) => snap.data().count);
+  }
+
+  getMaxPageIndex(filter: FilterModel, search: SearchModel): Promise<number> {
+    const condition = [];
+
+    if (search['fullName'].length > 0)
+      condition.push(
+        orderBy('fullName'),
+        startAt(search['fullName']),
+        endAt(search['fullName'] + '\uf8ff')
+      );
+    else if (search['email'].length > 0)
+      condition.push(
+        orderBy('email'),
+        startAt(search['email']),
+        endAt(search['email'] + '\uf8ff')
+      );
+    else condition.push(orderBy('fullName'), startAt('A'));
+
+    if (filter['role'].length > 0)
+      condition.push(where('role', 'in', filter['role']));
+
+    const usersRef = collection(this.firestore, 'users');
+    const q = query(usersRef, ...condition);
+    return getCountFromServer(q).then((snap) => {
+      const total = snap.data().count;
+      const maxPages = Math.ceil(total / this.elementsPerPage); // ✅ This ensures 11 → 2, 20 → 2, 21 → 3
+      return maxPages;
+    });
   }
 
   getUsersPageByFilter(
@@ -129,21 +165,10 @@ export class UserService {
     );
   }
 
-  // where('role', '==', 'Student'),
-
-  //   const q = query(citiesRef,
-  //   or(where('capital', '==', true),
-  //      where('population', '>=', 1000000)
-  //   )
-  // );
-
-  // and(
-  //       where('role', '==', 'Student'),
-  //       where('fullName', 'array-contains-any', 'Andr')
-  //     )
   getUsersPage(direction: 'next' | 'prev') {
     if (this.isPreviousFilter) {
       this.resetCursor();
+      this.isPreviousFilter = false;
     }
     let baseQuery = query(
       this.usersCollection,
@@ -188,14 +213,6 @@ export class UserService {
   resetCursor() {
     this.pageCursors.endCursor = null;
     this.pageCursors.startCursor = null;
-  }
-
-  getStartCursor() {
-    return this.pageCursors.startCursor;
-  }
-
-  getEndCursor() {
-    return this.pageCursors.endCursor;
   }
 
   getUser(user: UserModel): Observable<UserModel | null> {

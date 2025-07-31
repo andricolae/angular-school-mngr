@@ -18,3 +18,53 @@ export interface CourseSession {
   recurring?: boolean;
   recurrencePattern?: 'weekly' | 'biweekly' | 'monthly';
 }
+
+export interface FilterInputModel {
+  filters: {
+    [key: string]: { id: number; selected: boolean; name: string }[];
+  };
+  categoryOfFilters: string[];
+}
+
+export const CourseFilterInput: FilterInputModel = {
+  categoryOfFilters: ['role'],
+  filters: {
+    role: [
+      { id: 1, selected: false, name: 'Admin' },
+      { id: 2, selected: false, name: 'Teacher' },
+      { id: 3, selected: false, name: 'Student' },
+    ],
+  },
+};
+
+export interface FilterModel {
+  [key: string]: string[];
+}
+
+export const CourseFilter: FilterModel = {
+  role: [],
+};
+
+export interface SearchInputModel {
+  search: {
+    [key: string]: string;
+  };
+  categoryOfSearchers: string[];
+}
+
+export const CourseSearchInput: SearchInputModel = {
+  categoryOfSearchers: ['fullName', 'email'],
+  search: {
+    fullName: '',
+    email: '',
+  },
+};
+
+export interface SearchModel {
+  [key: string]: string;
+}
+
+export const CourseSearch: SearchModel = {
+  fullName: '',
+  email: '',
+};

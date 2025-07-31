@@ -1,6 +1,6 @@
 import { Component, inject, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AsyncPipe, JsonPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 
 import { Store } from '@ngrx/store';
 
@@ -8,8 +8,7 @@ import { AdminDashService } from '../admin-dash.service';
 import * as UserActions from '../../../state/users/user.actions';
 
 import {
-  selectAllTeachers,
-  selectAllUsers,
+  selectMaxPageIndex,
   selectUsersPage,
 } from '../../../state/users/user.selector';
 import { SpinnerComponent } from '../../../core/spinner/spinner.component';
@@ -24,6 +23,7 @@ import {
 import { AdminDialogComponent } from '../admin-dialog/admin-dialog.component';
 import { UserActionsComponent } from './user-actions/user-actions.component';
 import { FiltersComponent } from '../filters/filters.component';
+import { UserManagementService } from './user-management.service';
 
 @Component({
   selector: 'app-user-management',
@@ -42,9 +42,11 @@ import { FiltersComponent } from '../filters/filters.component';
 export class UserManagementComponent {
   @ViewChild('dialog') dialog!: ConfirmationDialogComponent;
   AdminDashService = inject(AdminDashService);
+  UserService = inject(UserManagementService);
 
   // users$ = this.store.select(selectAllUsers);
   users$ = this.store.select(selectUsersPage);
+  index$ = this.store.select(selectMaxPageIndex);
 
   newUser: UserModel = { fullName: '', role: '', email: '' };
   userFilter = UserFilterInput;
@@ -52,20 +54,32 @@ export class UserManagementComponent {
   showUserDialog = false;
   // used for the display of the next and prev button (if we're on the first page, don't need to show prev button, and if last page no need for next button)
   pageIndex = 1;
+  maxPageIndex = 0;
   disableNextBtn = false;
   disablePrevBtn = true;
   isShowFilter = false;
-  appliedFiltersCount = 1;
 
+  filters = this.UserService.newFilter();
+  search = this.UserService.newSearch();
   // --------------------------------------------
 
   constructor(private store: Store, private spinner: SpinnerService) {}
 
   ngOnInit(): void {
     this.spinner.show();
-    // this.store.dispatch(UserActions.loadUsers());
-    this.store.dispatch(UserActions.loadUsersPage({ direction: 'next' }));
 
+    this.store.dispatch(UserActions.loadUsersPage({ direction: 'next' }));
+    this.store.dispatch(
+      UserActions.loadUsersMaxPageIndex({
+        filters: this.filters,
+        search: this.search,
+      })
+    );
+
+    this.index$.subscribe((index) => {
+      this.UserService.maxPageIndex.set(index);
+      this.UserService.disableButtons();
+    });
     setTimeout(() => {
       this.spinner.hide();
     }, 300);
@@ -84,16 +98,11 @@ export class UserManagementComponent {
     this.showUserDialog = false;
   }
 
-  disableButtons() {
-    this.disableNextBtn = this.pageIndex !== 5 ? false : true;
-    this.disablePrevBtn = this.pageIndex !== 1 ? false : true;
-  }
-
   // NEXT AND PREV PAGE BUTTONS
   nextPage() {
-    if (this.AdminDashService.userAppliedFilterCount() > 0) {
-      const filters = this.AdminDashService.newUserFilter();
-      const search = this.AdminDashService.newUserSearch();
+    if (this.UserService.appliedFilterCount() > 0) {
+      const filters = this.UserService.newFilter();
+      const search = this.UserService.newSearch();
 
       this.store.dispatch(
         UserActions.nextFilteredUsersPage({
@@ -103,14 +112,14 @@ export class UserManagementComponent {
         })
       );
     } else this.store.dispatch(UserActions.nextUsersPage());
-    this.pageIndex++;
-    this.disableButtons();
+    this.UserService.currentPageIndex.update((value) => value + 1);
+    this.UserService.disableButtons();
   }
 
   prevPage() {
-    if (this.AdminDashService.userAppliedFilterCount() > 0) {
-      const filters = this.AdminDashService.newUserFilter();
-      const search = this.AdminDashService.newUserSearch();
+    if (this.UserService.appliedFilterCount() > 0) {
+      const filters = this.UserService.newFilter();
+      const search = this.UserService.newSearch();
 
       this.store.dispatch(
         UserActions.previousFilteredUsersPage({
@@ -120,25 +129,29 @@ export class UserManagementComponent {
         })
       );
     } else this.store.dispatch(UserActions.previousUsersPage());
-    this.pageIndex--;
-    this.disableButtons();
-  }
+    this.UserService.currentPageIndex.update((value) => value - 1);
 
-  filterUsers() {}
+    this.UserService.disableButtons();
+  }
 
   showFilters() {
     this.isShowFilter = !this.isShowFilter;
-    console.log(this.AdminDashService.newUserFilterInput());
   }
 
   clearAllFilters() {
     //clear search
-    let clearSearch = { ...this.AdminDashService.newUserSearch() };
+    this.UserService.newSearchInput().categoryOfSearchers.forEach((search) => {
+      this.UserService.newSearch.update((current) => ({
+        ...current,
+        [search]: '',
+      }));
+    });
+    let clearSearch = { ...this.UserService.newSearch() };
     clearSearch = UserSearch;
-    this.AdminDashService.newUserSearch.set(clearSearch);
-    this.AdminDashService.userAppliedSearchCount.set(0);
+    this.UserService.newSearch.set(clearSearch);
+    this.UserService.appliedSearchCount.set(0);
     // clear filter input (checked boxes become unchecked)
-    let clearFilterInput = { ...this.AdminDashService.newUserFilterInput() };
+    let clearFilterInput = { ...this.UserService.newFilterInput() };
     clearFilterInput.categoryOfFilters.forEach((filter) => {
       clearFilterInput.filters[filter].forEach((category) => {
         if (category.selected) {
@@ -147,16 +160,24 @@ export class UserManagementComponent {
       });
     });
 
-    this.AdminDashService.newUserFilterInput.set(clearFilterInput);
+    this.UserService.newFilterInput.set(clearFilterInput);
 
     // clear filter
-    let clearFilter = { ...this.AdminDashService.newUserFilter() };
+    let clearFilter = { ...this.UserService.newFilter() };
     clearFilter = UserFilter;
-    this.AdminDashService.newUserFilter.set(clearFilter);
-    this.AdminDashService.userAppliedFilterCount.set(0);
+    this.UserService.newFilter.set(clearFilter);
+    this.UserService.appliedFilterCount.set(0);
+
+    this.UserService.disableButtons();
 
     //dispatch original pagination
-
+    this.UserService.currentPageIndex.set(1);
+    this.store.dispatch(
+      UserActions.loadUsersMaxPageIndex({
+        filters: this.filters,
+        search: this.search,
+      })
+    );
     this.store.dispatch(UserActions.loadUsersPage({ direction: 'next' }));
   }
 

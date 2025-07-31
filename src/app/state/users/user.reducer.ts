@@ -5,6 +5,8 @@ import { UserModel } from '../../core/user.model';
 export interface UsersState {
   users: UserModel[];
   teachers: UserModel[];
+  students: number;
+  maxPageIndex: number;
   loading: boolean;
   error: string | null;
 }
@@ -12,6 +14,8 @@ export interface UsersState {
 const initialState: UsersState = {
   users: [],
   teachers: [],
+  students: 0,
+  maxPageIndex: 0,
   loading: false,
   error: null,
 };
@@ -31,20 +35,6 @@ export const usersReducer = createReducer(
     error,
   })),
 
-  on(UserActions.loadTeachers, (state) => ({ ...state, loading: true })),
-
-  on(UserActions.loadTeachersSuccess, (state, { teachers }) => ({
-    ...state,
-    teachers,
-    loading: false,
-  })),
-
-  on(UserActions.loadTeachersFail, (state, { error }) => ({
-    ...state,
-    error,
-    loading: false,
-  })),
-
   on(UserActions.loadFilteredUsersPage, (state) => ({
     ...state,
     loading: true,
@@ -61,7 +51,24 @@ export const usersReducer = createReducer(
     error,
     loading: false,
   })),
+  //
+  on(UserActions.loadUsersMaxPageIndex, (state) => ({
+    ...state,
+    loading: true,
+  })),
 
+  on(UserActions.loadUsersMaxPageIndexSuccess, (state, { maxPageIndex }) => ({
+    ...state,
+    maxPageIndex,
+    loading: false,
+  })),
+
+  on(UserActions.loadUsersMaxPageIndexFail, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
+  })),
+  //
   on(UserActions.loadUsers, (state) => ({ ...state, loading: true })),
 
   on(UserActions.loadUsersSuccess, (state, { users }) => ({
@@ -71,6 +78,34 @@ export const usersReducer = createReducer(
   })),
 
   on(UserActions.loadUsersFail, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
+  })),
+
+  on(UserActions.loadStudentsCount, (state) => ({ ...state, loading: true })),
+
+  on(UserActions.loadStudentsCountSuccess, (state, { students }) => ({
+    ...state,
+    students,
+    loading: false,
+  })),
+
+  on(UserActions.loadStudentsCountFail, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
+  })),
+
+  on(UserActions.loadTeachers, (state) => ({ ...state, loading: true })),
+
+  on(UserActions.loadTeachersSuccess, (state, { teachers }) => ({
+    ...state,
+    teachers,
+    loading: false,
+  })),
+
+  on(UserActions.loadTeachersFail, (state, { error }) => ({
     ...state,
     error,
     loading: false,

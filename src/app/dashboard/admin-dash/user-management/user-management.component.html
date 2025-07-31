@@ -43,7 +43,10 @@
           </svg>
         </div>
         <div class="text-gray-800 font-semibold">
-          {{ AdminDashService.userAppliedFilterCount() }} Filters
+          {{
+            UserService.appliedFilterCount() + UserService.appliedSearchCount()
+          }}
+          Filters
         </div>
       </button>
 
@@ -107,22 +110,31 @@
         <button
           (click)="prevPage()"
           class="px-4 py-2 border-gray-400 {{
-            disablePrevBtn ? 'hover:text-gray-600' : ''
-          }} border-2 rounded-lg hover:bg-gray-400"
-          [disabled]="disablePrevBtn"
+            UserService.disablePrevBtn() ? 'hover:text-gray-600' : ''
+          }} border rounded-lg hover:bg-gray-200"
+          [disabled]="UserService.disablePrevBtn()"
         >
           &larr; Previous
         </button>
-        <p class="">{{ pageIndex }} of 5</p>
+        <p class="">
+          {{ UserService.currentPageIndex() }} of
+          {{ UserService.maxPageIndex() }}
+        </p>
 
         <button
           (click)="nextPage()"
           class="px-4 py-2 border-gray-400 border {{
-            disableNextBtn ? 'hover:text-gray-600' : 'hover:text-white'
+            UserService.disableNextBtn()
+              ? 'hover:text-gray-600'
+              : 'hover:text-white'
           }}  rounded-lg
-          {{ disableNextBtn ? 'hover:bg-gray-400' : 'hover:bg-blue-400' }}
+          {{
+            UserService.disableNextBtn()
+              ? 'hover:bg-gray-400'
+              : 'hover:bg-gray-200'
+          }}
           "
-          [disabled]="disableNextBtn"
+          [disabled]="UserService.disableNextBtn()"
         >
           Next &rarr;
         </button>

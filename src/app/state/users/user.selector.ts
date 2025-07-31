@@ -38,7 +38,17 @@ export const selectUser = createSelector(
   (state) => state.users
 );
 
+export const selectStudentsCount = createSelector(
+  selectUsersState,
+  (state) => state.students
+);
+
 export const selectAllTeachers = createSelector(
   selectUsersState,
   (state) => state.teachers
+);
+
+export const selectMaxPageIndex = createSelector(
+  selectUsersState,
+  (state) => state.maxPageIndex
 );

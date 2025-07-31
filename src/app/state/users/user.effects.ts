@@ -12,6 +12,7 @@ import {
   tap,
   withLatestFrom,
   switchMap,
+  from,
 } from 'rxjs';
 import { Router } from '@angular/router';
 import { UserService } from '../../core/services/user.service';
@@ -164,6 +165,36 @@ export class UsersEffects {
     )
   );
 
+  loadUsersMaxPageIndex$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.loadUsersMaxPageIndex),
+      mergeMap(({ filters, search }) =>
+        from(this.dbService.getMaxPageIndex(filters, search)).pipe(
+          map((maxPageIndex) =>
+            UserActions.loadUsersMaxPageIndexSuccess({ maxPageIndex })
+          ),
+          catchError((error) =>
+            of(UserActions.loadUsersMaxPageIndexFail({ error }))
+          )
+        )
+      )
+    )
+  );
+
+  loadStudentCount$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.loadStudentsCount),
+      switchMap(() =>
+        from(this.dbService.getStudentsCount()).pipe(
+          map((students) => UserActions.loadStudentsCountSuccess({ students })),
+          catchError((err) =>
+            of(UserActions.loadStudentsCountFail({ error: err.message }))
+          )
+        )
+      )
+    )
+  );
+
   loadTeachers$ = createEffect(() =>
     this.actions$.pipe(
       ofType(UserActions.loadTeachers),
@@ -172,15 +203,15 @@ export class UsersEffects {
         this.dbService.getTeachers().pipe(
           map((teachers) => {
             this.logger.logAdmin(
-              'LOAD_USERS_SUCCESS',
-              `Successfully loaded ${teachers.length} users`
+              'LOAD_USERS_TEACHERS_SUCCESS',
+              `Successfully loaded ${teachers.length} teachers`
             );
             return UserActions.loadTeachersSuccess({ teachers });
           }),
           catchError((err) => {
             this.logger.logAdmin(
-              'LOAD_USERS_FAIL',
-              `Failed to load users: ${err.message}`,
+              'LOAD_USERS_TEACHERS_FAIL',
+              `Failed to load teachers: ${err.message}`,
               { error: err.message }
             );
             return of(UserActions.loadTeachersFail({ error: err.message }));
