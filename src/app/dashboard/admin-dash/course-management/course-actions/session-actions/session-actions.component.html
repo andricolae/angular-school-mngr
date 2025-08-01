@@ -92,7 +92,7 @@ AdminDashService.newCourse().sessions!.length > 0) {
           deleteSessionMessage().sessionIndex === i
             ? ''
             : 'border-b'
-        }}"
+        }} max-h-12 min-h-10"
       >
         <td class="py-2 px-3">{{ formatDate(session.date) }}</td>
         <td class="py-2 px-3">{{ session.startTime }}-{{ session.endTime }}</td>

@@ -1,6 +1,6 @@
 <div class="bg-white rounded-xl shadow-md p-6 mx-auto h-full overflow-y-auto">
   <app-spinner />
-  @if(category === 'course' ){ @if(!allCourseInputNotEmpty){
+  @if(!allCourseInputNotEmpty){
   <p class="text-lg font-medium sm:col-span-4 ml-2 mb-4 text-red-400 italic">
     For adding a course the: name, teacher and schedule are mandatory
   </p>
@@ -53,12 +53,11 @@
     </div>
 
     <!-- ------------------ADD/UPDATE & CANCEL FORM BUTTONS--------------------------  -->
-    @if(!AdminDashService.cancelUpdateCourseModel &&
-    !confirmationAddUpdateMessage ){
+    @if(!AdminDashService.cancelUpdateCourseModel && !showConfirmationMessage ){
     <button
       type="button"
       class="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-medium transition sm:col-span-4 max-h-14 min-h-10"
-      (click)="onAddUpdateShowConfirmationMessage()"
+      (click)="onShowConfirmationMessage()"
     >
       {{ action === "update" ? "Update Course" : "Add Course" }}
     </button>
@@ -102,7 +101,7 @@
       No
     </button>
 
-    } @else if(confirmationAddUpdateMessage){
+    } @else if(showConfirmationMessage){
     <p
       class="text-lg font-medium sm:col-span-4 sm:row-span-1 mt-2 text-blue-400"
     >
@@ -121,12 +120,10 @@
     <button
       type="button"
       class="block bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition sm:col-span-1 sm:row-span-1 max-h-14"
-      (click)="onAddUpdateShowConfirmationMessage()"
+      (click)="onShowConfirmationMessage()"
     >
       No
     </button>
     }
   </form>
-
-  }
 </div>

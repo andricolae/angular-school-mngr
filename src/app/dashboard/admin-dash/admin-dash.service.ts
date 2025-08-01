@@ -1,5 +1,16 @@
 import { Injectable, signal } from '@angular/core';
-import { Course } from '../../core/user.model';
+import {
+  Course,
+  UserFilter,
+  FilterInputModel,
+  UserModel,
+  UserFilterInput,
+  FilterModel,
+  UserSearch,
+  SearchModel,
+  SearchInputModel,
+  UserSearchInput,
+} from '../../core/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +23,22 @@ export class AdminDashService {
     sessions: [],
     enrolledStudents: [],
   });
+
+  //filter and input filters
+  newUserFilter = signal<FilterModel>(UserFilter);
+
+  newUserFilterInput = signal<FilterInputModel>(UserFilterInput);
+
+  //search and input search
+  newUserSearch = signal<SearchModel>(UserSearch);
+
+  newUserSearchInput = signal<SearchInputModel>(UserSearchInput);
+
+  userAppliedFilterCount = signal<number>(0);
+
+  userAppliedSearchCount = signal<number>(0);
+
+  //canceling
   cancelUpdateCourseModel = false;
   cancelUpdateUserModel = false;
   inputFieldsEmpty = false;

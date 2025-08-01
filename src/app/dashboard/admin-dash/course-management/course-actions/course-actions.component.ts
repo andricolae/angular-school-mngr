@@ -9,36 +9,30 @@ import {
 } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 import { Store } from '@ngrx/store';
 
-import { Course, UserModel } from '../../../core/user.model';
-import * as CourseActions from '../../../state/courses/course.actions';
-import * as UserActions from '../../../state/users/user.actions';
+import { AdminDashService } from '../../admin-dash.service';
+import { SpinnerComponent } from '../../../../core/spinner/spinner.component';
+import { Course, UserModel } from '../../../../core/user.model';
 
-import { ConfirmationDialogComponent } from '../../../core/confirmation-dialog/confirmation-dialog.component';
-import { SpinnerComponent } from '../../../core/spinner/spinner.component';
-import { SessionActionsComponent } from '../course-management/course-actions/session-actions/session-actions.component';
-import { AdminDashService } from '../admin-dash.service';
+import * as CourseActions from '../../../../state/courses/course.actions';
+import { SessionActionsComponent } from './session-actions/session-actions.component';
 
 @Component({
-  selector: 'app-course-user-add-update-data',
-  imports: [FormsModule, SpinnerComponent, SessionActionsComponent, NgClass],
-  templateUrl: './course-user-add-update-data.component.html',
-  styleUrl: './course-user-add-update-data.component.css',
+  selector: 'app-course-actions',
+  imports: [SpinnerComponent, FormsModule, NgClass, SessionActionsComponent],
+  templateUrl: './course-actions.component.html',
+  styleUrl: './course-actions.component.css',
 })
-export class CourseUserAddUpdateDataComponent {
-  @ViewChild('dialog') dialog!: ConfirmationDialogComponent;
+export class CourseActionsComponent {
   @ViewChild('form') formRef!: ElementRef<HTMLFormElement>;
   @ViewChild('session') sessionRef!: ElementRef<HTMLFormElement>;
 
   AdminDashService = inject(AdminDashService);
-
-  @Input({ required: true }) category!: 'course' | 'user' | '';
   @Input({ required: true }) action!: 'add' | 'update' | '';
   @Input() editingCourseId?: string | null;
-  @Input() editingUserId?: string | null;
   @Input() teachers?: UserModel[];
-  @Input() newUser?: UserModel;
 
   constructor(private store: Store) {}
 
@@ -66,7 +60,7 @@ export class CourseUserAddUpdateDataComponent {
   }
 
   // -------------------------------------------------------
-  confirmationAddUpdateMessage = false;
+  showConfirmationMessage = false;
   allCourseInputNotEmpty = true;
 
   // used for closing the entire dialog (in add course) if all the input fiels and session are empty
@@ -127,7 +121,7 @@ export class CourseUserAddUpdateDataComponent {
 
     //if update close the dialog, if add just reset form and keep dialog open
     this.action === 'update' ? this.onCancelClick() : this.resetCourseForm();
-    this.confirmationAddUpdateMessage = false;
+    this.showConfirmationMessage = false;
   }
 
   //-------------------------- USER RELATED METHODS/FUNCTIONS----------------
@@ -145,16 +139,12 @@ export class CourseUserAddUpdateDataComponent {
     this.editingCourseId = null;
   }
 
-  onAddUpdateShowConfirmationMessage() {
-    if (this.category === 'course') {
-      this.onCheckAllInputsNotEmpty();
-      if (!this.allCourseInputNotEmpty) {
-        return;
-      }
-      this.confirmationAddUpdateMessage = !this.confirmationAddUpdateMessage;
-    } else {
-      this.confirmationAddUpdateMessage = !this.confirmationAddUpdateMessage;
+  onShowConfirmationMessage() {
+    this.onCheckAllInputsNotEmpty();
+    if (!this.allCourseInputNotEmpty) {
+      return;
     }
+    this.showConfirmationMessage = !this.showConfirmationMessage;
   }
 
   onCheckAllInputsNotEmpty() {

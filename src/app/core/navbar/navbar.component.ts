@@ -8,20 +8,24 @@ import { Subscription } from 'rxjs';
   selector: 'app-navbar',
   imports: [],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css'
+  styleUrl: './navbar.component.css',
 })
 export class NavbarComponent {
-  isAuthenticated = false;
+  isAuthenticated: boolean | null = null;
   isAdmin = false;
   isTeacher = false;
   isStudent = false;
   userRole: string | null = null;
   private userSub!: Subscription;
 
-  constructor(private router: Router, private authService: AuthService, private loggingService: LoggingService) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private loggingService: LoggingService
+  ) {}
 
   ngOnInit() {
-    this.userSub = this.authService.user.subscribe(user => {
+    this.userSub = this.authService.user.subscribe((user) => {
       this.isAuthenticated = !!user;
       this.userRole = user?.role ?? null;
     });
@@ -49,7 +53,10 @@ export class NavbarComponent {
 
   navigateTo(route: string) {
     this.router.navigate([route]);
-    this.loggingService.logNavigation('PAGE_NAVIGATION', `User navigated to ${route}`);
+    this.loggingService.logNavigation(
+      'PAGE_NAVIGATION',
+      `User navigated to ${route}`
+    );
   }
 
   logout() {
