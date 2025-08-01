@@ -52,11 +52,7 @@ export class UserManagementComponent {
   userFilter = UserFilterInput;
   editingUserId: string | null = null;
   showUserDialog = false;
-  // used for the display of the next and prev button (if we're on the first page, don't need to show prev button, and if last page no need for next button)
-  pageIndex = 1;
-  maxPageIndex = 0;
-  disableNextBtn = false;
-  disablePrevBtn = true;
+
   isShowFilter = false;
 
   filters = this.UserService.newFilter();
@@ -98,6 +94,7 @@ export class UserManagementComponent {
     this.showUserDialog = false;
   }
 
+  // ------------------------------FILTERS AND PAGINATION----------------
   // NEXT AND PREV PAGE BUTTONS
   nextPage() {
     if (this.UserService.appliedFilterCount() > 0) {
@@ -150,7 +147,8 @@ export class UserManagementComponent {
     clearSearch = UserSearch;
     this.UserService.newSearch.set(clearSearch);
     this.UserService.appliedSearchCount.set(0);
-    // clear filter input (checked boxes become unchecked)
+
+    //clear filter input (checked boxes become unchecked)
     let clearFilterInput = { ...this.UserService.newFilterInput() };
     clearFilterInput.categoryOfFilters.forEach((filter) => {
       clearFilterInput.filters[filter].forEach((category) => {
