@@ -11,7 +11,7 @@
     </div>
 
     <div class="flex space-x-2">
-      @if (isAuthenticated) {
+      @if (isAuthenticated === true) {
       <button
         (click)="navigateToDashboard()"
         class="px-4 py-2 bg-blue-900 hover:bg-blue-300 text-white font-medium rounded-lg transition duration-300"
@@ -30,7 +30,7 @@
       >
         Logout
       </button>
-      } @else if (!isAuthenticated) {
+      } @else if (isAuthenticated === false) {
       <button
         (click)="navigateTo('/login')"
         class="px-4 py-2 bg-blue-900 hover:bg-blue-300 text-white font-medium rounded-lg transition duration-300"

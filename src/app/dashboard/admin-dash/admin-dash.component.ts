@@ -4,7 +4,10 @@ import * as UserActions from '../../state/users/user.actions';
 import { Store } from '@ngrx/store';
 import { Component, inject, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { selectAllCourses } from '../../state/courses/course.selector';
+import {
+  selectAllCourses,
+  selectCoursesCount,
+} from '../../state/courses/course.selector';
 import { SpinnerComponent } from '../../core/spinner/spinner.component';
 import { SpinnerService } from '../../core/services/spinner.service';
 import {
@@ -36,19 +39,19 @@ export class AdminDashComponent {
   teacherCount = 0;
 
   teachers$ = this.store.select(selectAllTeachers);
-  courses$ = this.store.select(selectAllCourses);
+  courses$ = this.store.select(selectCoursesCount);
   students$ = this.store.select(selectStudentsCount);
 
   constructor(private store: Store, private spinner: SpinnerService) {}
 
   ngOnInit(): void {
     this.spinner.show();
-    this.store.dispatch(CourseActions.loadCourses());
+    this.store.dispatch(CourseActions.loadCoursesCount());
     this.store.dispatch(UserActions.loadTeachers());
     this.store.dispatch(UserActions.loadStudentsCount());
 
     this.courses$.subscribe((courses) => {
-      this.courseCount = courses.length;
+      this.courseCount = courses;
     });
     this.students$.subscribe((students) => {
       this.studentCount = students;

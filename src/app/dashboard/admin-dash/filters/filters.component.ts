@@ -3,15 +3,10 @@ import { Component, inject, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
 
 import * as UserActions from '../../../state/users/user.actions';
+import * as CourseActions from '../../../state/courses/course.actions';
 
 import { FormsModule } from '@angular/forms';
 import { AdminDashService } from '../admin-dash.service';
-import {
-  FilterInputModel,
-  SearchInputModel,
-  SearchModel,
-} from '../../../core/user.model';
-import { FilterModel } from 'ag-grid-community';
 import { debounceTime, Subject } from 'rxjs';
 import { UserManagementService } from '../user-management/user-management.service';
 import { CourseManagementService } from '../course-management/course-management.service';
@@ -26,20 +21,24 @@ export class FiltersComponent {
   @Input({ required: true }) filterFor!: 'user' | 'course';
 
   AdminService = inject(AdminDashService);
+  //inject the services that could be used
   private userService = inject(UserManagementService);
   private courseService = inject(CourseManagementService);
 
+  //the types of services that could be injected
   public selectedService:
     | UserManagementService
     | CourseManagementService
     | null = null;
 
+  //used for the search input binding
   private searchChange$ = new Subject<void>();
   private destroy$ = new Subject<void>();
 
   constructor(private store: Store) {}
 
   ngOnInit() {
+    //injected the corresponding service
     switch (this.filterFor) {
       case 'user':
         this.selectedService = this.userService;
@@ -50,8 +49,9 @@ export class FiltersComponent {
       default:
         break;
     }
+    //when typing in the search input, wait 0.5 seconds after it stops typing to bring the new data
     this.searchChange$
-      .pipe(debounceTime(500)) // 0.5 seconds
+      .pipe(debounceTime(500))
       .subscribe(() => this.setFilters());
   }
 
@@ -60,6 +60,7 @@ export class FiltersComponent {
     this.destroy$.complete();
   }
 
+  //when a checkbox select status changes
   onChangeFilter($event: Event, filterCategory: string) {
     const target = $event.target as HTMLInputElement;
     const id = Number(target.value);
@@ -82,6 +83,7 @@ export class FiltersComponent {
       );
   }
 
+  //adding the selected filter to the filter array, incrementing the counter and retrieving the data
   applyFilter(filterCategory: string, name: string) {
     let updateFilter = {
       ...this.selectedService!.newFilter(),
@@ -92,6 +94,8 @@ export class FiltersComponent {
     this.setFilters();
   }
 
+  //removing the selected filter from the filter array, decrementing the counter and retrieving the data
+  //if no more applied filters or searched bring the original page data
   removeFilter(filterCategory: string, name: string) {
     let updateFilter = {
       ...this.selectedService!.newFilter(),
@@ -109,24 +113,44 @@ export class FiltersComponent {
       : this.setFilters();
   }
 
+  //sending to the cliend-side firebase, based on the filterFor input and reseting the index
   setFilters() {
     console.log('Here ');
     let filters = this.selectedService!.newFilter();
     let search = this.selectedService!.newSearch();
-    this.store.dispatch(
-      UserActions.loadFilteredUsersPage({
-        filters,
-        search,
-        newFilter: true,
-        direction: 'next',
-      })
-    );
-    this.store.dispatch(
-      UserActions.loadUsersMaxPageIndex({ filters: filters, search: search })
-    );
+    if (this.filterFor === 'user') {
+      this.store.dispatch(
+        UserActions.loadFilteredUsersPage({
+          filters,
+          search,
+          newFilter: true,
+          direction: 'next',
+        })
+      );
+      //also getting the new maxPageIndex based on the new data
+      this.store.dispatch(
+        UserActions.loadUsersMaxPageIndex({ filters: filters, search: search })
+      );
+    } else {
+      this.store.dispatch(
+        CourseActions.loadFilteredCoursesPage({
+          filters,
+          search,
+          newFilter: true,
+          direction: 'next',
+        })
+      );
+      this.store.dispatch(
+        CourseActions.loadCoursesMaxPageIndex({
+          filters: filters,
+          search: search,
+        })
+      );
+    }
     this.selectedService?.currentPageIndex.set(1);
   }
 
+  //updating the search input and setting to empty the other fields, that are not the current one
   updateSearch(field: string, $event: Event) {
     const target = $event.target as HTMLInputElement;
     const newValue = target.value;
@@ -146,6 +170,7 @@ export class FiltersComponent {
     this.searchChange$.next();
   }
 
+  //updating the count based on the search input
   updateSearchCount() {
     let count = 0;
     this.selectedService!.newSearchInput().categoryOfSearchers.forEach(
@@ -158,13 +183,19 @@ export class FiltersComponent {
     this.selectedService!.appliedSearchCount.set(count);
   }
 
+  //setting to no filter data and reseting the current index to one
   setBackToNoFilters() {
     let filters = this.selectedService!.newFilter();
     let search = this.selectedService!.newSearch();
-    this.store.dispatch(UserActions.loadUsersPage({ direction: 'next' }));
-    this.store.dispatch(
-      UserActions.loadUsersMaxPageIndex({ filters: filters, search: search })
-    );
+    if (this.filterFor === 'user') {
+      this.store.dispatch(CourseActions.loadCoursesPage({ direction: 'next' }));
+      this.store.dispatch(
+        CourseActions.loadCoursesMaxPageIndex({
+          filters: filters,
+          search: search,
+        })
+      );
+    }
     this.selectedService?.currentPageIndex.set(1);
   }
   // ---------------USER LOGIC--------------------

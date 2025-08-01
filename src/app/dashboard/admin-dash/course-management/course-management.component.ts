@@ -7,7 +7,11 @@ import { Store } from '@ngrx/store';
 import { AdminDashService } from '../admin-dash.service';
 import * as CourseActions from '../../../state/courses/course.actions';
 import * as UserActions from '../../../state/users/user.actions';
-import { selectAllCourses } from '../../../state/courses/course.selector';
+import {
+  selectAllCourses,
+  selectCoursesPage,
+  selectMaxPageIndex,
+} from '../../../state/courses/course.selector';
 import {
   selectAllTeachers,
   selectAllUsers,
@@ -21,6 +25,9 @@ import { StudentDataComponent } from './student-data/student-data.component';
 import { SpinnerComponent } from '../../../core/spinner/spinner.component';
 import { SessionDataComponent } from './session-data/session-data.component';
 import { CourseActionsComponent } from './course-actions/course-actions.component';
+import { CourseManagementService } from './course-management.service';
+import { FiltersComponent } from '../filters/filters.component';
+import { CourseFilter, CourseSearch } from '../../../core/course.model';
 
 @Component({
   selector: 'app-course-management',
@@ -33,6 +40,7 @@ import { CourseActionsComponent } from './course-actions/course-actions.componen
     ConfirmationDialogComponent,
     SessionDataComponent,
     CourseActionsComponent,
+    FiltersComponent,
   ],
   templateUrl: './course-management.component.html',
   styleUrl: './course-management.component.css',
@@ -40,13 +48,17 @@ import { CourseActionsComponent } from './course-actions/course-actions.componen
 export class CourseManagementComponent {
   @ViewChild('dialog') dialog!: ConfirmationDialogComponent;
   AdminDashService = inject(AdminDashService);
+  CourseService = inject(CourseManagementService);
 
   newUser: UserModel = { fullName: '', role: '', email: '' };
   users$ = this.store.select(selectAllTeachers);
 
   teachers: UserModel[] = [];
 
-  courses$ = this.store.select(selectAllCourses);
+  // courses$ = this.store.select(selectAllCourses);
+  courses$ = this.store.select(selectCoursesPage);
+  index$ = this.store.select(selectMaxPageIndex);
+
   editingCourseId: string | null = null;
   selectedCourseId: string | undefined = '';
   showCourseData: {
@@ -72,18 +84,118 @@ export class CourseManagementComponent {
   };
   editingSessionIndex: number = -1;
 
+  filters = this.CourseService.newFilter();
+  search = this.CourseService.newSearch();
+  isShowFilter = false;
+
   constructor(private store: Store, private spinner: SpinnerService) {}
 
   ngOnInit(): void {
     this.spinner.show();
-    this.store.dispatch(CourseActions.loadCourses());
+    // this.store.dispatch(CourseActions.loadCourses());
+    this.store.dispatch(CourseActions.loadCoursesPage({ direction: 'next' }));
     this.store.dispatch(UserActions.loadTeachers());
     this.users$.subscribe((users) => {
-      this.teachers = users.filter((user) => user.role === 'Teacher');
+      this.teachers = users;
+    });
+
+    this.store.dispatch(
+      CourseActions.loadCoursesMaxPageIndex({
+        filters: this.filters,
+        search: this.search,
+      })
+    );
+
+    this.index$.subscribe((index) => {
+      this.CourseService.maxPageIndex.set(index);
+      this.CourseService.disableButtons();
     });
     setTimeout(() => {
       this.spinner.hide();
     }, 300);
+  }
+
+  // -----------------------------FILTERS AND PAGINATION--------------------------
+  showFilters() {
+    this.isShowFilter = !this.isShowFilter;
+  }
+
+  clearAllFilters() {
+    //clear search
+    this.CourseService.newSearchInput().categoryOfSearchers.forEach(
+      (search) => {
+        this.CourseService.newSearch.update((current) => ({
+          ...current,
+          [search]: '',
+        }));
+      }
+    );
+    let clearSearch = { ...this.CourseService.newSearch() };
+    clearSearch = CourseSearch;
+    this.CourseService.newSearch.set(clearSearch);
+    this.CourseService.appliedSearchCount.set(0);
+    // clear filter input (checked boxes become unchecked)
+    let clearFilterInput = { ...this.CourseService.newFilterInput() };
+    clearFilterInput.categoryOfFilters.forEach((filter) => {
+      clearFilterInput.filters[filter].forEach((category) => {
+        if (category.selected) {
+          category.selected = false;
+        }
+      });
+    });
+
+    this.CourseService.newFilterInput.set(clearFilterInput);
+
+    // clear filter
+    let clearFilter = { ...this.CourseService.newFilter() };
+    clearFilter = CourseFilter;
+    this.CourseService.newFilter.set(clearFilter);
+    this.CourseService.appliedFilterCount.set(0);
+
+    this.CourseService.disableButtons();
+
+    //dispatch original pagination
+    this.CourseService.currentPageIndex.set(1);
+    this.store.dispatch(
+      CourseActions.loadCoursesMaxPageIndex({
+        filters: this.filters,
+        search: this.search,
+      })
+    );
+    this.store.dispatch(CourseActions.loadCoursesPage({ direction: 'next' }));
+  }
+
+  // NEXT AND PREV PAGE BUTTONS
+  nextPage() {
+    if (this.CourseService.appliedFilterCount() > 0) {
+      const filters = this.CourseService.newFilter();
+      const search = this.CourseService.newSearch();
+      this.store.dispatch(
+        UserActions.nextFilteredUsersPage({
+          filters: filters,
+          search: search,
+          newFilter: false,
+        })
+      );
+    } else this.store.dispatch(CourseActions.nextCoursesPage());
+    this.CourseService.currentPageIndex.update((value) => value + 1);
+    this.CourseService.disableButtons();
+  }
+
+  prevPage() {
+    if (this.CourseService.appliedFilterCount() > 0) {
+      const filters = this.CourseService.newFilter();
+      const search = this.CourseService.newSearch();
+      this.store.dispatch(
+        CourseActions.previousFilteredCoursesPage({
+          filters: filters,
+          search: search,
+          newFilter: false,
+        })
+      );
+    } else this.store.dispatch(CourseActions.previousCoursesPage());
+    this.CourseService.currentPageIndex.update((value) => value - 1);
+    this.CourseService.disableButtons();
   }
 
   //-------------------------- SESSION RELATED METHODS/FUNCTIONS  ----------------

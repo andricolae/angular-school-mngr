@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
   styleUrl: './navbar.component.css',
 })
 export class NavbarComponent {
-  isAuthenticated = false;
+  isAuthenticated: boolean | null = null;
   isAdmin = false;
   isTeacher = false;
   isStudent = false;
