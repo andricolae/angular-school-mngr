@@ -1,46 +1,144 @@
 import { createAction, props } from '@ngrx/store';
 import { Course } from '../../core/user.model';
+import { FilterModel, SearchModel } from '../../core/course.model';
 
 export const loadCourses = createAction('[Courses] Load Courses');
 
 export const loadCoursesSuccess = createAction(
-    '[Courses] Load Courses Success',
-    props<{ courses: Course[] }>()
+  '[Courses] Load Courses Success',
+  props<{ courses: Course[] }>()
 );
 
 export const loadCoursesFail = createAction(
-    '[Courses] Load Courses Fail',
-    props<{ error: string }>()
+  '[Courses] Load Courses Fail',
+  props<{ error: string }>()
 );
 
 export const addCourse = createAction(
-    '[Courses] Add Course',
-    props<{ course: Omit<Course, 'id'> }>()
+  '[Courses] Add Course',
+  props<{ course: Omit<Course, 'id'> }>()
 );
 
 export const addCourseSuccess = createAction(
-    '[Courses] Add Course Success',
-    props<{ course: Course }>()
+  '[Courses] Add Course Success',
+  props<{ course: Course }>()
 );
 
 export const addCourseFail = createAction(
-    '[Courses] Add Course Fail',
-    props<{ error: string }>()
+  '[Courses] Add Course Fail',
+  props<{ error: string }>()
 );
 
+// --------------------------------------------------------------------
+
+export const loadCoursesPage = createAction(
+  '[Courses] Load Courses Page',
+  props<{ direction: 'next' | 'prev' }>()
+);
+
+export const loadCoursesPageSuccess = createAction(
+  '[Courses] Load Courses Page Success',
+  props<{ courses: Course[] }>()
+);
+
+export const loadCoursesPageFail = createAction(
+  '[Courses] Load Courses Page Failure',
+  props<{ error: any }>()
+);
+
+export const loadCoursesMaxPageIndex = createAction(
+  '[Courses] Load Max Page Index',
+  props<{
+    filters: FilterModel;
+    search: SearchModel;
+  }>()
+);
+
+export const loadFilteredCoursesPage = createAction(
+  '[Courses] Load Courses Filter Page',
+  props<{
+    filters: FilterModel;
+    search: SearchModel;
+    direction: 'next' | 'prev';
+    newFilter: boolean;
+  }>()
+);
+
+export const loadFilteredCoursesPageSuccess = createAction(
+  '[Courses] Load Courses Filters Page Success',
+  props<{ courses: Course[] }>()
+);
+
+export const loadFilteredCoursesPageFail = createAction(
+  '[Courses] Load Courses Filters Page Failure',
+  props<{ error: any }>()
+);
+
+export const nextCoursesPage = createAction(
+  '[Courses] Next Courses Page',
+  props<{
+    direction: 'next' | 'prev';
+  }>
+);
+export const previousCoursesPage = createAction(
+  '[Courses] Previous Courses Page',
+  props<{
+    direction: 'next' | 'prev';
+  }>
+);
+
+export const nextFilteredCoursesPage = createAction(
+  '[Courses] Next Filtered Courses Page',
+  props<{
+    filters: FilterModel;
+    search: SearchModel;
+    newFilter: boolean;
+  }>()
+);
+export const previousFilteredCoursesPage = createAction(
+  '[Courses] Previous Filtered Courses Page',
+  props<{
+    filters: FilterModel;
+    search: SearchModel;
+    newFilter: boolean;
+  }>()
+);
+
+export const loadCoursesMaxPageIndexSuccess = createAction(
+  '[Courses] Load Max Page Index Success',
+  props<{ maxPageIndex: number }>()
+);
+
+export const loadCoursesMaxPageIndexFail = createAction(
+  '[Courses] Load Max Page Index Failure',
+  props<{ error: any }>()
+);
+
+export const loadCoursesCount = createAction('[Courses] Load Courses Count');
+
+export const loadCoursesCountSuccess = createAction(
+  '[Courses] Load Courses Count Success',
+  props<{ coursesCount: number }>()
+);
+
+export const loadCoursesCountFail = createAction(
+  '[Courses] Load Courses Count Fail',
+  props<{ error: string }>()
+);
+// -------------------------------------------------------------------
 export const deleteCourse = createAction(
-    '[Courses] Delete Course',
-    props<{ courseId: string }>()
+  '[Courses] Delete Course',
+  props<{ courseId: string }>()
 );
 
 export const deleteCourseSuccess = createAction(
-    '[Courses] Delete Course Success',
-    props<{ courseId: string }>()
+  '[Courses] Delete Course Success',
+  props<{ courseId: string }>()
 );
 
 export const deleteCourseFail = createAction(
-    '[Courses] Delete Course Fail',
-    props<{ error: string }>()
+  '[Courses] Delete Course Fail',
+  props<{ error: string }>()
 );
 
 export const updateCourse = createAction(
@@ -60,12 +158,12 @@ export const updateCourseFail = createAction(
 
 export const enrollStudent = createAction(
   '[Courses] Enroll Student',
-  props<{ courseId: string, studentId: string }>()
+  props<{ courseId: string; studentId: string }>()
 );
 
 export const enrollStudentSuccess = createAction(
   '[Courses] Enroll Student Success',
-  props<{ courseId: string, studentId: string }>()
+  props<{ courseId: string; studentId: string }>()
 );
 
 export const enrollStudentFail = createAction(
@@ -75,12 +173,12 @@ export const enrollStudentFail = createAction(
 
 export const unenrollStudent = createAction(
   '[Courses] Unenroll Student',
-  props<{ courseId: string, studentId: string }>()
+  props<{ courseId: string; studentId: string }>()
 );
 
 export const unenrollStudentSuccess = createAction(
   '[Courses] Unenroll Student Success',
-  props<{ courseId: string, studentId: string }>()
+  props<{ courseId: string; studentId: string }>()
 );
 
 export const unenrollStudentFail = createAction(
@@ -97,7 +195,7 @@ export const addStudentGrade = createAction(
       title: string;
       value: number;
       date: string;
-    }
+    };
   }>()
 );
 
@@ -111,7 +209,7 @@ export const addStudentGradeSuccess = createAction(
       title: string;
       value: number;
       date: string;
-    }
+    };
   }>()
 );
 
@@ -167,7 +265,7 @@ export const checkScheduleStatus = createAction(
 
 export const checkScheduleStatusSuccess = createAction(
   '[Courses] Check Schedule Status Success',
-  props<{ courseId: string, isScheduled: boolean }>()
+  props<{ courseId: string; isScheduled: boolean }>()
 );
 
 export const checkScheduleStatusFail = createAction(
@@ -177,12 +275,12 @@ export const checkScheduleStatusFail = createAction(
 
 export const removePendingStudent = createAction(
   '[Course] Remove Pending Student',
-  props<{ courseId: string, studentId: string }>()
+  props<{ courseId: string; studentId: string }>()
 );
 
 export const removePendingStudentSuccess = createAction(
   '[Course] Remove Pending Student Success',
-  props<{ courseId: string, studentId: string }>()
+  props<{ courseId: string; studentId: string }>()
 );
 
 export const removePendingStudentFailure = createAction(
@@ -192,12 +290,12 @@ export const removePendingStudentFailure = createAction(
 
 export const acceptPendingStudent = createAction(
   '[Course] Accept Pending Student',
-  props<{ courseId: string, studentId: string }>()
+  props<{ courseId: string; studentId: string }>()
 );
 
 export const acceptPendingStudentSuccess = createAction(
   '[Course] Accept Pending Student Success',
-  props<{ courseId: string, studentId: string }>()
+  props<{ courseId: string; studentId: string }>()
 );
 
 export const acceptPendingStudentFailure = createAction(

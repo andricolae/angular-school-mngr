@@ -21,13 +21,7 @@ import {
   DocumentData,
 } from '@angular/fire/firestore';
 import { from, map, Observable } from 'rxjs';
-import {
-  FilterModel,
-  SearchModel,
-  User,
-  UserFilter,
-  UserModel,
-} from '../user.model';
+import { FilterModel, SearchModel, UserModel } from '../user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -68,7 +62,7 @@ export class UserService {
 
   getMaxPageIndex(filter: FilterModel, search: SearchModel): Promise<number> {
     const condition = [];
-
+    //push the firestore condition based if the filters on those have been applied
     if (search['fullName'].length > 0)
       condition.push(
         orderBy('fullName'),
@@ -90,7 +84,7 @@ export class UserService {
     const q = query(usersRef, ...condition);
     return getCountFromServer(q).then((snap) => {
       const total = snap.data().count;
-      const maxPages = Math.ceil(total / this.elementsPerPage); // ✅ This ensures 11 → 2, 20 → 2, 21 → 3
+      const maxPages = Math.ceil(total / this.elementsPerPage);
       return maxPages;
     });
   }
@@ -103,7 +97,7 @@ export class UserService {
   ) {
     this.isPreviousFilter = true;
     const condition = [];
-
+    //push the firestore condition based if the filters on those have been applied
     if (search['fullName'].length > 0)
       condition.push(
         orderBy('fullName'),
@@ -126,12 +120,16 @@ export class UserService {
       this.resetCursor();
     }
 
+    // base value when cursors have no value
+
     let baseQuery = query(
       this.usersCollection,
       ...condition,
       limit(this.elementsPerPage)
     );
 
+    //in case cursors have values (meaning that the user selected to go on another next/prev page)
+    //limitToLast is extremely important for prev page, NEVER DELETE IT
     if (this.pageCursors.endCursor && this.pageCursors.startCursor) {
       baseQuery = query(
         this.usersCollection,
@@ -145,6 +143,7 @@ export class UserService {
       );
     }
 
+    //update the cursor based on the new query
     return from(getDocs(baseQuery)).pipe(
       map((snapshot) => {
         this.pageCursors = {
@@ -166,17 +165,21 @@ export class UserService {
   }
 
   getUsersPage(direction: 'next' | 'prev') {
+    //if filters where applied before reset the cursors
     if (this.isPreviousFilter) {
       this.resetCursor();
       this.isPreviousFilter = false;
     }
+
+    // base value when cursors have no value
     let baseQuery = query(
       this.usersCollection,
       orderBy('fullName'),
 
       limit(this.elementsPerPage)
     );
-
+    //in case cursors have values (meaning that the user selected to go on another next/prev page)
+    //limitToLast is extremely important for prev page, NEVER DELETE IT
     if (this.pageCursors.endCursor && this.pageCursors.startCursor) {
       baseQuery = query(
         this.usersCollection,
@@ -190,6 +193,8 @@ export class UserService {
           : limitToLast(this.elementsPerPage)
       );
     }
+
+    //update the cursor based on the new query
     return from(getDocs(baseQuery)).pipe(
       map((snapshot) => {
         this.pageCursors = {

@@ -27,14 +27,8 @@ export interface FilterInputModel {
 }
 
 export const CourseFilterInput: FilterInputModel = {
-  categoryOfFilters: ['role'],
-  filters: {
-    role: [
-      { id: 1, selected: false, name: 'Admin' },
-      { id: 2, selected: false, name: 'Teacher' },
-      { id: 3, selected: false, name: 'Student' },
-    ],
-  },
+  categoryOfFilters: [],
+  filters: {},
 };
 
 export interface FilterModel {
@@ -42,7 +36,7 @@ export interface FilterModel {
 }
 
 export const CourseFilter: FilterModel = {
-  role: [],
+  pendingSchedule: [],
 };
 
 export interface SearchInputModel {
@@ -53,10 +47,10 @@ export interface SearchInputModel {
 }
 
 export const CourseSearchInput: SearchInputModel = {
-  categoryOfSearchers: ['fullName', 'email'],
+  categoryOfSearchers: ['name', 'teacher'],
   search: {
-    fullName: '',
-    email: '',
+    name: '',
+    teacher: '',
   },
 };
 
@@ -65,6 +59,6 @@ export interface SearchModel {
 }
 
 export const CourseSearch: SearchModel = {
-  fullName: '',
-  email: '',
+  name: '',
+  teacher: '',
 };
